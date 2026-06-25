@@ -1,10 +1,7 @@
 import { useState, useRef, useEffect } from "react";
-import type { Problem, SealedExpectations, ChatFormat } from "../data/problems";
+import type { Problem, ChatFormat } from "../data/problems";
 import { api } from "../api/client";
 import "./ProblemPanel.css";
-
-type Tab = "description" | "tests" | "answer-key";
-type PregenTest = { description: string; hasThrow: boolean };
 
 const EW_COLOR = "#5c6bc0";
 const EW_INITIALS = "EW";
@@ -202,57 +199,15 @@ function InteractiveThread({ chat, problem, onHistoryChange }: { chat: ChatForma
 export type PmHistoryMsg = HistoryMsg;
 
 export default function ProblemPanel({ problem, onChatHistoryChange, mode = "practice" }: { problem: Problem; onChatHistoryChange: (h: HistoryMsg[]) => void; mode?: "practice" | "test" }) {
-  const [tab, setTab] = useState<Tab>("description");
-  const [sealed, setSealed] = useState<SealedExpectations | null>(null);
-  const [revealing, setRevealing] = useState(false);
-  const [pregenTests, setPregenTests] = useState<PregenTest[] | null>(null);
-  const [testsLoading, setTestsLoading] = useState(false);
-
-  // Load tests only when the Tests tab is first opened
-  useEffect(() => {
-    if (tab !== "tests" || pregenTests !== null || testsLoading) return;
-    setTestsLoading(true);
-    api.get<{ tests: PregenTest[] }>(`/api/judge/problems/${problem.id}/tests`)
-      .then(d => setPregenTests(d.tests))
-      .catch(() => setPregenTests([]))
-      .finally(() => setTestsLoading(false));
-  }, [tab, problem.id]);
-
   const hasThread = !!problem.chatFormat;
   const difficultyClass =
     problem.difficulty === "Easy" ? "badge-easy"
     : problem.difficulty === "Medium" ? "badge-medium"
     : "badge-hard";
 
-  const reveal = async () => {
-    setRevealing(true);
-    try {
-      const data = await api.get<Problem & { sealedExpectations: SealedExpectations }>(
-        `/api/judge/problems/${problem.id}/reveal`
-      );
-      setSealed(data.sealedExpectations);
-    } finally {
-      setRevealing(false);
-    }
-  };
-
   return (
     <div className="problem-panel">
-      <div className="panel-tabs">
-        {(["description", "tests", "answer-key"] as Tab[]).map((t) => (
-          <button
-            key={t}
-            className={`panel-tab ${tab === t ? "panel-tab-active" : ""}`}
-            onClick={() => setTab(t)}
-          >
-            {t === "description" ? "Brief" : t === "tests" ? `Tests${pregenTests ? ` (${pregenTests.length})` : ""}` : "Answer Key"}
-          </button>
-        ))}
-      </div>
-
-      {/* Description -------------------------------------------------------- */}
-      {tab === "description" && (
-        <div className={`panel-content ${hasThread ? "panel-content-thread" : ""}`}>
+      <div className={`panel-content ${hasThread ? "panel-content-thread" : ""}`}>
           <div className={hasThread ? "description-layout" : ""}>
             <div className="problem-header">
               <div className="problem-title-row">
@@ -274,81 +229,6 @@ export default function ProblemPanel({ problem, onChatHistoryChange, mode = "pra
             }
           </div>
         </div>
-      )}
-
-      {/* Tests -------------------------------------------------------------- */}
-      {tab === "tests" && (
-        <div className="panel-content">
-          {testsLoading && <p className="tests-loading">Generating test cases…</p>}
-          {!testsLoading && pregenTests && (
-            <div className="tests-panel">
-              {pregenTests.map((t, i) => (
-                <div key={i} className={`test-row ${t.hasThrow ? "test-row-throw" : ""}`}>
-                  <span className="test-index">{i + 1}</span>
-                  <span className="test-desc">{t.description}</span>
-                  {t.hasThrow && <span className="test-throw-badge">must throw</span>}
-                </div>
-              ))}
-              <p className="tests-hint">
-                These cases run against your code on submit. Expected values are computed from the reference solution — no spoilers.
-              </p>
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* Answer Key --------------------------------------------------------- */}
-      {tab === "answer-key" && (
-        <div className="panel-content">
-          {!sealed && (
-            <div className="sealed-lock">
-              <div className="sealed-icon">🔒</div>
-              <p className="sealed-title">Answer Key Sealed</p>
-              <p className="sealed-hint">
-                Contains the ambiguities you should have caught, the missing requirement,
-                the hidden trap, edge cases, and red flags. Reveal only after you've attempted
-                the problem.
-              </p>
-              <button className="reveal-btn" onClick={reveal} disabled={revealing}>
-                {revealing ? "Revealing…" : "Reveal Answer Key"}
-              </button>
-            </div>
-          )}
-
-          {sealed && (
-            <div className="answer-key">
-              <div className="ak-section">
-                <p className="ak-section-title">Ambiguities to clarify</p>
-                <ul className="ak-list">
-                  {sealed.ambiguitiesToClarify.map((item, i) => <li key={i}>{item}</li>)}
-                </ul>
-              </div>
-              <div className="ak-section">
-                <p className="ak-section-title">Missing requirement</p>
-                <p className="ak-body"><strong>What:</strong> {sealed.missingRequirement.what}</p>
-                <p className="ak-body"><strong>Why:</strong> {sealed.missingRequirement.why}</p>
-              </div>
-              <div className="ak-section">
-                <p className="ak-section-title">The trap</p>
-                <p className="ak-body">{sealed.trap.description}</p>
-                <p className="ak-body ak-resolution"><strong>Correct resolution:</strong> {sealed.trap.correctResolution}</p>
-              </div>
-              <div className="ak-section">
-                <p className="ak-section-title">Edge cases to test</p>
-                <ul className="ak-list">
-                  {sealed.edgeCasesToTest.map((item, i) => <li key={i}>{item}</li>)}
-                </ul>
-              </div>
-              <div className="ak-section">
-                <p className="ak-section-title">Design decision red flags</p>
-                <ul className="ak-list ak-list-red">
-                  {sealed.designDecisionRedFlags.map((item, i) => <li key={i}>{item}</li>)}
-                </ul>
-              </div>
-            </div>
-          )}
-        </div>
-      )}
     </div>
   );
 }
