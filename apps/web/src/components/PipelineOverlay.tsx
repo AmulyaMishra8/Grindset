@@ -121,9 +121,10 @@ type Props = {
   aiHistory: { role: "user" | "ai"; content: string }[];
   mode?: "practice" | "test";
   onClose: () => void;
+  onSolution?: (referenceCode: string, language: string) => void;
 };
 
-export default function PipelineOverlay({ problemId, code, language, chatHistory, aiHistory, mode = "practice", onClose }: Props) {
+export default function PipelineOverlay({ problemId, code, language, chatHistory, aiHistory, mode = "practice", onClose, onSolution }: Props) {
   const [pipelineStatus, setPipelineStatus] = useState<PipelineStatus>("generating");
   const [result, setResult] = useState<PipelineResult | null>(null);
   const resultRef = useRef<HTMLDivElement>(null);
@@ -165,6 +166,8 @@ export default function PipelineOverlay({ problemId, code, language, chatHistory
 
             if (event === "stage") {
               setPipelineStatus(data.stage as PipelineStage);
+            } else if (event === "solution") {
+              onSolution?.(data.referenceCode as string, data.language as string);
             } else if (event === "done") {
               setResult(data as PipelineResult);
               setPipelineStatus("complete");

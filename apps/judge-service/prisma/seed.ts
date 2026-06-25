@@ -2,7 +2,7 @@ import "dotenv/config";
 import { PrismaClient } from "@prisma/client";
 import { Pool } from "pg";
 import { PrismaPg } from "@prisma/adapter-pg";
-import { stubs, tests } from "./stubsAndTests";
+import { stubs, tests, answers } from "./stubsAndTests";
 
 const pool = new Pool({ connectionString: process.env.DATABASE });
 const adapter = new PrismaPg(pool);
@@ -320,6 +320,7 @@ async function main() {
       ...problem,
       starterCode: stubs[problem.slug] ?? null,
       testCases: tests[problem.slug] ?? null,
+      referenceCode: answers[problem.slug] ?? (problem as { referenceCode?: unknown }).referenceCode ?? null,
     };
     const p = await prisma.problem.upsert({
       where: { slug: problem.slug },

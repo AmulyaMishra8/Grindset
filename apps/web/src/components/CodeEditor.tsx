@@ -73,6 +73,8 @@ export default function CodeEditor({
   const [overlayOpen, setOverlayOpen] = useState(false);
   const [running, setRunning] = useState(false);
   const [runResult, setRunResult] = useState<RunResult | null>(null);
+  const [solution, setSolution] = useState<{ code: string; language: string } | null>(null);
+  const [solutionOpen, setSolutionOpen] = useState(false);
 
   const handleSubmit = () => {
     if (submitted) return;
@@ -143,7 +145,20 @@ export default function CodeEditor({
           aiHistory={aiHistory}
           mode={mode}
           onClose={() => setOverlayOpen(false)}
+          onSolution={(refCode, lang) => setSolution({ code: refCode, language: lang })}
         />
+      )}
+
+      {solutionOpen && solution && (
+        <div className="solution-modal-overlay" onClick={() => setSolutionOpen(false)}>
+          <div className="solution-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="solution-modal-head">
+              <span className="solution-modal-title">Reference solution · {solution.language}</span>
+              <button className="solution-modal-close" onClick={() => setSolutionOpen(false)} aria-label="Close">×</button>
+            </div>
+            <pre className="solution-code"><code>{solution.code}</code></pre>
+          </div>
+        </div>
       )}
 
       {(running || runResult) && (
@@ -215,6 +230,11 @@ export default function CodeEditor({
         >
           {submitted ? "Submitted" : "Submit"}
         </button>
+        {solution && (
+          <button className="action-btn solution-btn" onClick={() => setSolutionOpen(true)} title="Reveal the reference solution">
+            Solution
+          </button>
+        )}
       </div>
     </div>
   );
