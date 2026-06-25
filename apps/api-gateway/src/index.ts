@@ -36,7 +36,7 @@ app.use(
   createProxyMiddleware({
     target: AUTH_SERVICE_URL,
     changeOrigin: true,
-    pathFilter: ["/auth", "/mfa", "/oauth", "/.well-known"],
+    pathFilter: ["/auth", "/mfa", "/oauth", "/.well-known", "/api/discuss"],
   })
 );
 

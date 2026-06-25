@@ -31,7 +31,12 @@ export default function TopBar() {
           >
             Problems
           </NavLink>
-          <button className="nav-btn">Discuss</button>
+          <NavLink
+            to="/discuss"
+            className={({ isActive }) => `nav-btn${isActive ? " active" : ""}`}
+          >
+            Discuss
+          </NavLink>
         </nav>
       </div>
       <div className="topbar-right">

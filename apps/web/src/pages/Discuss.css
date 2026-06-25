@@ -1,0 +1,203 @@
+.discuss-page {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 28px 24px 60px;
+  animation: grindset-fade-up 0.35s var(--ease);
+}
+
+/* ── Header ──────────────────────────────────────────────────────────────── */
+.discuss-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 22px;
+}
+.discuss-h1 { font-size: 26px; font-weight: 800; letter-spacing: -0.02em; }
+.discuss-tagline { font-size: 13px; color: var(--text-muted); margin-top: 4px; }
+
+/* ── Primary button (reusable) ───────────────────────────────────────────── */
+.btn-primary {
+  background: var(--accent-grad);
+  color: #fff;
+  font-weight: 600;
+  font-size: 13px;
+  padding: 9px 16px;
+  border-radius: var(--radius);
+  white-space: nowrap;
+  box-shadow: 0 6px 16px -6px var(--accent-glow);
+  transition: transform var(--t-fast), box-shadow var(--t-fast), opacity var(--t-fast);
+}
+.btn-primary:hover { transform: translateY(-1px); box-shadow: 0 10px 22px -6px var(--accent-glow); }
+.btn-primary:active { transform: translateY(0); }
+.btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+
+/* ── Compose ─────────────────────────────────────────────────────────────── */
+.compose-card {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+  margin-bottom: 20px;
+  animation: grindset-fade-up 0.25s var(--ease);
+}
+.compose-title, .compose-body, .comment-composer textarea {
+  width: 100%;
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 14px;
+  padding: 11px 13px;
+  transition: border-color var(--t-fast), box-shadow var(--t-fast);
+}
+.compose-title { font-weight: 600; margin-bottom: 10px; }
+.compose-body, .comment-composer textarea { resize: vertical; line-height: 1.6; }
+.compose-title:focus, .compose-body:focus, .comment-composer textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+.compose-actions { display: flex; justify-content: flex-end; margin-top: 12px; }
+.compose-error { color: var(--hard); font-size: 12.5px; margin-top: 8px; }
+
+/* ── Toolbar / sort ──────────────────────────────────────────────────────── */
+.discuss-toolbar { display: flex; margin-bottom: 14px; }
+.sort-toggle {
+  display: inline-flex;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 3px;
+}
+.sort-toggle button {
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 12.5px;
+  font-weight: 600;
+  padding: 6px 14px;
+  border-radius: 999px;
+  transition: color var(--t-fast), background var(--t-fast);
+}
+.sort-toggle button.on { background: var(--accent-soft); color: var(--accent); }
+
+/* ── Vote control ────────────────────────────────────────────────────────── */
+.vote-control {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  flex-shrink: 0;
+  padding-top: 2px;
+}
+.vote-btn {
+  background: transparent;
+  color: var(--text-muted);
+  width: 28px;
+  height: 24px;
+  display: grid;
+  place-items: center;
+  border-radius: 7px;
+  transition: color var(--t-fast), background var(--t-fast);
+}
+.vote-btn:hover:not(:disabled) { background: var(--bg-hover); color: var(--text-primary); }
+.vote-btn.on { color: var(--accent); }
+.vote-control.vote-down .vote-btn.on { color: var(--hard); }
+.vote-score {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+  min-width: 20px;
+  text-align: center;
+}
+.vote-up .vote-score { color: var(--accent); }
+.vote-down .vote-score { color: var(--hard); }
+
+/* ── Thread list ─────────────────────────────────────────────────────────── */
+.thread-list { display: flex; flex-direction: column; gap: 10px; }
+.thread-card {
+  display: flex;
+  gap: 12px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 14px 16px;
+  transition: border-color var(--t-fast), transform var(--t-fast), box-shadow var(--t-fast);
+}
+.thread-card:hover { border-color: var(--border-light); transform: translateY(-1px); box-shadow: var(--shadow); }
+.thread-card.skeleton {
+  height: 92px;
+  opacity: 0;
+  animation: grindset-fade-up 0.4s var(--ease) forwards;
+  background: var(--bg-secondary);
+}
+.thread-main { flex: 1; min-width: 0; cursor: pointer; }
+.thread-title { font-size: 15.5px; font-weight: 700; margin-bottom: 5px; line-height: 1.35; }
+.thread-card:hover .thread-title { color: var(--accent-hover); }
+.thread-excerpt {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin-bottom: 9px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.thread-meta { display: flex; align-items: center; gap: 7px; font-size: 12px; color: var(--text-muted); }
+.thread-author { color: var(--text-secondary); font-weight: 600; }
+.thread-meta .dot { opacity: 0.5; }
+.thread-comments { color: var(--text-muted); }
+
+/* ── Empty / error ───────────────────────────────────────────────────────── */
+.discuss-empty {
+  text-align: center;
+  padding: 70px 20px;
+  color: var(--text-muted);
+}
+.discuss-empty-icon { font-size: 34px; margin-bottom: 12px; opacity: 0.7; }
+.discuss-empty p { font-size: 14px; }
+.discuss-error {
+  display: flex; align-items: center; gap: 12px;
+  background: rgba(255, 84, 112, 0.08);
+  border: 1px solid rgba(255, 84, 112, 0.25);
+  color: var(--hard);
+  border-radius: var(--radius);
+  padding: 13px 15px; font-size: 13px; margin-bottom: 16px;
+}
+.discuss-error button {
+  margin-left: auto; background: transparent; border: 1px solid currentColor;
+  color: inherit; font-size: 12px; font-weight: 600; padding: 4px 11px; border-radius: var(--radius-sm);
+}
+
+/* ── Thread detail ───────────────────────────────────────────────────────── */
+.back-link { display: inline-block; color: var(--text-secondary); font-size: 13px; font-weight: 600; margin-bottom: 18px; }
+.back-link:hover { color: var(--accent); }
+.thread-detail {
+  display: flex; gap: 14px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  margin-bottom: 20px;
+}
+.thread-detail-main { flex: 1; min-width: 0; }
+.thread-detail-title { font-size: 21px; font-weight: 800; line-height: 1.3; margin-bottom: 8px; letter-spacing: -0.01em; }
+.thread-detail-body { font-size: 14.5px; color: var(--text-primary); line-height: 1.7; margin-top: 14px; white-space: pre-wrap; word-wrap: break-word; }
+.skeleton-detail { height: 160px; }
+
+.comment-composer { margin-bottom: 24px; }
+.comment-count-bar { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); margin-bottom: 12px; }
+
+.comment-list { display: flex; flex-direction: column; gap: 8px; }
+.comment-card {
+  display: flex; gap: 12px;
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px 14px;
+}
+.comment-main { flex: 1; min-width: 0; }
+.comment-body { font-size: 13.5px; color: var(--text-primary); line-height: 1.6; margin-top: 6px; white-space: pre-wrap; word-wrap: break-word; }
