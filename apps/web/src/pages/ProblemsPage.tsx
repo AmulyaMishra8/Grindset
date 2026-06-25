@@ -73,7 +73,7 @@ export default function ProblemsPage() {
     <div className="problems-page">
       {/* Tab bar */}
       <div className="mode-tabs">
-        {(["practice", "test", "discuss"] as Tab[]).map((t) => (
+        {(["practice", "test"] as Tab[]).map((t) => (
           <button
             key={t}
             className={`mode-tab mode-tab-${t} ${tab === t ? "mode-tab-active" : ""}`}
@@ -83,15 +83,6 @@ export default function ProblemsPage() {
           </button>
         ))}
       </div>
-
-      {/* Discuss placeholder */}
-      {tab === "discuss" && (
-        <div className="discuss-placeholder">
-          <div className="discuss-icon">💬</div>
-          <p className="discuss-title">Community Discussions</p>
-          <p className="discuss-sub">Coming soon — share approaches, compare strategies, ask questions.</p>
-        </div>
-      )}
 
       {/* Practice / Test */}
       {tab !== "discuss" && (

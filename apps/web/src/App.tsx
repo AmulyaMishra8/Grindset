@@ -7,6 +7,8 @@ import { ProtectedRoute } from "./components/ProtectedRoute";
 import TopBar from "./components/TopBar";
 import ProblemPage from "./pages/ProblemPage";
 import ProblemsPage from "./pages/ProblemsPage";
+import DiscussPage from "./pages/DiscussPage";
+import DiscussThreadPage from "./pages/DiscussThreadPage";
 import { LoginPage } from "./pages/auth/LoginPage";
 import { RegisterPage } from "./pages/auth/RegisterPage";
 import { VerifyEmailPage } from "./pages/auth/VerifyEmailPage";
@@ -49,6 +51,28 @@ export default function App() {
                   <TopBar />
                   <main className="app-main">
                     <ProblemPage />
+                  </main>
+                </div>
+              }
+            />
+            <Route
+              path="/discuss"
+              element={
+                <div className="app">
+                  <TopBar />
+                  <main className="app-main" style={{ overflowY: "auto" }}>
+                    <DiscussPage />
+                  </main>
+                </div>
+              }
+            />
+            <Route
+              path="/discuss/:id"
+              element={
+                <div className="app">
+                  <TopBar />
+                  <main className="app-main" style={{ overflowY: "auto" }}>
+                    <DiscussThreadPage />
                   </main>
                 </div>
               }
