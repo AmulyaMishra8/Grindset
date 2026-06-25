@@ -29,6 +29,33 @@ export default function ProblemPage() {
   const draggingH = useRef(false);
   const draggingV = useRef(false);
 
+  const editorRef = useRef<{ revealLine: (n: number) => void } | null>(null);
+  const typingRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const stubRef = useRef(""); // the stub currently treated as the untouched baseline
+
+  // Animate code into the editor so it looks like the junior is typing it live,
+  // scrolling to follow the cursor. Capped frames keep long files from crawling.
+  const typeCode = useCallback((target: string) => {
+    if (typingRef.current) clearTimeout(typingRef.current);
+    const total = target.length;
+    if (total === 0) { setCode(""); return; }
+    const steps = Math.min(total, 80);
+    const stepSize = Math.ceil(total / steps);
+    const interval = Math.max(14, Math.floor(900 / steps)); // ~0.9s total
+    let i = 0;
+    const tick = () => {
+      i = Math.min(total, i + stepSize);
+      const slice = target.slice(0, i);
+      setCode(slice);
+      editorRef.current?.revealLine(slice.split("\n").length);
+      typingRef.current = i < total ? setTimeout(tick, interval) : null;
+    };
+    tick();
+  }, []);
+
+  // Stop any in-flight typing animation if the page unmounts.
+  useEffect(() => () => { if (typingRef.current) clearTimeout(typingRef.current); }, []);
+
   useEffect(() => {
     setLoading(true);
     setNotFound(false);
@@ -37,7 +64,9 @@ export default function ProblemPage() {
     api.get<Problem>(`/api/judge/problems/${id}`)
       .then((p) => {
         setProblem(p);
-        setCode("");
+        const stub = p.starterCode?.[language] ?? p.starterCode?.javascript ?? "";
+        setCode(stub);
+        stubRef.current = stub;
         setChatHistory([]);
         setAiMessages([{
           role: "ai",
@@ -124,8 +153,15 @@ export default function ProblemPage() {
             problem={problem}
             code={code}
             language={language}
+            onEditorReady={(ed) => (editorRef.current = ed)}
             onCodeChange={setCode}
-            onLanguageChange={setLanguage}
+            onLanguageChange={(newLang) => {
+              const newStub = problem.starterCode?.[newLang] ?? problem.starterCode?.javascript ?? "";
+              setLanguage(newLang);
+              // Only swap in the new stub if the editor still holds the untouched one.
+              setCode((cur) => (cur === stubRef.current ? newStub : cur));
+              stubRef.current = newStub;
+            }}
             onToggleAI={() => setAiOpen((p) => !p)}
             aiOpen={aiOpen}
             chatHistory={chatHistory}
@@ -147,9 +183,9 @@ export default function ProblemPage() {
               onMessagesChange={setAiMessages}
               mode={mode}
               onApplyCode={(newCode, lang) => {
-                setCode(newCode);
                 const langMap: Record<string, string> = { js: "javascript", ts: "typescript", py: "python", javascript: "javascript", typescript: "typescript", python: "python" };
                 if (langMap[lang]) setLanguage(langMap[lang]);
+                typeCode(newCode);
               }}
             />
           </div>

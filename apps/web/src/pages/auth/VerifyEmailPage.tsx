@@ -24,7 +24,7 @@ export function VerifyEmailPage() {
 
   return (
     <AuthLayout title="Email verification" footer={<Link to="/login">Go to sign in</Link>}>
-      {status === "working" && <p className="muted">Verifyingâ€¦</p>}
+      {status === "working" && <p className="muted">Verifying...</p>}
       {status === "ok" && <Alert kind="success">Your email is verified. You can sign in now.</Alert>}
       {status === "error" && (
         <>

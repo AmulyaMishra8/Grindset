@@ -2,6 +2,7 @@ import "dotenv/config";
 import { PrismaClient } from "@prisma/client";
 import { Pool } from "pg";
 import { PrismaPg } from "@prisma/adapter-pg";
+import { stubs, tests } from "./stubsAndTests";
 
 const pool = new Pool({ connectionString: process.env.DATABASE });
 const adapter = new PrismaPg(pool);
@@ -198,7 +199,7 @@ function redeemCoupon(coupon, cartTotal, flashCounter) {
     slug: "api-client-retry",
     title: "Add retry logic to an existing API client",
     domain: "Feature in an existing module",
-    difficulty: "Medium-Hard",
+    difficulty: "Hard",
     estimatedMinutes: 60,
     problemStatement: `We have an \`ApiClient.fetch(url)\` method that wraps requests, and it's flaky against a vendor API — random 500s and timeouts. Add retry logic. Retry on failure, back off between attempts, and give up after a few tries by raising. Make max retries and the base delay configurable. Don't retry forever obviously. This method gets called from a few hundred places, so don't change its signature — it should just become more reliable. The vendor also rate-limits us with 429s and sometimes sends a Retry-After header. Log every retry so we can see what's going on in production. And keep it threadsafe — a pool of worker threads all share one client instance.`,
     sealedExpectations: {
@@ -237,7 +238,7 @@ function redeemCoupon(coupon, cartTotal, flashCounter) {
     slug: "image-upload-thumbnail",
     title: "Image upload + thumbnail endpoint",
     domain: "Backend service / endpoint",
-    difficulty: "Medium-Hard",
+    difficulty: "Hard",
     estimatedMinutes: 60,
     problemStatement: `Build an image upload endpoint. Client POSTs an image, we store the original and generate a thumbnail (say 200px wide), and return both URLs. Accept JPEG and PNG. Reject anything that isn't an image, or that's too big — cap it at 10MB. Store everything in S3, we already have a bucket. Filenames need to be unique so two uploads don't clobber each other. The thumbnail should keep aspect ratio. We'll see maybe a few uploads a second. The frontend shows a preview right after upload, so the whole thing needs to feel snappy. Some users upload HEIC straight from their iPhones — would be nice to handle that too, but ship the core thing first. Return JSON with the original URL and the thumbnail URL.`,
     sealedExpectations: {
@@ -315,12 +316,17 @@ function redeemCoupon(coupon, cartTotal, flashCounter) {
 
 async function main() {
   for (const problem of problems) {
+    const data = {
+      ...problem,
+      starterCode: stubs[problem.slug] ?? null,
+      testCases: tests[problem.slug] ?? null,
+    };
     const p = await prisma.problem.upsert({
       where: { slug: problem.slug },
-      update: problem,
-      create: problem,
+      update: data,
+      create: data,
     });
-    console.log(`Seeded: ${problem.title}`);
+    console.log(`Seeded: ${problem.title}${tests[problem.slug] ? ` (${tests[problem.slug].cases.length} tests)` : ""}`);
 
     await prisma.practiceSet.upsert({ where: { problemId: p.id }, update: {}, create: { problemId: p.id } });
     await prisma.testSet.upsert({ where: { problemId: p.id }, update: {}, create: { problemId: p.id } });

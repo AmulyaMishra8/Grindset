@@ -2,7 +2,20 @@ import { useState } from "react";
 import Editor, { type BeforeMount } from "@monaco-editor/react";
 import type { Problem } from "../data/problems";
 import PipelineOverlay from "./PipelineOverlay";
+import { api } from "../api/client";
 import "./CodeEditor.css";
+
+type CaseResult = { description: string; passed: boolean; expected?: unknown; got?: unknown; error?: string; expectedThrow?: string };
+type RunResult =
+  | { status: "ran"; passed: number; total: number; results: CaseResult[] }
+  | { status: "empty" | "no_tests" | "timeout" | "runtime_error" | "error" | "moved"; error?: string; message?: string };
+
+const fmt = (v: unknown) => {
+  let s: string;
+  try { s = JSON.stringify(v); } catch { s = String(v); }
+  if (s === undefined) s = String(v);
+  return s.length > 80 ? s.slice(0, 80) + "…" : s;
+};
 
 const defineGrindsetTheme: BeforeMount = (monaco) => {
   monaco.editor.defineTheme("grindset-dark", {
@@ -44,6 +57,7 @@ type Props = {
   code: string;
   language: string;
   onCodeChange: (code: string) => void;
+  onEditorReady?: (editor: { revealLine: (n: number) => void }) => void;
   onLanguageChange: (lang: string) => void;
   onToggleAI: () => void;
   aiOpen: boolean;
@@ -53,15 +67,31 @@ type Props = {
 };
 
 export default function CodeEditor({
-  problem, code, language, onCodeChange, onLanguageChange, onToggleAI, aiOpen, chatHistory, aiHistory, mode = "practice",
+  problem, code, language, onCodeChange, onEditorReady, onLanguageChange, onToggleAI, aiOpen, chatHistory, aiHistory, mode = "practice",
 }: Props) {
   const [submitted, setSubmitted] = useState(false);
   const [overlayOpen, setOverlayOpen] = useState(false);
+  const [running, setRunning] = useState(false);
+  const [runResult, setRunResult] = useState<RunResult | null>(null);
 
   const handleSubmit = () => {
     if (submitted) return;
     setSubmitted(true);
     setOverlayOpen(true);
+  };
+
+  const handleRun = async () => {
+    if (running || submitted) return;
+    setRunning(true);
+    setRunResult(null);
+    try {
+      const r = await api.post<RunResult>("/api/judge/run", { problemId: problem.id, code, language });
+      setRunResult(r);
+    } catch (e) {
+      setRunResult({ status: "error", error: (e as Error)?.message ?? "Run failed" });
+    } finally {
+      setRunning(false);
+    }
   };
 
   return (
@@ -85,6 +115,7 @@ export default function CodeEditor({
           language={language}
           value={code}
           onChange={(val) => onCodeChange(val ?? "")}
+          onMount={(editor) => onEditorReady?.(editor)}
           beforeMount={defineGrindsetTheme}
           theme="grindset-dark"
           options={{
@@ -115,12 +146,67 @@ export default function CodeEditor({
         />
       )}
 
+      {(running || runResult) && (
+        <div className="run-results">
+          <div className="run-results-head">
+            <span className="run-results-title">
+              {running
+                ? "Running tests…"
+                : runResult?.status === "ran"
+                  ? `${runResult.passed} / ${runResult.total} tests passed`
+                  : "Tests"}
+            </span>
+            {!running && (
+              <button className="run-results-close" onClick={() => setRunResult(null)} aria-label="Close">×</button>
+            )}
+          </div>
+          {!running && runResult && (
+            <div className="run-results-body">
+              {runResult.status === "ran" ? (
+                runResult.results.map((r, i) => (
+                  <div key={i} className={`run-case ${r.passed ? "pass" : "fail"}`}>
+                    <span className="run-case-icon">{r.passed ? "✓" : "✗"}</span>
+                    <span className="run-case-desc">{r.description}</span>
+                    {!r.passed && (
+                      <span className="run-case-detail">
+                        {r.error
+                          ? `error: ${r.error}`
+                          : r.expectedThrow
+                            ? `expected to throw "${r.expectedThrow}" — got ${fmt(r.got)}`
+                            : `expected ${fmt(r.expected)} · got ${fmt(r.got)}`}
+                      </span>
+                    )}
+                  </div>
+                ))
+              ) : (
+                <div className="run-msg">
+                  {runResult.status === "timeout"
+                    ? "Timed out — check for an infinite loop."
+                    : runResult.status === "no_tests"
+                      ? "No automated tests for this problem yet."
+                      : runResult.status === "empty"
+                        ? "Write some code first."
+                        : runResult.error || runResult.message || "Something went wrong."}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      )}
+
       <div className="editor-actions">
         <button
           className={`action-btn ai-toggle-btn ${aiOpen ? "ai-toggle-active" : ""}`}
           onClick={onToggleAI}
         >
           <span className="ai-btn-icon">✦</span> AI
+        </button>
+        <button
+          className="action-btn run-btn"
+          onClick={handleRun}
+          disabled={running || submitted}
+        >
+          {running ? "Running…" : "▶ Run"}
         </button>
         <button
           className={`action-btn submit-btn ${submitted ? "submit-locked" : ""}`}

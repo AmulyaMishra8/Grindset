@@ -90,6 +90,7 @@ export const getProblem = async (req: Request, res: Response) => {
       estimatedMinutes: true,
       problemStatement: true,
       chatFormat: true,
+      starterCode: true,
     },
   });
 

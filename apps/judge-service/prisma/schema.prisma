@@ -17,6 +17,8 @@ model Problem {
   sealedExpectations Json
   chatFormat         Json?
   referenceCode      Json?
+  starterCode        Json?         // per-language stub the editor pre-fills
+  testCases          Json?         // { functionName, isAsync, cases: [...] } run on the sandbox
   createdAt          DateTime      @default(now())
   practiceSets       PracticeSet[]
   testSets           TestSet[]

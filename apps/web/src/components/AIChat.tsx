@@ -22,6 +22,16 @@ function parseContent(content: string): Part[] {
   return parts;
 }
 
+// The block the junior is "writing" — when a reply has several code blocks we
+// take the largest (the full implementation, not a tiny inline snippet).
+function mainCodeBlock(content: string): { value: string; lang: string } | null {
+  const codes = parseContent(content).filter(
+    (p): p is { type: "code"; lang: string; value: string } => p.type === "code",
+  );
+  if (codes.length === 0) return null;
+  return codes.reduce((a, b) => (b.value.length > a.value.length ? b : a));
+}
+
 function renderText(text: string) {
   return text.split(/(\*\*[^*]+\*\*|`[^`]+`)/g).map((chunk, i) => {
     if (chunk.startsWith("**") && chunk.endsWith("**"))
@@ -32,7 +42,7 @@ function renderText(text: string) {
   });
 }
 
-function AiBubble({ content, onApplyCode }: { content: string; onApplyCode: (code: string, lang: string) => void }) {
+function AiBubble({ content }: { content: string }) {
   const parts = parseContent(content);
   return (
     <div className="ai-bubble">
@@ -50,16 +60,12 @@ function AiBubble({ content, onApplyCode }: { content: string; onApplyCode: (cod
           <div key={i} className="ai-code-block">
             <div className="ai-code-header">
               <span className="ai-code-lang">{p.lang}</span>
-              <button
-                className="ai-apply-btn"
-                onClick={() => onApplyCode(p.value, p.lang)}
-                title="Apply this code to the editor"
-              >
+              <span className="ai-code-applied" title="The junior wrote this straight into the editor">
                 <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                  <polyline points="9 18 15 12 9 6" />
+                  <polyline points="20 6 9 17 4 12" />
                 </svg>
-                Apply to editor
-              </button>
+                in editor
+              </span>
             </div>
             <pre className="ai-code-pre"><code>{p.value}</code></pre>
           </div>
@@ -106,6 +112,9 @@ export default function AIChat({ problem, code, language, messages, onMessagesCh
         code, language, message: text, history: updatedHistory, mode,
       });
       setMessages((prev) => [...prev, { role: "ai", content: reply }]);
+      // Junior writes straight into the editor — no "Apply" click needed.
+      const block = mainCodeBlock(reply);
+      if (block) onApplyCode(block.value, block.lang);
     } catch {
       setMessages((prev) => [...prev, { role: "ai", content: "Sorry, couldn't reach the AI service." }]);
     } finally {
@@ -143,7 +152,7 @@ export default function AIChat({ problem, code, language, messages, onMessagesCh
           <div key={i} className={`ai-message ai-message-${msg.role}`}>
             {msg.role === "ai" && <span className="ai-avatar">✦</span>}
             {msg.role === "ai"
-              ? <AiBubble content={msg.content} onApplyCode={onApplyCode} />
+              ? <AiBubble content={msg.content} />
               : <div className="ai-bubble">{msg.content}</div>
             }
             {msg.role === "user" && <span className="user-avatar">U</span>}

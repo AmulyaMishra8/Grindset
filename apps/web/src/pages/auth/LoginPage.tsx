@@ -32,7 +32,7 @@ export function LoginPage() {
     try {
       const res = await authApi.login(values);
       if (res.status === "mfaRequired") {
-        // Password ok Ã¢â‚¬â€ go finish with the 6-digit code.
+        // Password OK - go finish with the 6-digit code.
         navigate("/mfa", { state: { mfaToken: res.mfaToken } });
         return;
       }
@@ -76,7 +76,7 @@ export function LoginPage() {
           </Link>
         </div>
         <button className="btn mt-16" disabled={isSubmitting}>
-          {isSubmitting ? "Signing inÃ¢â‚¬Â¦" : "Sign in"}
+          {isSubmitting ? "Signing in..." : "Sign in"}
         </button>
       </form>
 
