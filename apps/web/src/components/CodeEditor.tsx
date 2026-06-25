@@ -44,6 +44,7 @@ type Props = {
   code: string;
   language: string;
   onCodeChange: (code: string) => void;
+  onEditorReady?: (editor: { revealLine: (n: number) => void }) => void;
   onLanguageChange: (lang: string) => void;
   onToggleAI: () => void;
   aiOpen: boolean;
@@ -53,7 +54,7 @@ type Props = {
 };
 
 export default function CodeEditor({
-  problem, code, language, onCodeChange, onLanguageChange, onToggleAI, aiOpen, chatHistory, aiHistory, mode = "practice",
+  problem, code, language, onCodeChange, onEditorReady, onLanguageChange, onToggleAI, aiOpen, chatHistory, aiHistory, mode = "practice",
 }: Props) {
   const [submitted, setSubmitted] = useState(false);
   const [overlayOpen, setOverlayOpen] = useState(false);
@@ -85,6 +86,7 @@ export default function CodeEditor({
           language={language}
           value={code}
           onChange={(val) => onCodeChange(val ?? "")}
+          onMount={(editor) => onEditorReady?.(editor)}
           beforeMount={defineGrindsetTheme}
           theme="grindset-dark"
           options={{
