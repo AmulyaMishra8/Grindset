@@ -1,7 +1,25 @@
-import { NavLink } from "react-router-dom";
+import { NavLink, Link } from "react-router-dom";
+import { useAuth } from "../hooks/useAuth";
+import type { PublicUser } from "@grindset/auth-shared";
 import "./TopBar.css";
 
+// Initials for the avatar: from the display name ("Amulya Mishra" -> "AM"),
+// else the first letter of the email, else a fallback.
+function initialsFor(user: PublicUser | null): string {
+  const name = user?.displayName?.trim();
+  if (name) {
+    const parts = name.split(/\s+/);
+    return (parts[0][0] + (parts.length > 1 ? parts[parts.length - 1][0] : "")).toUpperCase();
+  }
+  if (user?.email) return user.email[0].toUpperCase();
+  return "?";
+}
+
 export default function TopBar() {
+  const { user } = useAuth();
+  const initials = initialsFor(user);
+  const label = user?.displayName || user?.email || "Account";
+
   return (
     <header className="topbar">
       <div className="topbar-left">
@@ -22,7 +40,9 @@ export default function TopBar() {
             <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
           </svg>
         </button>
-        <button className="topbar-avatar">V</button>
+        <Link to="/profile" className="topbar-avatar" title={label} aria-label={label}>
+          {initials}
+        </Link>
       </div>
     </header>
   );
