@@ -51,7 +51,7 @@ export function ResetPasswordPage() {
             {...register("password")}
           />
           <button className="btn mt-16" disabled={isSubmitting || !token}>
-            {isSubmitting ? "SavingÃ¢â‚¬Â¦" : "Update password"}
+            {isSubmitting ? "Saving..." : "Update password"}
           </button>
         </form>
       )}

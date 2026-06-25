@@ -39,7 +39,7 @@ export function ForgotPasswordPage() {
             {...register("email")}
           />
           <button className="btn mt-16" disabled={isSubmitting}>
-            {isSubmitting ? "SendingÃ¢â‚¬Â¦" : "Send reset link"}
+            {isSubmitting ? "Sending..." : "Send reset link"}
           </button>
         </form>
       )}

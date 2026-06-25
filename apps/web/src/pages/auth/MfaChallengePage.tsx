@@ -51,7 +51,7 @@ export function MfaChallengePage() {
           placeholder="123456"
         />
         <button className="btn mt-16" disabled={busy || code.length < 6}>
-          {busy ? "Verifyingâ€¦" : "Verify"}
+          {busy ? "Verifying..." : "Verify"}
         </button>
       </form>
       <p className="muted mt-16" style={{ fontSize: 13 }}>

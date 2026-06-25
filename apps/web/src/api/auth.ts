@@ -6,7 +6,7 @@ import type {
   LoginResponse,
 } from "@grindset/auth-shared";
 
-// Typed wrappers around each endpoint. Components call these â€” they never touch
+// Typed wrappers around each endpoint. Components call these - they never touch
 // fetch directly. Because the input/output types come from @grindset/auth-shared, the
 // frontend and backend can never disagree about the shapes.
 

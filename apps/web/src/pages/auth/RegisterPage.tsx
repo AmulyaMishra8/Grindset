@@ -74,7 +74,7 @@ export function RegisterPage() {
           {...register("password")}
         />
         <button className="btn mt-16" disabled={isSubmitting}>
-          {isSubmitting ? "CreatingÃ¢â‚¬Â¦" : "Create account"}
+          {isSubmitting ? "Creating..." : "Create account"}
         </button>
       </form>
     </AuthLayout>

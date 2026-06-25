@@ -20,6 +20,9 @@ export function ProfilePage() {
 
   if (!user) return null;
 
+  const ok = { color: "#22c55e", fontWeight: 600 };
+  const bad = { color: "#ef4444", fontWeight: 600 };
+
   return (
     <div className="page">
       <div className="row-between">
@@ -31,10 +34,12 @@ export function ProfilePage() {
 
       <div className="panel">
         <p><strong>Email:</strong> {user.email}</p>
-        <p><strong>Name:</strong> {user.displayName ?? "â€”"}</p>
+        <p><strong>Name:</strong> {user.displayName ?? "Not set"}</p>
         <p>
           <strong>Email verified:</strong>{" "}
-          {user.emailVerified ? "âœ… Yes" : "âŒ No â€” check your inbox"}
+          {user.emailVerified
+            ? <span style={ok}>Yes</span>
+            : <span style={bad}>No — check your inbox</span>}
         </p>
       </div>
 
@@ -42,7 +47,7 @@ export function ProfilePage() {
         <h2 style={{ marginTop: 0 }}>Two-factor authentication</h2>
         {user.mfaEnabled ? (
           <div className="row-between">
-            <span className="muted">âœ… Enabled</span>
+            <span style={ok}>Enabled</span>
             <button className="btn btn-secondary" style={{ width: "auto" }} onClick={disableMfa}>
               Disable
             </button>
