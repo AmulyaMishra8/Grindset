@@ -5,6 +5,10 @@ services:
     runtime: static
     buildCommand: npx --yes pnpm@9 install --frozen-lockfile --prod=false --filter @grindset/web... && npx --yes pnpm@9 --filter @grindset/web... build
     staticPublishPath: apps/web/dist
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html  # SPA: let React Router handle client-side routes
     envVars:
       - key: VITE_API_URL
         sync: false  # Set this to your api-gateway URL on Render
