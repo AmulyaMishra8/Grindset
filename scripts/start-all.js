@@ -13,6 +13,19 @@ const root = path.join(__dirname, "..");
 const gatewayPort = process.env.PORT || "10000";
 
 // Internal ports the gateway proxies to (must match *_SERVICE_URL env vars).
+const INTERNAL_PORTS = ["4001", "4002", "4003"];
+
+// The gateway must bind Render's assigned port. If a stray PORT env var equals
+// an internal port, the gateway and that service would fight over it — fail with
+// a clear message instead of a cryptic EADDRINUSE.
+if (INTERNAL_PORTS.includes(String(gatewayPort))) {
+  console.error(
+    `[start-all] FATAL: PORT=${gatewayPort} collides with an internal service port. ` +
+      `Remove the PORT env var from this Render service so Render assigns its default (10000).`,
+  );
+  process.exit(1);
+}
+
 const services = [
   { name: "auth", entry: "apps/auth-service/dist/src/index.js", port: "4003" },
   { name: "judge", entry: "apps/judge-service/dist/index.js", port: "4002" },
