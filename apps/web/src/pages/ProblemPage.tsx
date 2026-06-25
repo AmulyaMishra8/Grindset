@@ -31,6 +31,7 @@ export default function ProblemPage() {
 
   const editorRef = useRef<{ revealLine: (n: number) => void } | null>(null);
   const typingRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const stubRef = useRef(""); // the stub currently treated as the untouched baseline
 
   // Animate code into the editor so it looks like the junior is typing it live,
   // scrolling to follow the cursor. Capped frames keep long files from crawling.
@@ -63,7 +64,9 @@ export default function ProblemPage() {
     api.get<Problem>(`/api/judge/problems/${id}`)
       .then((p) => {
         setProblem(p);
-        setCode("");
+        const stub = p.starterCode?.[language] ?? p.starterCode?.javascript ?? "";
+        setCode(stub);
+        stubRef.current = stub;
         setChatHistory([]);
         setAiMessages([{
           role: "ai",
@@ -152,7 +155,13 @@ export default function ProblemPage() {
             language={language}
             onEditorReady={(ed) => (editorRef.current = ed)}
             onCodeChange={setCode}
-            onLanguageChange={setLanguage}
+            onLanguageChange={(newLang) => {
+              const newStub = problem.starterCode?.[newLang] ?? problem.starterCode?.javascript ?? "";
+              setLanguage(newLang);
+              // Only swap in the new stub if the editor still holds the untouched one.
+              setCode((cur) => (cur === stubRef.current ? newStub : cur));
+              stubRef.current = newStub;
+            }}
             onToggleAI={() => setAiOpen((p) => !p)}
             aiOpen={aiOpen}
             chatHistory={chatHistory}

@@ -24,4 +24,5 @@ export type Problem = {
   problemStatement: string;
   chatFormat?: ChatFormat | null;
   sealedExpectations?: SealedExpectations;
+  starterCode?: Record<string, string> | null;
 };

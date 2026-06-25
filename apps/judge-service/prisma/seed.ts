@@ -2,6 +2,7 @@ import "dotenv/config";
 import { PrismaClient } from "@prisma/client";
 import { Pool } from "pg";
 import { PrismaPg } from "@prisma/adapter-pg";
+import { stubs, tests } from "./stubsAndTests";
 
 const pool = new Pool({ connectionString: process.env.DATABASE });
 const adapter = new PrismaPg(pool);
@@ -315,12 +316,17 @@ function redeemCoupon(coupon, cartTotal, flashCounter) {
 
 async function main() {
   for (const problem of problems) {
+    const data = {
+      ...problem,
+      starterCode: stubs[problem.slug] ?? null,
+      testCases: tests[problem.slug] ?? null,
+    };
     const p = await prisma.problem.upsert({
       where: { slug: problem.slug },
-      update: problem,
-      create: problem,
+      update: data,
+      create: data,
     });
-    console.log(`Seeded: ${problem.title}`);
+    console.log(`Seeded: ${problem.title}${tests[problem.slug] ? ` (${tests[problem.slug].cases.length} tests)` : ""}`);
 
     await prisma.practiceSet.upsert({ where: { problemId: p.id }, update: {}, create: { problemId: p.id } });
     await prisma.testSet.upsert({ where: { problemId: p.id }, update: {}, create: { problemId: p.id } });
