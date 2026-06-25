@@ -15,19 +15,22 @@
 
 * { box-sizing: border-box; }
 
-body {
-  margin: 0;
+/* The auth theme (orange wash + glow) is scoped to the auth screens ONLY so it
+   never leaks onto the rest of the app (which uses the purple theme in
+   index.css). These containers fill the viewport on auth pages. */
+.auth-screen,
+.center-screen {
   font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   background: var(--bg);
   color: var(--text);
   /* Gentle orange wash from the very top */
   background-image: radial-gradient(1100px 480px at 50% -12%, rgba(255, 77, 23, 0.12), transparent 72%);
   background-repeat: no-repeat;
-  background-attachment: fixed;
 }
 
 /* Animated orange glow sitting behind the login panel */
-body::before {
+.auth-screen::before,
+.center-screen::before {
   content: "";
   position: fixed;
   inset: 0;
@@ -64,8 +67,8 @@ body::before {
   transform: translateY(-1px) scale(1.03);
 }
 
-a { color: var(--primary); text-decoration: none; }
-a:hover { text-decoration: underline; }
+.auth-screen a, .center-screen a, .page a { color: var(--primary); text-decoration: none; }
+.auth-screen a:hover, .center-screen a:hover, .page a:hover { text-decoration: underline; }
 
 .center-screen,
 .auth-screen {

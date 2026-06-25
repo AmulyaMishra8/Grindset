@@ -95,7 +95,9 @@
   background: var(--accent-grad);
   color: #fff;
   font-weight: 700;
-  font-size: 13px;
+  font-size: 12px;
+  letter-spacing: 0.02em;
+  text-decoration: none;
   display: flex;
   align-items: center;
   justify-content: center;
