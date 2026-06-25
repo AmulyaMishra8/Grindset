@@ -4,7 +4,7 @@
     "scripts":  {
                     "dev":  "tsx watch src/index.ts",
                     "build":  "prisma generate \u0026\u0026 tsc",
-                    "typecheck":  "tsc --noEmit",
+                    "typecheck":  "prisma generate && tsc --noEmit",
                     "db:push":  "prisma db push",
                     "db:generate":  "prisma generate",
                     "db:seed":  "tsx prisma/seed.ts",
