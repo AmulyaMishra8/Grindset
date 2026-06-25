@@ -40,6 +40,8 @@ services:
     envVars:
       - key: NODE_ENV
         value: production
+      - key: WEB_ORIGIN
+        sync: false  # Your frontend Render URL (for CORS), e.g. https://grindset-web.onrender.com
       - key: DATABASE
         sync: false  # Your Neon DATABASE_URL
       - key: FIRST_GROQ_KEY

@@ -7,7 +7,9 @@ import { prisma } from "./db/prisma";
 const app = express();
 const PORT = process.env.PORT ? parseInt(process.env.PORT) : 4002;
 
-app.use(cors());
+// Credentialed requests (the web app sends cookies) can't use a wildcard origin,
+// so reflect the configured web origin (falls back to echoing the request origin).
+app.use(cors({ origin: process.env.WEB_ORIGIN || true, credentials: true }));
 app.use(express.json());
 
 app.use("/api/judge", judgeRoutes);
