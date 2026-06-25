@@ -5,7 +5,7 @@ import judgeRoutes from "./routes/judge.routes";
 import { prisma } from "./db/prisma";
 
 const app = express();
-const PORT = 4002;
+const PORT = process.env.PORT ? parseInt(process.env.PORT) : 4002;
 
 app.use(cors());
 app.use(express.json());
