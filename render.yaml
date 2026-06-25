@@ -1,21 +1,9 @@
 services:
-  # ── Frontend (Static Site) ─────────────────────────────────────────────────
-  - type: web
-    name: grindset-web
-    runtime: static
-    buildCommand: npx --yes pnpm@9 install --frozen-lockfile --prod=false --filter @grindset/web... && npx --yes pnpm@9 --filter @grindset/web... build
-    staticPublishPath: apps/web/dist
-    routes:
-      - type: rewrite
-        source: /*
-        destination: /index.html  # SPA: let React Router handle client-side routes
-    envVars:
-      - key: VITE_API_URL
-        sync: false  # Set this to the grindset-gateway URL on Render
-
-  # ── Backend (single service: gateway + auth + judge + user in one container) ─
-  # The gateway binds Render's PORT and proxies to the other three over localhost
-  # (see scripts/start-all.js). One service to deploy and keep warm.
+  # ── Single service: SPA + gateway + auth + judge + user in one container ─────
+  # The gateway binds Render's PORT, serves the built React SPA from apps/web/dist
+  # (same origin → first-party cookies, works in Brave/Safari), and proxies API
+  # routes to the other three processes over localhost (see scripts/start-all.js).
+  # One service, one origin, one thing to keep warm.
   - type: web
     name: grindset-gateway
     runtime: node
@@ -23,10 +11,12 @@ services:
     buildCommand: >-
       npx --yes pnpm@9 install --frozen-lockfile --prod=false
       --filter @grindset/api-gateway... --filter @grindset/auth-service...
-      --filter @grindset/judge-service... --filter @grindset/user-service... &&
+      --filter @grindset/judge-service... --filter @grindset/user-service...
+      --filter @grindset/web... &&
       npx --yes pnpm@9
       --filter @grindset/api-gateway... --filter @grindset/auth-service...
-      --filter @grindset/judge-service... --filter @grindset/user-service... build
+      --filter @grindset/judge-service... --filter @grindset/user-service...
+      --filter @grindset/web... build
     startCommand: node scripts/start-all.js
     envVars:
       - key: NODE_ENV
@@ -42,7 +32,7 @@ services:
         value: "true"
       # ── Shared ──
       - key: WEB_ORIGIN
-        sync: false  # Your frontend Render URL, e.g. https://grindset-web.onrender.com
+        sync: false  # Now the SAME as this service's URL (SPA is served here), e.g. https://grindset-gateway.onrender.com
       - key: APP_URL
         sync: false  # This service's own URL (used in OAuth redirect + email links)
       # ── Auth (Supabase) ──
