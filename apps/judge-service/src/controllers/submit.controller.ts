@@ -503,6 +503,12 @@ export const submitSolution = async (req: Request, res: Response) => {
     const problem = await prisma.problem.findUnique({ where: { id: problemId } });
     if (!problem) return end({ status: "error", error: "Problem not found" });
 
+    // Reveal the reference answer NOW — the candidate has submitted, so they've
+    // earned the right to see it regardless of how the evaluation turns out.
+    const ref = problem.referenceCode as Record<string, string> | null;
+    const solLang = ref?.[language] ? language : ref?.["javascript"] ? "javascript" : null;
+    if (ref && solLang) emit("solution", { referenceCode: ref[solLang], language: solLang });
+
     // Step 1 — get test inputs (use pre-generated cache, or generate fresh + cache)
     emit("stage", { stage: "generating" });
 

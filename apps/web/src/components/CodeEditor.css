@@ -314,6 +314,69 @@
   color: var(--text-secondary);
 }
 
+/* ── Solution (revealed after submit) ── */
+.solution-btn {
+  background: transparent;
+  color: var(--medium, #f5a623);
+  border: 1px solid var(--medium, #f5a623);
+}
+.solution-btn:hover {
+  background: rgba(245, 166, 35, 0.12);
+}
+
+.solution-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+  padding: 24px;
+  backdrop-filter: blur(2px);
+}
+.solution-modal {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  width: min(760px, 100%);
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 24px 60px -12px rgba(0, 0, 0, 0.5);
+}
+.solution-modal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+}
+.solution-modal-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+.solution-modal-close {
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 20px;
+  line-height: 1;
+  padding: 0 4px;
+}
+.solution-modal-close:hover { color: var(--text-primary); }
+.solution-code {
+  margin: 0;
+  padding: 16px;
+  overflow: auto;
+  font-family: var(--font-mono, 'Fira Code', monospace);
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--text-primary);
+  white-space: pre;
+}
+
 /* ── Test cases list ── */
 .test-cases {
   display: flex;

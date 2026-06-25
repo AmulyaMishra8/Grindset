@@ -195,6 +195,224 @@ def availableSlots(workStart, workEnd, slotMinutes, bookings, nowMinutes):
   },
 };
 
+// Reference answers (one correct solution per language). Revealed to the
+// candidate only AFTER they submit — never sent with the initial problem.
+// These match the curated test contracts (verified to pass every case).
+export const answers: Record<string, { javascript: string; python: string }> = {
+  "coupon-redemption": {
+    javascript: `function redeemCoupon(coupon, cartTotal, flashCounter) {
+  if (new Date(coupon.expires_at) <= new Date()) throw new Error("Coupon has expired");
+  if (coupon.max_uses <= 0) throw new Error("Coupon usage limit reached");
+
+  let discount = cartTotal * coupon.discount_percent;
+  const discountsApplied = ["coupon"];
+
+  // Flash bonus is gated on a shared counter — in production the check-and-
+  // increment must be atomic (e.g. UPDATE ... WHERE redemptions < 100).
+  if (coupon.flash_sale && flashCounter && flashCounter.redemptions < 100) {
+    discount += cartTotal * 0.10;
+    flashCounter.redemptions += 1;
+    discountsApplied.push("flash");
+  }
+
+  return { finalTotal: Math.max(cartTotal - discount, 0), discountsApplied };
+}`,
+    python: `from datetime import datetime, timezone
+
+def redeemCoupon(coupon, cartTotal, flashCounter):
+    if datetime.fromisoformat(coupon["expires_at"].replace("Z", "+00:00")) <= datetime.now(timezone.utc):
+        raise Exception("Coupon has expired")
+    if coupon["max_uses"] <= 0:
+        raise Exception("Coupon usage limit reached")
+
+    discount = cartTotal * coupon["discount_percent"]
+    applied = ["coupon"]
+
+    if coupon.get("flash_sale") and flashCounter and flashCounter["redemptions"] < 100:
+        discount += cartTotal * 0.10
+        flashCounter["redemptions"] += 1
+        applied.append("flash")
+
+    return {"finalTotal": max(cartTotal - discount, 0), "discountsApplied": applied}`,
+  },
+
+  "contact-merge-cli": {
+    javascript: `function mergeContacts(records) {
+  const noEmail = [];
+  const byEmail = new Map();
+
+  for (const r of records) {
+    const email = (r.email || "").trim().toLowerCase();
+    if (!email) {
+      noEmail.push({ email: "", name: r.name || "", phone: r.phone || "" });
+      continue;
+    }
+    if (!byEmail.has(email)) {
+      byEmail.set(email, { email, name: r.name || "", phone: r.phone || "" });
+    } else {
+      const ex = byEmail.get(email);
+      if (!ex.name && r.name) ex.name = r.name;
+      if (!ex.phone && r.phone) ex.phone = r.phone;
+    }
+  }
+
+  const all = [...byEmail.values(), ...noEmail];
+  all.sort((a, b) => {
+    if (!a.name && !b.name) return 0;
+    if (!a.name) return 1;   // empty names sort to the end
+    if (!b.name) return -1;
+    return a.name.toLowerCase().localeCompare(b.name.toLowerCase());
+  });
+  return all;
+}`,
+    python: `def mergeContacts(records):
+    no_email = []
+    by_email = {}
+    for r in records:
+        email = (r.get("email") or "").strip().lower()
+        if not email:
+            no_email.append({"email": "", "name": r.get("name") or "", "phone": r.get("phone") or ""})
+            continue
+        if email not in by_email:
+            by_email[email] = {"email": email, "name": r.get("name") or "", "phone": r.get("phone") or ""}
+        else:
+            ex = by_email[email]
+            if not ex["name"] and r.get("name"): ex["name"] = r["name"]
+            if not ex["phone"] and r.get("phone"): ex["phone"] = r["phone"]
+
+    result = list(by_email.values()) + no_email
+    result.sort(key=lambda c: (c["name"] == "", c["name"].lower()))  # empty names last
+    return result`,
+  },
+
+  "ledger-reconciliation": {
+    javascript: `function reconcile(processorRows, internalRows) {
+  const seen = new Set();
+  const proc = new Map();
+  for (const r of processorRows) {
+    if (seen.has(r.transaction_id)) continue; // collapse retries
+    seen.add(r.transaction_id);
+    proc.set(r.order_id, r.amount_cents);
+  }
+
+  // Compare in integer cents to avoid float drift (10.10 * 100 !== 1010 in floats).
+  const intern = new Map();
+  for (const r of internalRows) intern.set(r.order_id, Math.round(r.amount * 100));
+
+  const matched = [], missingFromProcessor = [], missingFromInternal = [], amountMismatches = [];
+  for (const [oid, cents] of intern) {
+    if (!proc.has(oid)) missingFromProcessor.push(oid);
+    else if (proc.get(oid) === cents) matched.push(oid);
+    else amountMismatches.push(oid);
+  }
+  for (const [oid] of proc) if (!intern.has(oid)) missingFromInternal.push(oid);
+
+  const s = (a) => a.sort();
+  return {
+    matched: s(matched),
+    missingFromProcessor: s(missingFromProcessor),
+    missingFromInternal: s(missingFromInternal),
+    amountMismatches: s(amountMismatches),
+  };
+}`,
+    python: `def reconcile(processorRows, internalRows):
+    seen = set()
+    proc = {}
+    for r in processorRows:
+        if r["transaction_id"] in seen:  # collapse retries
+            continue
+        seen.add(r["transaction_id"])
+        proc[r["order_id"]] = r["amount_cents"]
+
+    intern = {r["order_id"]: round(r["amount"] * 100) for r in internalRows}
+
+    matched, mfp, mfi, mism = [], [], [], []
+    for oid, cents in intern.items():
+        if oid not in proc: mfp.append(oid)
+        elif proc[oid] == cents: matched.append(oid)
+        else: mism.append(oid)
+    for oid in proc:
+        if oid not in intern: mfi.append(oid)
+
+    return {
+        "matched": sorted(matched),
+        "missingFromProcessor": sorted(mfp),
+        "missingFromInternal": sorted(mfi),
+        "amountMismatches": sorted(mism),
+    }`,
+  },
+
+  "api-client-retry": {
+    javascript: `function nextRetryDelay(status, attempt, maxRetries, baseDelayMs, retryAfterSeconds) {
+  if ([400, 401, 403, 404].includes(status)) return -1; // never retry client errors
+  if (attempt >= maxRetries) return -1;                  // out of attempts
+
+  // Honour the server's Retry-After on a 429; otherwise exponential backoff.
+  if (status === 429 && retryAfterSeconds != null) return retryAfterSeconds * 1000;
+  return baseDelayMs * Math.pow(2, attempt);
+}`,
+    python: `def nextRetryDelay(status, attempt, maxRetries, baseDelayMs, retryAfterSeconds):
+    if status in (400, 401, 403, 404):  # never retry client errors
+        return -1
+    if attempt >= maxRetries:           # out of attempts
+        return -1
+    if status == 429 and retryAfterSeconds is not None:
+        return retryAfterSeconds * 1000
+    return baseDelayMs * (2 ** attempt)`,
+  },
+
+  "image-upload-thumbnail": {
+    javascript: `function processUpload(file, opts) {
+  if (file.sizeBytes <= 0) throw new Error("empty file");
+  if (!opts.allowedTypes.includes(file.type)) throw new Error("unsupported type");
+  if (file.sizeBytes > opts.maxBytes) throw new Error("file too large");
+
+  let { width, height } = file;
+  if (width > opts.targetWidth) {
+    height = Math.round(height * opts.targetWidth / width); // keep aspect ratio
+    width = opts.targetWidth;
+  }
+  return { thumbnail: { width, height } };
+}`,
+    python: `def processUpload(file, opts):
+    if file["sizeBytes"] <= 0:
+        raise Exception("empty file")
+    if file["type"] not in opts["allowedTypes"]:
+        raise Exception("unsupported type")
+    if file["sizeBytes"] > opts["maxBytes"]:
+        raise Exception("file too large")
+
+    w, h = file["width"], file["height"]
+    if w > opts["targetWidth"]:
+        h = round(h * opts["targetWidth"] / w)  # keep aspect ratio
+        w = opts["targetWidth"]
+    return {"thumbnail": {"width": w, "height": h}}`,
+  },
+
+  "booking-availability": {
+    javascript: `function availableSlots(workStart, workEnd, slotMinutes, bookings, nowMinutes) {
+  const out = [];
+  for (let s = workStart; s + slotMinutes <= workEnd; s += slotMinutes) {
+    if (nowMinutes >= 0 && s < nowMinutes) continue; // past slot
+    // A slot is blocked if it overlaps ANY booking (interval overlap, not equality).
+    const blocked = bookings.some((b) => s < b.end && b.start < s + slotMinutes);
+    if (!blocked) out.push(s);
+  }
+  return out;
+}`,
+    python: `def availableSlots(workStart, workEnd, slotMinutes, bookings, nowMinutes):
+    out = []
+    s = workStart
+    while s + slotMinutes <= workEnd:
+        if not (nowMinutes >= 0 and s < nowMinutes):
+            # blocked if the slot overlaps ANY booking (interval overlap, not equality)
+            if not any(s < b["end"] and b["start"] < s + slotMinutes for b in bookings):
+                out.append(s)
+        s += slotMinutes
+    return out`,
+  },
+};
+
 // ─────────────────────────────────────────────────────────────────────────────
 export const tests: Record<string, TestSpec> = {
   "coupon-redemption": {
