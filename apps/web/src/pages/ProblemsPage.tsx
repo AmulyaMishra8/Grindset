@@ -1,10 +1,11 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { api } from "../api/client";
 import type { Problem } from "../data/problems";
 import "./ProblemsPage.css";
 
 type Tab = "practice" | "test" | "discuss";
+type DiffFilter = "All" | "Easy" | "Medium" | "Hard";
 type ProblemSummary = Pick<Problem, "id" | "slug" | "title" | "difficulty" | "domain" | "estimatedMinutes">;
 
 const TAB_META: Record<Tab, { label: string; endpoint: string; description: string; emptyText: string }> = {
@@ -28,6 +29,8 @@ const TAB_META: Record<Tab, { label: string; endpoint: string; description: stri
   },
 };
 
+const DIFFICULTIES: DiffFilter[] = ["All", "Easy", "Medium", "Hard"];
+
 export default function ProblemsPage() {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -36,6 +39,8 @@ export default function ProblemsPage() {
   const [problems, setProblems] = useState<ProblemSummary[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [query, setQuery] = useState("");
+  const [diff, setDiff] = useState<DiffFilter>("All");
 
   const setTab = (t: Tab) => setSearchParams({ tab: t }, { replace: true });
 
@@ -53,6 +58,16 @@ export default function ProblemsPage() {
 
   const difficultyClass = (d: string) =>
     d === "Easy" ? "badge-easy" : d === "Medium" ? "badge-medium" : "badge-hard";
+
+  const filtered = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    return problems.filter((p) => {
+      const matchesDiff = diff === "All" || p.difficulty === diff;
+      const matchesQuery =
+        !q || p.title.toLowerCase().includes(q) || p.domain.toLowerCase().includes(q);
+      return matchesDiff && matchesQuery;
+    });
+  }, [problems, query, diff]);
 
   return (
     <div className="problems-page">
@@ -72,6 +87,7 @@ export default function ProblemsPage() {
       {/* Discuss placeholder */}
       {tab === "discuss" && (
         <div className="discuss-placeholder">
+          <div className="discuss-icon">💬</div>
           <p className="discuss-title">Community Discussions</p>
           <p className="discuss-sub">Coming soon — share approaches, compare strategies, ask questions.</p>
         </div>
@@ -79,7 +95,7 @@ export default function ProblemsPage() {
 
       {/* Practice / Test */}
       {tab !== "discuss" && (
-        <>
+        <div className="problems-scroll">
           <div className={`mode-banner mode-banner-${tab}`}>
             <span className={`mode-pill mode-pill-${tab}`}>
               {tab === "practice" ? "Learning Mode" : "Assessment Mode"}
@@ -87,7 +103,34 @@ export default function ProblemsPage() {
             <p className="mode-desc">{TAB_META[tab].description}</p>
           </div>
 
-          {loading && <div className="problems-loading">Loading…</div>}
+          {/* Toolbar: search + difficulty filter */}
+          <div className="problems-toolbar">
+            <div className="search-box">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
+                <circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" />
+              </svg>
+              <input
+                type="text"
+                placeholder="Search problems or domains…"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+              />
+              {query && (
+                <button className="search-clear" onClick={() => setQuery("")} aria-label="Clear search">×</button>
+              )}
+            </div>
+            <div className="diff-filters">
+              {DIFFICULTIES.map((d) => (
+                <button
+                  key={d}
+                  className={`diff-chip ${diff === d ? "diff-chip-active" : ""} diff-chip-${d.toLowerCase()}`}
+                  onClick={() => setDiff(d)}
+                >
+                  {d}
+                </button>
+              ))}
+            </div>
+          </div>
 
           {error && (
             <div className="problems-error">
@@ -96,9 +139,22 @@ export default function ProblemsPage() {
             </div>
           )}
 
+          {loading && (
+            <div className="problems-table-wrap">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <div className="skeleton-row" key={i} style={{ animationDelay: `${i * 0.06}s` }}>
+                  <span className="sk sk-id" /><span className="sk sk-title" /><span className="sk sk-domain" /><span className="sk sk-badge" />
+                </div>
+              ))}
+            </div>
+          )}
+
           {!loading && !error && (
             <>
-              <p className="problems-subheading">{problems.length} problems</p>
+              <p className="problems-subheading">
+                {filtered.length} {filtered.length === 1 ? "problem" : "problems"}
+                {(query || diff !== "All") && <span className="filtered-of"> of {problems.length}</span>}
+              </p>
               <table className="problems-table">
                 <thead>
                   <tr>
@@ -110,10 +166,12 @@ export default function ProblemsPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {problems.length === 0 && (
-                    <tr><td colSpan={5} className="problems-empty">{TAB_META[tab].emptyText}</td></tr>
+                  {filtered.length === 0 && (
+                    <tr><td colSpan={5} className="problems-empty">
+                      {problems.length === 0 ? TAB_META[tab].emptyText : "No problems match your filters."}
+                    </td></tr>
                   )}
-                  {problems.map((p) => (
+                  {filtered.map((p) => (
                     <tr
                       key={p.id}
                       className={`problem-row problem-row-${tab}`}
@@ -121,9 +179,11 @@ export default function ProblemsPage() {
                     >
                       <td className="col-id">{p.id}</td>
                       <td className="col-title">{p.title}</td>
-                      <td className="col-domain">{p.domain}</td>
+                      <td className="col-domain"><span className="domain-chip">{p.domain}</span></td>
                       <td className="col-difficulty">
-                        <span className={`difficulty-badge ${difficultyClass(p.difficulty)}`}>{p.difficulty}</span>
+                        <span className={`difficulty-badge ${difficultyClass(p.difficulty)}`}>
+                          <span className="diff-dot" />{p.difficulty}
+                        </span>
                       </td>
                       <td className="col-time">~{p.estimatedMinutes}m</td>
                     </tr>
@@ -132,7 +192,7 @@ export default function ProblemsPage() {
               </table>
             </>
           )}
-        </>
+        </div>
       )}
     </div>
   );

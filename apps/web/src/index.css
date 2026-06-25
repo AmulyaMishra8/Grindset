@@ -5,25 +5,51 @@
 }
 
 :root {
-  --bg-primary: #0d0d14;
+  /* ── Surfaces ── */
+  --bg-primary: #0b0b12;
   --bg-secondary: #13131f;
   --bg-panel: #111118;
+  --bg-elevated: #16162400;
   --bg-hover: #1a1a2e;
   --bg-active: #1f1f35;
-  --border: #2a2a45;
+  --border: #24243d;
   --border-light: #3a3a5c;
-  --text-primary: #e8eaf6;
-  --text-secondary: #7986cb;
-  --text-muted: #424874;
+
+  /* ── Text ── */
+  --text-primary: #eceefb;
+  --text-secondary: #8a93d2;
+  --text-muted: #565d8f;
+
+  /* ── Brand ── */
   --accent: #7c4dff;
   --accent-hover: #9c6fff;
-  --easy: #00e5a0;
-  --medium: #ff9f43;
-  --hard: #ff4757;
+  --accent-soft: rgba(124, 77, 255, 0.12);
+  --accent-glow: rgba(124, 77, 255, 0.35);
+  --accent-grad: linear-gradient(135deg, #8b5cff 0%, #6a3dff 100%);
+
+  /* ── Status ── */
+  --easy: #1fe0a4;
+  --medium: #ffa94d;
+  --hard: #ff5470;
   --green: #00c896;
   --green-hover: #00b085;
+
   --code-bg: #1a1a2e;
   --scrollbar: #2a2a45;
+
+  /* ── Scale ── */
+  --radius-sm: 7px;
+  --radius: 11px;
+  --radius-lg: 16px;
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow: 0 8px 24px -8px rgba(0, 0, 0, 0.55);
+  --shadow-glow: 0 0 0 1px var(--accent-soft), 0 10px 30px -12px var(--accent-glow);
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --t-fast: 0.13s var(--ease);
+  --t: 0.22s var(--ease);
+
+  --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-mono: "JetBrains Mono", "Fira Code", "Cascadia Code", Consolas, monospace;
 }
 
 html, body, #root {
@@ -33,30 +59,44 @@ html, body, #root {
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-family: var(--font-sans);
   background: var(--bg-primary);
+  /* Subtle ambient glow so flat dark surfaces feel less inert. */
+  background-image:
+    radial-gradient(60rem 40rem at 80% -10%, rgba(124, 77, 255, 0.08), transparent 60%),
+    radial-gradient(50rem 35rem at -10% 110%, rgba(31, 224, 164, 0.05), transparent 55%);
+  background-attachment: fixed;
   color: var(--text-primary);
   font-size: 14px;
   line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background: var(--accent-glow);
+  color: #fff;
 }
 
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 8px;
+  height: 8px;
 }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb {
   background: var(--scrollbar);
-  border-radius: 3px;
+  border-radius: 4px;
+  border: 2px solid transparent;
+  background-clip: content-box;
 }
-::-webkit-scrollbar-thumb:hover { background: var(--border-light); }
+::-webkit-scrollbar-thumb:hover { background: var(--border-light); background-clip: content-box; }
 
 code {
   background: var(--code-bg);
-  padding: 1px 5px;
-  border-radius: 4px;
-  font-family: "Fira Code", "Cascadia Code", Consolas, monospace;
-  font-size: 0.9em;
+  padding: 1px 6px;
+  border-radius: 5px;
+  font-family: var(--font-mono);
+  font-size: 0.88em;
   color: #e6c07b;
 }
 
@@ -64,4 +104,19 @@ button {
   cursor: pointer;
   border: none;
   font-family: inherit;
+}
+
+/* Shared focus ring for keyboard users. */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+@keyframes grindset-fade-up {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes grindset-shimmer {
+  100% { transform: translateX(100%); }
 }

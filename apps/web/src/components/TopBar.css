@@ -1,6 +1,8 @@
 .topbar {
   height: 44px;
-  background: var(--bg-secondary);
+  background: rgba(19, 19, 31, 0.8);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--border);
   display: flex;
   align-items: center;
@@ -33,13 +35,14 @@
 }
 
 .nav-btn {
+  position: relative;
   background: transparent;
   color: var(--text-secondary);
   font-size: 13px;
-  font-weight: 500;
-  padding: 4px 10px;
-  border-radius: 6px;
-  transition: color 0.15s, background 0.15s;
+  font-weight: 600;
+  padding: 5px 12px;
+  border-radius: 8px;
+  transition: color var(--t-fast), background var(--t-fast);
 }
 
 .nav-btn:hover {
@@ -49,6 +52,17 @@
 
 .nav-btn.active {
   color: var(--text-primary);
+  background: var(--accent-soft);
+}
+.nav-btn.active::after {
+  content: "";
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: 1px;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--accent);
 }
 
 .topbar-right {
@@ -65,8 +79,8 @@
   justify-content: center;
   width: 32px;
   height: 32px;
-  border-radius: 6px;
-  transition: color 0.15s, background 0.15s;
+  border-radius: 8px;
+  transition: color var(--t-fast), background var(--t-fast);
 }
 
 .topbar-icon-btn:hover {
@@ -78,11 +92,17 @@
   width: 30px;
   height: 30px;
   border-radius: 50%;
-  background: var(--accent);
+  background: var(--accent-grad);
   color: #fff;
   font-weight: 700;
   font-size: 13px;
   display: flex;
   align-items: center;
   justify-content: center;
+  box-shadow: 0 0 0 1px var(--border-light), 0 2px 8px -2px var(--accent-glow);
+  transition: transform var(--t-fast), box-shadow var(--t-fast);
+}
+.topbar-avatar:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 0 0 1px var(--accent), 0 4px 12px -2px var(--accent-glow);
 }
