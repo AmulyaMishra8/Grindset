@@ -2,7 +2,7 @@ import express from "express";
 import userRoutes from "./routes/user.routes";
 
 const app = express();
-const PORT = 4001;
+const PORT = process.env.PORT ? parseInt(process.env.PORT) : 4001;
 
 app.use(express.json());
 app.use("/api/users", userRoutes);
