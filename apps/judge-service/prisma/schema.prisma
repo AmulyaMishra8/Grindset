@@ -1,0 +1,35 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Problem {
+  id                 Int           @id @default(autoincrement())
+  slug               String        @unique
+  title              String
+  domain             String
+  difficulty         String
+  estimatedMinutes   Int
+  problemStatement   String
+  sealedExpectations Json
+  chatFormat         Json?
+  referenceCode      Json?
+  createdAt          DateTime      @default(now())
+  practiceSets       PracticeSet[]
+  testSets           TestSet[]
+}
+
+model PracticeSet {
+  id        Int     @id @default(autoincrement())
+  problemId Int     @unique
+  problem   Problem @relation(fields: [problemId], references: [id])
+}
+
+model TestSet {
+  id        Int     @id @default(autoincrement())
+  problemId Int     @unique
+  problem   Problem @relation(fields: [problemId], references: [id])
+}

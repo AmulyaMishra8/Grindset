@@ -1,0 +1,67 @@
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --bg-primary: #0d0d14;
+  --bg-secondary: #13131f;
+  --bg-panel: #111118;
+  --bg-hover: #1a1a2e;
+  --bg-active: #1f1f35;
+  --border: #2a2a45;
+  --border-light: #3a3a5c;
+  --text-primary: #e8eaf6;
+  --text-secondary: #7986cb;
+  --text-muted: #424874;
+  --accent: #7c4dff;
+  --accent-hover: #9c6fff;
+  --easy: #00e5a0;
+  --medium: #ff9f43;
+  --hard: #ff4757;
+  --green: #00c896;
+  --green-hover: #00b085;
+  --code-bg: #1a1a2e;
+  --scrollbar: #2a2a45;
+}
+
+html, body, #root {
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: var(--scrollbar);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover { background: var(--border-light); }
+
+code {
+  background: var(--code-bg);
+  padding: 1px 5px;
+  border-radius: 4px;
+  font-family: "Fira Code", "Cascadia Code", Consolas, monospace;
+  font-size: 0.9em;
+  color: #e6c07b;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  font-family: inherit;
+}

@@ -1,0 +1,53 @@
+.problem-page {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+.main-area {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.problem-pane,
+.editor-pane {
+  height: 100%;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.v-divider {
+  width: 5px;
+  flex-shrink: 0;
+  background: var(--border);
+  cursor: col-resize;
+  transition: background 0.15s;
+}
+
+.v-divider:hover,
+.v-divider:active {
+  background: var(--accent);
+}
+
+.h-divider {
+  height: 5px;
+  width: 100%;
+  flex-shrink: 0;
+  background: var(--border);
+  cursor: row-resize;
+  transition: background 0.15s;
+}
+
+.h-divider:hover,
+.h-divider:active {
+  background: var(--accent);
+}
+
+.ai-panel {
+  width: 100%;
+  flex-shrink: 0;
+  overflow: hidden;
+}

@@ -1,0 +1,217 @@
+.problems-page {
+  padding: 0;
+  max-width: 900px;
+  margin: 0 auto;
+  overflow-y: auto;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Tab bar ─────────────────────────────────────────────────────────────── */
+.mode-tabs {
+  display: flex;
+  gap: 0;
+  border-bottom: 1px solid var(--border);
+  padding: 0 36px;
+  flex-shrink: 0;
+}
+
+.mode-tab {
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  padding: 16px 20px 14px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+  margin-bottom: -1px;
+}
+
+.mode-tab:hover { color: var(--text-primary); }
+
+.mode-tab-practice.mode-tab-active {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+
+.mode-tab-test.mode-tab-active {
+  color: var(--medium);
+  border-bottom-color: var(--medium);
+}
+
+.mode-tab-discuss.mode-tab-active {
+  color: var(--text-secondary);
+  border-bottom-color: var(--text-secondary);
+}
+
+/* ── Mode banner ─────────────────────────────────────────────────────────── */
+.mode-banner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 36px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.mode-desc {
+  font-size: 12px;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+.mode-pill {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  padding: 3px 9px;
+  border-radius: 10px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.mode-pill-practice {
+  background: rgba(124, 77, 255, 0.12);
+  color: var(--accent);
+}
+
+.mode-pill-test {
+  background: rgba(255, 159, 67, 0.12);
+  color: var(--medium);
+}
+
+/* ── Content area ────────────────────────────────────────────────────────── */
+.problems-subheading {
+  font-size: 11px;
+  color: var(--text-muted);
+  padding: 12px 36px 6px;
+  flex-shrink: 0;
+}
+
+.problems-loading {
+  color: var(--text-muted);
+  padding: 40px 0;
+  text-align: center;
+}
+
+.problems-error {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 16px 36px;
+  padding: 14px 16px;
+  background: rgba(255, 71, 87, 0.08);
+  border: 1px solid rgba(255, 71, 87, 0.25);
+  border-radius: 8px;
+  color: var(--hard);
+  font-size: 13px;
+}
+
+.problems-error button {
+  margin-left: auto;
+  background: transparent;
+  border: 1px solid currentColor;
+  color: inherit;
+  font-size: 12px;
+  padding: 3px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  opacity: 0.8;
+  transition: opacity 0.15s;
+}
+
+.problems-error button:hover { opacity: 1; }
+
+/* ── Table ───────────────────────────────────────────────────────────────── */
+.problems-table {
+  width: 100%;
+  border-collapse: collapse;
+  flex: 1;
+}
+
+.problems-table th {
+  text-align: left;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  padding: 0 12px 10px;
+  border-bottom: 1px solid var(--border);
+}
+
+.problems-table th:first-child { padding-left: 36px; }
+.problems-table th:last-child  { padding-right: 36px; }
+
+.problems-empty {
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 13px;
+  padding: 40px 0 !important;
+}
+
+.problem-row {
+  cursor: pointer;
+  border-bottom: 1px solid var(--border);
+  transition: background 0.1s;
+}
+
+.problem-row:hover { background: var(--bg-hover); }
+
+.problem-row-test:hover { background: rgba(255, 159, 67, 0.04); }
+
+.problem-row td {
+  padding: 14px 12px;
+  font-size: 13px;
+  color: var(--text-primary);
+  vertical-align: middle;
+}
+
+.problem-row td:first-child { padding-left: 36px; }
+.problem-row td:last-child  { padding-right: 36px; }
+
+.col-id    { color: var(--text-muted) !important; width: 40px; }
+.col-title { font-weight: 500; }
+.col-domain { color: var(--text-secondary) !important; }
+.col-difficulty { width: 110px; }
+.col-time  { color: var(--text-muted) !important; width: 60px; text-align: right; }
+
+.difficulty-badge {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 12px;
+  display: inline-block;
+}
+
+.badge-easy   { background: rgba(0,229,160,0.12);  color: var(--easy); }
+.badge-medium { background: rgba(255,159,67,0.12); color: var(--medium); }
+.badge-hard   { background: rgba(255,71,87,0.12);  color: var(--hard); }
+
+/* ── Discuss placeholder ─────────────────────────────────────────────────── */
+.discuss-placeholder {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 80px 36px;
+}
+
+.discuss-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.discuss-sub {
+  font-size: 13px;
+  color: var(--text-muted);
+  text-align: center;
+  max-width: 360px;
+}

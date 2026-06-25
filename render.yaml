@@ -1,0 +1,93 @@
+services:
+  # ── Frontend (Static Site) ─────────────────────────────────────────────────
+  - type: web
+    name: grindset-web
+    runtime: static
+    rootDir: apps/web
+    buildCommand: npm install && npm run build
+    staticPublishPath: dist
+    envVars:
+      - key: VITE_API_URL
+        sync: false  # Set this to your api-gateway URL on Render
+
+  # ── API Gateway ────────────────────────────────────────────────────────────
+  - type: web
+    name: grindset-gateway
+    runtime: node
+    rootDir: apps/api-gateway
+    buildCommand: npm install && npm run build
+    startCommand: npm run start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: JUDGE_SERVICE_URL
+        sync: false  # Set to your judge-service Render URL
+      - key: AUTH_SERVICE_URL
+        sync: false  # Set to your auth-service Render URL
+      - key: USER_SERVICE_URL
+        sync: false  # Set to your user-service Render URL
+
+  # ── Judge Service ──────────────────────────────────────────────────────────
+  - type: web
+    name: grindset-judge
+    runtime: node
+    rootDir: apps/judge-service
+    buildCommand: npm install && npm run build
+    startCommand: npm run start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE
+        sync: false  # Your Neon DATABASE_URL
+      - key: FIRST_GROQ_KEY
+        sync: false
+      - key: SECOND_GROQ_KEY
+        sync: false
+      - key: THIRD_GROQ_KEY
+        sync: false
+      - key: MISTRAL_KEY
+        sync: false
+
+  # ── Auth Service ───────────────────────────────────────────────────────────
+  - type: web
+    name: grindset-auth
+    runtime: node
+    rootDir: apps/auth-service
+    buildCommand: npm install && npm run build
+    startCommand: npm run start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: "4003"
+      - key: DATABASE_URL
+        sync: false  # Your Neon DATABASE_URL
+      - key: REDIS_URL
+        sync: false  # Your Upstash Redis URL
+      - key: WEB_ORIGIN
+        sync: false  # Your frontend Render URL e.g. https://grindset-web.onrender.com
+      - key: APP_URL
+        sync: false  # Your auth-service Render URL
+      - key: JWT_PRIVATE_KEY
+        sync: false  # RSA private key PEM (newlines as \n)
+      - key: JWT_PUBLIC_KEY
+        sync: false  # RSA public key PEM (newlines as \n)
+      - key: JWT_ISSUER
+        sync: false
+      - key: JWT_AUDIENCE
+        sync: false
+      - key: COOKIE_SECURE
+        value: "true"
+      - key: ENCRYPTION_KEY
+        sync: false  # Strong random string
+
+  # ── User Service ───────────────────────────────────────────────────────────
+  - type: web
+    name: grindset-user
+    runtime: node
+    rootDir: apps/user-service
+    buildCommand: npm install && npm run build
+    startCommand: npm run start
+    envVars:
+      - key: NODE_ENV
+        value: production
