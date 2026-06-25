@@ -19,7 +19,11 @@ export const CSRF_COOKIE = "csrf_token";
 const base = {
   httpOnly: true,
   secure: env.COOKIE_SECURE,
-  sameSite: "lax" as const,
+  // The web app and the API live on different *.onrender.com subdomains, which are
+  // cross-site (onrender.com is a public suffix). The browser only sends these
+  // cookies on the app's cross-site fetch() calls with SameSite=None; Secure.
+  // Locally (COOKIE_SECURE=false) fall back to Lax, since None requires Secure.
+  sameSite: (env.COOKIE_SECURE ? "none" : "lax") as "none" | "lax",
   domain: env.COOKIE_DOMAIN || undefined,
   path: "/",
 };
