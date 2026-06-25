@@ -3,9 +3,8 @@ services:
   - type: web
     name: grindset-web
     runtime: static
-    rootDir: apps/web
-    buildCommand: npm install && npm run build
-    staticPublishPath: dist
+    buildCommand: npm i -g pnpm@9 && pnpm install --frozen-lockfile --prod=false --filter @grindset/web... && pnpm --filter @grindset/web... build
+    staticPublishPath: apps/web/dist
     envVars:
       - key: VITE_API_URL
         sync: false  # Set this to your api-gateway URL on Render
@@ -15,9 +14,8 @@ services:
     name: grindset-gateway
     runtime: node
     plan: free
-    rootDir: apps/api-gateway
-    buildCommand: npm install && npm run build
-    startCommand: npm run start
+    buildCommand: npm i -g pnpm@9 && pnpm install --frozen-lockfile --prod=false --filter @grindset/api-gateway... && pnpm --filter @grindset/api-gateway... build
+    startCommand: node apps/api-gateway/dist/index.js
     envVars:
       - key: NODE_ENV
         value: production
@@ -33,9 +31,8 @@ services:
     name: grindset-judge
     runtime: node
     plan: free
-    rootDir: apps/judge-service
-    buildCommand: npm install && npm run build
-    startCommand: npm run start
+    buildCommand: npm i -g pnpm@9 && pnpm install --frozen-lockfile --prod=false --filter @grindset/judge-service... && pnpm --filter @grindset/judge-service... build
+    startCommand: node apps/judge-service/dist/index.js
     envVars:
       - key: NODE_ENV
         value: production
@@ -55,9 +52,8 @@ services:
     name: grindset-auth
     runtime: node
     plan: free
-    rootDir: apps/auth-service
-    buildCommand: npm install && npm run build
-    startCommand: npm run start
+    buildCommand: npm i -g pnpm@9 && pnpm install --frozen-lockfile --prod=false --filter @grindset/auth-service... && pnpm --filter @grindset/auth-service... build
+    startCommand: node apps/auth-service/dist/src/index.js
     envVars:
       - key: NODE_ENV
         value: production
@@ -89,9 +85,8 @@ services:
     name: grindset-user
     runtime: node
     plan: free
-    rootDir: apps/user-service
-    buildCommand: npm install && npm run build
-    startCommand: npm run start
+    buildCommand: npm i -g pnpm@9 && pnpm install --frozen-lockfile --prod=false --filter @grindset/user-service... && pnpm --filter @grindset/user-service... build
+    startCommand: node apps/user-service/dist/index.js
     envVars:
       - key: NODE_ENV
         value: production
