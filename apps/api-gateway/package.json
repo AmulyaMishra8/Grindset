@@ -9,6 +9,7 @@
                 },
     "dependencies":  {
                          "@grindset/shared-types":  "workspace:*",
+                         "dotenv":  "^16.4.5",
                          "express":  "^4.19.0",
                          "http-proxy-middleware":  "^3.0.0"
                      },
