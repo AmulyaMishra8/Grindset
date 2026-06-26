@@ -23,7 +23,9 @@ export default function TopBar() {
   return (
     <header className="topbar">
       <div className="topbar-left">
-        <img src="/grindset_logo.png" alt="Grindset" className="topbar-logo" />
+        <Link to="/" className="topbar-logo-link" aria-label="Home">
+          <img src="/grindset_logo.png" alt="Grindset" className="topbar-logo" />
+        </Link>
         <nav className="topbar-nav">
           <NavLink
             to="/problems"
