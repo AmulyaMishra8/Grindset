@@ -19,6 +19,11 @@
   gap: 24px;
 }
 
+.topbar-logo-link {
+  display: inline-flex;
+  align-items: center;
+}
+
 .topbar-logo {
   height: 120px;
   width: auto;
@@ -53,16 +58,6 @@
 .nav-btn.active {
   color: var(--text-primary);
   background: var(--accent-soft);
-}
-.nav-btn.active::after {
-  content: "";
-  position: absolute;
-  left: 12px;
-  right: 12px;
-  bottom: 1px;
-  height: 2px;
-  border-radius: 2px;
-  background: var(--accent);
 }
 
 .topbar-right {
