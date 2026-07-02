@@ -29,7 +29,7 @@ export function MfaChallengePage() {
     try {
       await authApi.mfaChallenge(mfaToken!, code.trim());
       await refresh();
-      navigate("/");
+      navigate("/problems");
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Something went wrong");
     } finally {

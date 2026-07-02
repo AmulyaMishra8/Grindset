@@ -103,13 +103,13 @@ export default function AIChat({ problem, code, language, messages, onMessagesCh
     const text = input.trim();
     if (!text || loading) return;
     setInput("");
-    const updatedHistory = [...messages];
     setMessages((prev) => [...prev, { role: "user", content: text }]);
     setLoading(true);
     try {
+      // The server looks up the problem and holds the conversation history
+      // (that server-side copy is what grading reads).
       const { reply } = await api.post<{ reply: string }>("/api/judge/chat", {
-        problem: { title: problem.title, problemStatement: problem.problemStatement },
-        code, language, message: text, history: updatedHistory, mode,
+        problemId: problem.id, code, language, message: text, mode,
       });
       setMessages((prev) => [...prev, { role: "ai", content: reply }]);
       // Junior writes straight into the editor — no "Apply" click needed.

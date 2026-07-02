@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { prisma } from "../db/prisma";
 import { executeCode } from "../executors/index";
 import { ensureTestsGenerated } from "./tests.controller";
+import { getConvo } from "../lib/convoStore";
 
 const GROQ_URL    = "https://api.groq.com/openai/v1/chat/completions";
 const MISTRAL_URL = "https://api.mistral.ai/v1/chat/completions";
@@ -265,10 +266,9 @@ async function evaluateWithMistral(
         chatHistory.map((m) => `${m.role === "user" ? "Candidate" : "PM"}: ${m.content}`).join("\n"),
         "",
       ] : []),
-      ...(aiHistory.filter((_, i) => i > 0).length > 0 ? [
+      ...(aiHistory.length > 0 ? [
         "Candidate's conversation with the AI junior developer:",
         aiHistory
-          .filter((_, i) => i > 0)
           .map((m) => `${m.role === "user" ? "Candidate" : "Junior AI"}: ${m.content}`)
           .join("\n"),
         "",
@@ -311,7 +311,7 @@ async function evaluateWithMistral(
   }
 
   // ── Test mode: full scoring, agentic round framing ────────────────────────
-  const aiExchanges = aiHistory.filter((_, i) => i > 0);
+  const aiExchanges = aiHistory;
   const candidateJuniorMessages = aiExchanges
     .filter(m => m.role === "user")
     .map(m => m.content);
@@ -473,14 +473,17 @@ async function evaluateWithMistral(
 
 // ── Main handler (SSE streaming) ─────────────────────────────────────────────
 export const submitSolution = async (req: Request, res: Response) => {
-  const { problemId, code, language, chatHistory = [], aiHistory = [], mode = "test" } = req.body as {
+  const { problemId, code, language, mode = "test" } = req.body as {
     problemId: number;
     code: string;
     language: string;
-    chatHistory: { role: "user" | "pm"; content: string }[];
-    aiHistory: { role: "user" | "ai"; content: string }[];
     mode?: "practice" | "test";
   };
+
+  // Grade against the conversations that actually happened through the server —
+  // client-supplied histories are ignored (they'd be trivially fakeable, and
+  // requirementsClarification is the double-weighted score).
+  const { pm: chatHistory, ai: aiHistory } = getConvo(req.user!.id, problemId);
 
   res.setHeader("Content-Type", "text/event-stream");
   res.setHeader("Cache-Control", "no-cache");

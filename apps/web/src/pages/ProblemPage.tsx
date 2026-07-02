@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useParams, useNavigate, useSearchParams } from "react-router-dom";
-import ProblemPanel, { type PmHistoryMsg } from "../components/ProblemPanel";
+import ProblemPanel from "../components/ProblemPanel";
 import CodeEditor from "../components/CodeEditor";
 import AIChat, { type AiMessage } from "../components/AIChat";
 import type { Problem } from "../data/problems";
@@ -22,7 +22,6 @@ export default function ProblemPage() {
   const [aiHeight, setAiHeight] = useState(280);
   const [code, setCode] = useState("");
   const [language, setLanguage] = useState("javascript");
-  const [chatHistory, setChatHistory] = useState<PmHistoryMsg[]>([]);
   const [aiMessages, setAiMessages] = useState<AiMessage[]>([]);
 
   const containerRef = useRef<HTMLDivElement>(null);
@@ -61,13 +60,16 @@ export default function ProblemPage() {
     setNotFound(false);
     setProblem(null);
 
+    // A fresh attempt — reset the server-held PM/junior conversation state so
+    // grading starts from a clean slate.
+    api.post(`/api/judge/problems/${id}/start`).catch(() => {});
+
     api.get<Problem>(`/api/judge/problems/${id}`)
       .then((p) => {
         setProblem(p);
         const stub = p.starterCode?.[language] ?? p.starterCode?.javascript ?? "";
         setCode(stub);
         stubRef.current = stub;
-        setChatHistory([]);
         setAiMessages([{
           role: "ai",
           content: mode === "test"
@@ -143,7 +145,7 @@ export default function ProblemPage() {
     >
       <div className="main-area">
         <div className="problem-pane" style={{ width: `${splitPct}%` }}>
-          <ProblemPanel problem={problem} onChatHistoryChange={setChatHistory} mode={mode} />
+          <ProblemPanel problem={problem} mode={mode} />
         </div>
 
         <div className="v-divider" onMouseDown={onHMouseDown} />
@@ -164,8 +166,6 @@ export default function ProblemPage() {
             }}
             onToggleAI={() => setAiOpen((p) => !p)}
             aiOpen={aiOpen}
-            chatHistory={chatHistory}
-            aiHistory={aiMessages}
             mode={mode}
           />
         </div>

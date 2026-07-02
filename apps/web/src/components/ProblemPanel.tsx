@@ -23,9 +23,11 @@ function renderText(text: string) {
 }
 
 // ── Interactive Slack thread ─────────────────────────────────────────────────
+// The conversation is mirrored server-side (keyed by user+problem) — that copy
+// is what grading reads. This local state is display-only.
 type HistoryMsg = { role: "user" | "pm"; content: string };
 
-function InteractiveThread({ chat, problem, onHistoryChange }: { chat: ChatFormat; problem: Problem; onHistoryChange: (h: HistoryMsg[]) => void }) {
+function InteractiveThread({ chat, problem }: { chat: ChatFormat; problem: Problem }) {
   const [history, setHistory] = useState<HistoryMsg[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
@@ -49,18 +51,12 @@ function InteractiveThread({ chat, problem, onHistoryChange }: { chat: ChatForma
 
     try {
       const { reply } = await api.post<{ reply: string }>("/api/judge/pm-chat", {
-        problemStatement: problem.problemStatement,
-        sealedExpectations: problem.sealedExpectations,
+        problemId: problem.id,
         message: text,
-        history,
       });
-      const next = [...updated, { role: "pm" as const, content: reply }];
-      setHistory(next);
-      onHistoryChange(next);
+      setHistory([...updated, { role: "pm" as const, content: reply }]);
     } catch {
-      const next = [...updated, { role: "pm" as const, content: "Sorry, can't talk right now — ping me later." }];
-      setHistory(next);
-      onHistoryChange(next);
+      setHistory([...updated, { role: "pm" as const, content: "Sorry, can't talk right now — ping me later." }]);
     } finally {
       setLoading(false);
     }
@@ -196,9 +192,7 @@ function InteractiveThread({ chat, problem, onHistoryChange }: { chat: ChatForma
 }
 
 // ── Main panel ───────────────────────────────────────────────────────────────
-export type PmHistoryMsg = HistoryMsg;
-
-export default function ProblemPanel({ problem, onChatHistoryChange, mode = "practice" }: { problem: Problem; onChatHistoryChange: (h: HistoryMsg[]) => void; mode?: "practice" | "test" }) {
+export default function ProblemPanel({ problem, mode = "practice" }: { problem: Problem; mode?: "practice" | "test" }) {
   const hasThread = !!problem.chatFormat;
   const difficultyClass =
     problem.difficulty === "Easy" ? "badge-easy"
@@ -224,7 +218,7 @@ export default function ProblemPanel({ problem, onChatHistoryChange, mode = "pra
             </div>
 
             {hasThread
-              ? <InteractiveThread chat={problem.chatFormat as ChatFormat} problem={problem} onHistoryChange={onChatHistoryChange} />
+              ? <InteractiveThread chat={problem.chatFormat as ChatFormat} problem={problem} />
               : <p className="problem-statement">{problem.problemStatement}</p>
             }
           </div>

@@ -5,10 +5,12 @@ import "./auth.css";
 import { AuthProvider } from "./context/AuthProvider";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import TopBar from "./components/TopBar";
+import LandingPage from "./pages/LandingPage";
 import ProblemPage from "./pages/ProblemPage";
 import ProblemsPage from "./pages/ProblemsPage";
 import DiscussPage from "./pages/DiscussPage";
 import DiscussThreadPage from "./pages/DiscussThreadPage";
+import InterviewPage from "./pages/InterviewPage";
 import { LoginPage } from "./pages/auth/LoginPage";
 import { RegisterPage } from "./pages/auth/RegisterPage";
 import { VerifyEmailPage } from "./pages/auth/VerifyEmailPage";
@@ -22,6 +24,9 @@ export default function App() {
     <AuthProvider>
       <BrowserRouter>
         <Routes>
+          {/* Public front door — forwards logged-in users to /problems */}
+          <Route path="/" element={<LandingPage />} />
+
           {/* Public auth screens — no TopBar */}
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
@@ -32,7 +37,6 @@ export default function App() {
 
           {/* Protected app screens */}
           <Route element={<ProtectedRoute />}>
-            <Route path="/" element={<Navigate to="/problems" replace />} />
             <Route
               path="/problems"
               element={
@@ -73,6 +77,17 @@ export default function App() {
                   <TopBar />
                   <main className="app-main" style={{ overflowY: "auto" }}>
                     <DiscussThreadPage />
+                  </main>
+                </div>
+              }
+            />
+            <Route
+              path="/interview"
+              element={
+                <div className="app">
+                  <TopBar />
+                  <main className="app-main" style={{ overflowY: "auto" }}>
+                    <InterviewPage />
                   </main>
                 </div>
               }

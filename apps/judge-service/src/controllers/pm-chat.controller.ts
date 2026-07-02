@@ -1,9 +1,9 @@
 import { Request, Response } from "express";
+import { prisma } from "../db/prisma";
+import { getConvo, appendPm } from "../lib/convoStore";
 
 const GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions";
 const MODEL = "llama-3.3-70b-versatile";
-
-type HistoryMessage = { role: "user" | "pm"; content: string };
 
 const SYSTEM_PROMPT = (problemStatement: string, sealedExpectations: unknown) => `You are Ethan Wong, a Product Manager at a mid-size tech company.
 You wrote the following engineering brief and sent it to a dev on your team via Slack:
@@ -37,18 +37,26 @@ WHAT YOU SHOULD DO:
 Tone: casual Slack, friendly but busy. 1-3 sentences max. No bullet lists. Do not sign off.`;
 
 export const pmChat = async (req: Request, res: Response) => {
-  const { problemStatement, sealedExpectations, message, history = [] } = req.body as {
-    problemStatement: string;
-    sealedExpectations: unknown;
-    message: string;
-    history: HistoryMessage[];
-  };
+  const { problemId, message } = req.body as { problemId: number; message: string };
+  const userId = req.user!.id;
 
   const apiKey = process.env.SECOND_GROQ_KEY;
   if (!apiKey) return res.status(500).json({ error: "PM chat not configured" });
+  if (!Number.isInteger(problemId)) return res.status(400).json({ error: "Invalid problem ID" });
+  if (typeof message !== "string" || !message.trim()) return res.status(400).json({ error: "Empty message" });
+
+  // The brief and Ethan's internal acceptance criteria live server-side only —
+  // the client never sees (and can't tamper with) the sealed expectations.
+  const problem = await prisma.problem.findUnique({
+    where: { id: problemId },
+    select: { problemStatement: true, sealedExpectations: true },
+  });
+  if (!problem) return res.status(404).json({ error: "Problem not found" });
+
+  const history = getConvo(userId, problemId).pm;
 
   const groqMessages = [
-    { role: "system", content: SYSTEM_PROMPT(problemStatement, sealedExpectations) },
+    { role: "system", content: SYSTEM_PROMPT(problem.problemStatement, problem.sealedExpectations) },
     ...history.map((m) => ({
       role: m.role === "pm" ? "assistant" : "user",
       content: m.content,
@@ -77,7 +85,12 @@ export const pmChat = async (req: Request, res: Response) => {
     }
 
     const data = (await groqRes.json()) as { choices: { message: { content: string } }[] };
-    return res.json({ reply: data.choices[0]?.message?.content?.trim() ?? "" });
+    const reply = data.choices[0]?.message?.content?.trim() ?? "";
+
+    // Record the exchange server-side — this is what /submit grades against.
+    appendPm(userId, problemId, { role: "user", content: message }, { role: "pm", content: reply });
+
+    return res.json({ reply });
   } catch (err) {
     return res.status(500).json({ error: (err as Error).message });
   }

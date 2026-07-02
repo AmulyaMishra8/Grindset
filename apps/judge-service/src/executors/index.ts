@@ -13,6 +13,25 @@ export type ExecuteResult = {
 
 const TIMEOUT_MS = 5000;
 
+// The child process runs UNTRUSTED user code — it must never see this service's
+// secrets (DB URLs, LLM API keys). Only what node/python/npx need to start is
+// passed through; everything else is withheld.
+const ENV_ALLOWLIST = new Set([
+  "PATH", "LANG", "LC_ALL", "TZ",
+  // Windows: process spawning + temp dirs
+  "SYSTEMROOT", "WINDIR", "COMSPEC", "PATHEXT", "TEMP", "TMP",
+  // npx/node resolution caches
+  "HOME", "USERPROFILE", "APPDATA", "LOCALAPPDATA", "XDG_CACHE_HOME", "TMPDIR",
+]);
+
+function sandboxEnv(): NodeJS.ProcessEnv {
+  const env: NodeJS.ProcessEnv = {};
+  for (const key of Object.keys(process.env)) {
+    if (ENV_ALLOWLIST.has(key.toUpperCase())) env[key] = process.env[key];
+  }
+  return env;
+}
+
 const LANG_CONFIG: Record<string, { ext: string; cmd: string; args: (f: string) => string[] }> = {
   javascript: { ext: "js",  cmd: "node",   args: (f) => [f] },
   typescript: { ext: "ts",  cmd: "npx",    args: (f) => ["tsx", f] },
@@ -33,7 +52,7 @@ export async function executeCode(language: string, code: string): Promise<Execu
 
     const proc = spawn(config.cmd, config.args(filename), {
       timeout: TIMEOUT_MS,
-      env: { ...process.env, PATH: process.env.PATH },
+      env: sandboxEnv(),
     });
 
     proc.stdout.on("data", (d) => (stdout += d.toString()));

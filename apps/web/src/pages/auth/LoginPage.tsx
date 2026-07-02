@@ -37,7 +37,7 @@ export function LoginPage() {
         return;
       }
       await refresh();
-      navigate("/");
+      navigate("/problems");
     } catch (err) {
       setFormError(err instanceof ApiError ? err.message : "Something went wrong");
     }
