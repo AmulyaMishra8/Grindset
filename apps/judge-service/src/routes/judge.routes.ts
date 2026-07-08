@@ -9,6 +9,14 @@ import { requireAuth } from "../middleware/requireAuth";
 
 const router = Router();
 
+// Responses here are per-user and mutable (problem data gets re-seeded, stubs
+// change) — never let a browser or CDN serve a cached copy. A stale cached
+// /problems/:id response was showing old starter code after a re-seed.
+router.use((_req, res, next) => {
+  res.set("Cache-Control", "no-store");
+  next();
+});
+
 // Everything here costs money (LLM calls), runs code, or exposes problem
 // internals — all of it requires a logged-in user.
 router.use(requireAuth);
