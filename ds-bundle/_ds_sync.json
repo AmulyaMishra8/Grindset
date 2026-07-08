@@ -1,0 +1,25 @@
+{
+  "shape": "package",
+  "styleSha": "grindset-styles-v1",
+  "renderHashes": {
+    "Alert": "alert-preview-v1",
+    "FormField": "formfield-preview-v1",
+    "VoteControl": "votecontrol-preview-v1",
+    "TopBar": "topbar-preview-v1",
+    "AuthLayout": "authlayout-preview-v1"
+  },
+  "sourceKeys": {
+    "Alert": "components/primitives/Alert/Alert",
+    "FormField": "components/primitives/FormField/FormField",
+    "VoteControl": "components/primitives/VoteControl/VoteControl",
+    "TopBar": "components/layouts/TopBar/TopBar",
+    "AuthLayout": "components/layouts/AuthLayout/AuthLayout"
+  },
+  "keyRecipe": 7,
+  "scriptsSha": "grindset-bundle-v1",
+  "sourceHashes": {
+    "tokens": "grindset-tokens-v1"
+  },
+  "auxSha": "grindset-aux-v1",
+  "bundleSha12": "grindset-bundle-sha-v1"
+}

@@ -1,0 +1,27 @@
+{
+  "projectId": "1e56d8cb-a094-4f12-a035-58898b55d73c",
+  "shape": "package",
+  "srcDir": "apps/web/src",
+  "componentSrcMap": {
+    "Alert": "components/Alert.tsx",
+    "FormField": "components/FormField.tsx",
+    "VoteControl": "components/VoteControl.tsx",
+    "TopBar": "components/TopBar.tsx",
+    "AuthLayout": "components/AuthLayout.tsx",
+    "AIChat": null,
+    "CodeEditor": null,
+    "MfaSetup": null,
+    "ProblemPanel": null,
+    "PipelineOverlay": null,
+    "ResendVerification": null,
+    "SocialButtons": null,
+    "MicButton": null,
+    "Avatar": null,
+    "RolePicker": null,
+    "Scorecard": null,
+    "TranscriptPanel": null,
+    "ProtectedRoute": null
+  },
+  "tokensGlob": "index.css",
+  "readmeHeader": ".design-sync/conventions.md"
+}

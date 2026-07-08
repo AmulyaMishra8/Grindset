@@ -22,7 +22,7 @@ export class ApiError extends Error {
   }
 }
 
-function readCookie(name: string): string | undefined {
+export function readCookie(name: string): string | undefined {
   return document.cookie
     .split("; ")
     .find((row) => row.startsWith(name + "="))
@@ -72,7 +72,7 @@ async function rawRequest<T>(path: string, options: RequestOptions = {}): Promis
   return data as T;
 }
 
-async function tryRefresh(): Promise<boolean> {
+export async function tryRefresh(): Promise<boolean> {
   try {
     const csrf = readCookie("csrf_token");
     const res = await fetch(`${API_URL}/auth/refresh`, {

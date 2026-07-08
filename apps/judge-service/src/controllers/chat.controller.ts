@@ -1,23 +1,35 @@
 import { Request, Response } from "express";
+import { prisma } from "../db/prisma";
+import { getConvo, appendAi } from "../lib/convoStore";
 
 const GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions";
 const MODEL = "llama-3.3-70b-versatile";
 
-type ChatMessage = { role: "user" | "ai"; content: string };
-
 export const chat = async (req: Request, res: Response) => {
-  const { problem, code, language, message, history = [], mode = "practice" } = req.body as {
-    problem: { title: string; problemStatement: string };
+  const { problemId, code, language, message, mode = "practice" } = req.body as {
+    problemId: number;
     code: string;
     language: string;
     message: string;
-    history: ChatMessage[];
     mode?: "practice" | "test";
   };
+  const userId = req.user!.id;
 
   const apiKey = process.env.FIRST_GROQ_KEY;
   if (!apiKey) return res.status(500).json({ error: "AI service not configured" });
+  if (!Number.isInteger(problemId)) return res.status(400).json({ error: "Invalid problem ID" });
+  if (typeof message !== "string" || !message.trim()) return res.status(400).json({ error: "Empty message" });
 
+  // The problem context comes from the DB, and the conversation history from the
+  // server-side store — neither is trusted from the client, because both feed
+  // the /submit grading.
+  const problem = await prisma.problem.findUnique({
+    where: { id: problemId },
+    select: { title: true, problemStatement: true },
+  });
+  if (!problem) return res.status(404).json({ error: "Problem not found" });
+
+  const history = getConvo(userId, problemId).ai;
   const isFirstMessage = history.filter(m => m.role === "user").length === 0;
 
   const systemPrompt = mode === "test"
@@ -81,7 +93,12 @@ ${isFirstMessage
     }
 
     const data = (await groqRes.json()) as { choices: { message: { content: string } }[] };
-    return res.json({ reply: data.choices[0]?.message?.content ?? "" });
+    const reply = data.choices[0]?.message?.content ?? "";
+
+    // Record the exchange server-side — this is what /submit grades against.
+    appendAi(userId, problemId, { role: "user", content: message }, { role: "ai", content: reply });
+
+    return res.json({ reply });
   } catch (err) {
     return res.status(500).json({ error: (err as Error).message });
   }

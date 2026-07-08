@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { prisma } from "../db/prisma";
+import { resetConvo } from "../lib/convoStore";
 
 // Simple in-memory cache — problems change rarely, 60s TTL is fine
 const cache = new Map<string, { data: unknown; at: number }>();
@@ -111,13 +112,13 @@ export const getProblem = async (req: Request, res: Response) => {
   return res.json(problem);
 };
 
-export const revealProblem = async (req: Request, res: Response) => {
+// A fresh attempt at a problem — clears the server-held PM/junior conversation
+// state so the new session is graded on its own exchanges only.
+export const startProblemSession = (req: Request, res: Response) => {
   const id = parseInt(req.params.id, 10);
   if (isNaN(id)) return res.status(400).json({ error: "Invalid problem ID" });
-
-  const problem = await prisma.problem.findUnique({ where: { id } });
-  if (!problem) return res.status(404).json({ error: "Problem not found" });
-  return res.json(problem);
+  resetConvo(req.user!.id, id);
+  return res.status(204).end();
 };
 
 const PROBLEM_SELECT = { id: true, slug: true, title: true, difficulty: true, domain: true, estimatedMinutes: true } as const;

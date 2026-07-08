@@ -61,13 +61,11 @@ type Props = {
   onLanguageChange: (lang: string) => void;
   onToggleAI: () => void;
   aiOpen: boolean;
-  chatHistory: { role: "user" | "pm"; content: string }[];
-  aiHistory: { role: "user" | "ai"; content: string }[];
   mode?: "practice" | "test";
 };
 
 export default function CodeEditor({
-  problem, code, language, onCodeChange, onEditorReady, onLanguageChange, onToggleAI, aiOpen, chatHistory, aiHistory, mode = "practice",
+  problem, code, language, onCodeChange, onEditorReady, onLanguageChange, onToggleAI, aiOpen, mode = "practice",
 }: Props) {
   const [submitted, setSubmitted] = useState(false);
   const [overlayOpen, setOverlayOpen] = useState(false);
@@ -141,8 +139,6 @@ export default function CodeEditor({
           problemId={problem.id}
           code={code}
           language={language}
-          chatHistory={chatHistory}
-          aiHistory={aiHistory}
           mode={mode}
           onClose={() => setOverlayOpen(false)}
           onSolution={(refCode, lang) => setSolution({ code: refCode, language: lang })}

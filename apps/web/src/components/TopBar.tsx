@@ -23,7 +23,7 @@ export default function TopBar() {
   return (
     <header className="topbar">
       <div className="topbar-left">
-        <Link to="/" className="topbar-logo-link" aria-label="Home">
+        <Link to="/problems" className="topbar-logo-link" aria-label="Home">
           <img src="/grindset_logo.png" alt="Grindset" className="topbar-logo" />
         </Link>
         <nav className="topbar-nav">
@@ -38,6 +38,12 @@ export default function TopBar() {
             className={({ isActive }) => `nav-btn${isActive ? " active" : ""}`}
           >
             Discuss
+          </NavLink>
+          <NavLink
+            to="/interview"
+            className={({ isActive }) => `nav-btn${isActive ? " active" : ""}`}
+          >
+            AI Interview
           </NavLink>
         </nav>
       </div>

@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { readCookie, tryRefresh } from "../api/client";
 import "./PipelineOverlay.css";
 
 export type PipelineStage = "generating" | "running" | "analyzing";
@@ -117,14 +118,12 @@ type Props = {
   problemId: number;
   code: string;
   language: string;
-  chatHistory: { role: "user" | "pm"; content: string }[];
-  aiHistory: { role: "user" | "ai"; content: string }[];
   mode?: "practice" | "test";
   onClose: () => void;
   onSolution?: (referenceCode: string, language: string) => void;
 };
 
-export default function PipelineOverlay({ problemId, code, language, chatHistory, aiHistory, mode = "practice", onClose, onSolution }: Props) {
+export default function PipelineOverlay({ problemId, code, language, mode = "practice", onClose, onSolution }: Props) {
   const [pipelineStatus, setPipelineStatus] = useState<PipelineStatus>("generating");
   const [result, setResult] = useState<PipelineResult | null>(null);
   const resultRef = useRef<HTMLDivElement>(null);
@@ -134,13 +133,24 @@ export default function PipelineOverlay({ problemId, code, language, chatHistory
 
     (async () => {
       try {
-        const res = await fetch("/api/judge/submit", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          credentials: "include",
-          body: JSON.stringify({ problemId, code, language, chatHistory, aiHistory, mode }),
-        });
+        // Raw fetch (the shared client can't stream SSE), so attach the CSRF
+        // header ourselves and retry once through a token refresh on 401.
+        const submit = () => {
+          const csrf = readCookie("csrf_token");
+          return fetch("/api/judge/submit", {
+            method: "POST",
+            headers: { "Content-Type": "application/json", ...(csrf ? { "X-CSRF-Token": csrf } : {}) },
+            credentials: "include",
+            body: JSON.stringify({ problemId, code, language, mode }),
+          });
+        };
 
+        let res = await submit();
+        if (res.status === 401 && (await tryRefresh())) res = await submit();
+        if (!res.ok) {
+          const data = await res.json().catch(() => null);
+          throw new Error(data?.message ?? data?.error ?? `Submit failed (${res.status})`);
+        }
         if (!res.body) throw new Error("No response body");
 
         const reader = res.body.getReader();

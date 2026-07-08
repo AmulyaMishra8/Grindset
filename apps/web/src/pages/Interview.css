@@ -1,0 +1,258 @@
+/* AI Interview — uses the app's shared theme tokens (see index.css). */
+
+.iv-page {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 28px 24px 48px;
+}
+
+.iv-h1 {
+  font-size: 1.9rem;
+  font-weight: 700;
+  margin: 0 0 6px;
+  color: var(--text-primary);
+}
+.iv-tagline { color: var(--text-secondary); margin: 0 0 14px; }
+.iv-loading, .iv-notice { color: var(--text-secondary); padding: 40px 0; }
+.iv-muted { color: var(--text-muted); font-size: 0.85rem; }
+.iv-note { margin-top: 16px; }
+
+.iv-error {
+  background: rgba(255, 84, 112, 0.12);
+  border: 1px solid var(--hard);
+  color: #ffb3c0;
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
+  margin-bottom: 16px;
+  font-size: 0.9rem;
+}
+
+/* ── Role picker ───────────────────────────────────────────────────────────── */
+.iv-picker-head { margin-bottom: 22px; }
+.iv-quota {
+  display: inline-block;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  padding: 5px 12px;
+  border-radius: 999px;
+}
+.iv-quota-empty { color: var(--hard); border-color: var(--hard); }
+
+.iv-role-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 16px;
+}
+.iv-role-card {
+  position: relative;
+  text-align: left;
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  cursor: pointer;
+  transition: transform var(--t), border-color var(--t), box-shadow var(--t);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.iv-role-card:hover:not(:disabled) {
+  transform: translateY(-3px);
+  border-color: var(--accent);
+  box-shadow: var(--shadow);
+}
+.iv-role-card:disabled { opacity: 0.55; cursor: not-allowed; }
+.iv-role-dot {
+  width: 34px; height: 34px; border-radius: 10px;
+  background: var(--accent);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 20%, transparent);
+}
+.iv-role-label { font-size: 1.15rem; margin: 4px 0 0; color: var(--text-primary); }
+.iv-role-interviewer { font-size: 0.78rem; margin: 0; color: var(--accent); font-weight: 600; }
+.iv-role-blurb { color: var(--text-secondary); font-size: 0.88rem; margin: 0; line-height: 1.45; }
+.iv-role-dims {
+  list-style: none; padding: 0; margin: 4px 0 0;
+  display: flex; flex-wrap: wrap; gap: 6px;
+}
+.iv-role-dims li {
+  font-size: 0.72rem; color: var(--text-muted);
+  background: var(--bg-secondary); border: 1px solid var(--border);
+  padding: 2px 8px; border-radius: 999px;
+}
+.iv-role-cta { margin-top: 10px; color: var(--accent); font-weight: 600; font-size: 0.9rem; }
+
+/* ── Live interview layout ─────────────────────────────────────────────────── */
+.iv-live {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 24px;
+  align-items: start;
+}
+@media (max-width: 760px) {
+  .iv-live { grid-template-columns: 1fr; }
+}
+
+.iv-stage {
+  position: sticky; top: 20px;
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 22px 18px;
+  display: flex; flex-direction: column; align-items: center; gap: 14px;
+}
+.iv-stage-meta { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.iv-stage-role { font-weight: 700; }
+.iv-stage-hint { font-size: 0.72rem; color: var(--text-muted); }
+.iv-cap-note { font-size: 0.78rem; color: var(--medium); text-align: center; margin: 0; }
+
+/* ── Avatar ────────────────────────────────────────────────────────────────── */
+.iv-avatar { position: relative; width: 160px; height: 160px; display: grid; place-items: center; }
+.iv-avatar-ring {
+  position: absolute; inset: 0; border-radius: 50%;
+  border: 3px solid var(--accent, #6366f1);
+  opacity: 0.3; transition: opacity var(--t), transform var(--t);
+}
+.iv-avatar-listening .iv-avatar-ring { opacity: 0.9; animation: iv-pulse 1.2s ease-in-out infinite; }
+.iv-avatar-speaking .iv-avatar-ring { opacity: 0.75; }
+.iv-avatar-thinking .iv-avatar-ring { opacity: 0.5; animation: iv-spin 2.5s linear infinite; border-style: dashed; }
+@keyframes iv-pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.06); } }
+@keyframes iv-spin { to { transform: rotate(360deg); } }
+
+.iv-avatar-face { width: 130px; height: 130px; }
+.iv-face-bg { fill: #2a2a3e; }
+.iv-hair { fill: #1a1a26; }
+.iv-eye { fill: #e6e8f5; transition: transform var(--t); }
+.iv-avatar-thinking .iv-eye { transform: translateY(-2px); }
+.iv-mouth { fill: #e88; transform-origin: center; transform-box: fill-box; }
+.iv-avatar-speaking .iv-mouth { animation: iv-talk 0.28s ease-in-out infinite alternate; }
+@keyframes iv-talk { from { transform: scaleY(0.4); } to { transform: scaleY(1.5); } }
+
+.iv-avatar-label {
+  position: absolute; bottom: -6px;
+  display: flex; flex-direction: column; align-items: center;
+  font-weight: 700; color: var(--text-primary);
+}
+.iv-avatar-state { font-size: 0.7rem; font-weight: 500; color: var(--text-muted); }
+
+/* ── Conversation ──────────────────────────────────────────────────────────── */
+.iv-conversation { display: flex; flex-direction: column; min-height: 60vh; }
+.iv-transcript {
+  flex: 1;
+  display: flex; flex-direction: column; gap: 14px;
+  padding: 4px 4px 16px;
+  max-height: 62vh; overflow-y: auto;
+}
+.iv-turn { display: flex; flex-direction: column; gap: 4px; max-width: 85%; }
+.iv-turn-ai { align-self: flex-start; }
+.iv-turn-me { align-self: flex-end; align-items: flex-end; }
+.iv-turn-who { font-size: 0.72rem; color: var(--text-muted); padding: 0 6px; }
+.iv-bubble {
+  padding: 11px 15px; border-radius: var(--radius);
+  line-height: 1.5; font-size: 0.94rem;
+}
+.iv-bubble-ai { background: var(--bg-secondary); border: 1px solid var(--border); color: var(--text-primary); border-top-left-radius: 3px; }
+.iv-bubble-me { background: var(--accent-grad); color: #fff; border-top-right-radius: 3px; }
+.iv-bubble-pending { opacity: 0.65; font-style: italic; }
+.iv-diff {
+  display: inline-block; font-size: 0.66rem; font-weight: 700;
+  padding: 1px 7px; border-radius: 999px; margin-right: 8px;
+  vertical-align: middle; text-transform: uppercase; letter-spacing: 0.03em;
+}
+.iv-diff-easy { background: rgba(31,224,164,0.15); color: var(--easy); }
+.iv-diff-medium { background: rgba(255,169,77,0.15); color: var(--medium); }
+.iv-diff-hard { background: rgba(255,84,112,0.15); color: var(--hard); }
+
+.iv-bubble-thinking { display: inline-flex; gap: 4px; align-items: center; }
+.iv-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--text-muted); animation: iv-bounce 1.2s infinite; }
+.iv-dot:nth-child(2) { animation-delay: 0.2s; }
+.iv-dot:nth-child(3) { animation-delay: 0.4s; }
+@keyframes iv-bounce { 0%,60%,100% { opacity: 0.3; transform: translateY(0); } 30% { opacity: 1; transform: translateY(-4px); } }
+
+/* ── Composer ──────────────────────────────────────────────────────────────── */
+.iv-composer {
+  border: 1px solid var(--border); background: var(--bg-panel);
+  border-radius: var(--radius); padding: 12px; margin-top: auto;
+}
+.iv-answer {
+  width: 100%; resize: none; background: transparent; border: none;
+  color: var(--text-primary); font-family: inherit; font-size: 0.95rem;
+  outline: none; line-height: 1.5;
+}
+.iv-answer:disabled { opacity: 0.5; }
+.iv-composer-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 8px; }
+
+.iv-mic, .iv-btn-send, .iv-btn-primary, .iv-btn-end {
+  font-family: inherit; font-weight: 600; cursor: pointer;
+  border-radius: var(--radius-sm); transition: all var(--t-fast);
+  border: 1px solid var(--border);
+}
+.iv-mic {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 8px 14px; background: var(--bg-secondary); color: var(--text-primary);
+}
+.iv-mic:hover:not(:disabled) { border-color: var(--accent); }
+.iv-mic-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--text-muted); }
+.iv-mic-listening { border-color: var(--hard); color: #ffb3c0; }
+.iv-mic-listening .iv-mic-dot { background: var(--hard); animation: iv-blink 1s infinite; }
+.iv-mic-transcribing .iv-mic-dot { background: var(--medium); animation: iv-blink 0.6s infinite; }
+@keyframes iv-blink { 50% { opacity: 0.25; } }
+
+.iv-btn-send { padding: 8px 18px; background: var(--accent); color: #fff; border-color: var(--accent); }
+.iv-btn-send:disabled { opacity: 0.45; cursor: not-allowed; }
+.iv-btn-end {
+  width: 100%; padding: 10px; background: transparent; color: var(--text-secondary);
+}
+.iv-btn-end:hover:not(:disabled) { border-color: var(--hard); color: #ffb3c0; }
+.iv-btn-end:disabled { opacity: 0.55; cursor: wait; }
+
+/* ── Results / scorecard ───────────────────────────────────────────────────── */
+.iv-results { display: flex; flex-direction: column; gap: 18px; }
+.iv-results-head { display: flex; gap: 24px; align-items: center; flex-wrap: wrap; }
+.iv-score-ring {
+  width: 120px; height: 120px; border-radius: 50%; flex-shrink: 0;
+  display: grid; place-items: center;
+  background:
+    radial-gradient(closest-side, var(--bg-primary) 79%, transparent 80%),
+    conic-gradient(var(--ring) var(--pct), var(--border) 0);
+}
+.iv-score-num { font-size: 2.1rem; font-weight: 800; color: var(--text-primary); line-height: 1; }
+.iv-score-of { font-size: 0.75rem; color: var(--text-muted); }
+.iv-results-meta { flex: 1; min-width: 240px; }
+.iv-results-summary { color: var(--text-secondary); line-height: 1.55; margin: 4px 0; }
+.iv-results-sub { color: var(--text-muted); font-size: 0.82rem; margin: 0; }
+
+.iv-card {
+  background: var(--bg-panel); border: 1px solid var(--border);
+  border-radius: var(--radius-lg); padding: 18px 20px;
+}
+.iv-card-title { font-size: 1rem; margin: 0 0 14px; color: var(--text-primary); }
+.iv-two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+@media (max-width: 640px) { .iv-two-col { grid-template-columns: 1fr; } }
+
+.iv-dim-row { margin-bottom: 14px; }
+.iv-dim-top { display: flex; justify-content: space-between; font-size: 0.9rem; margin-bottom: 5px; }
+.iv-dim-label { color: var(--text-primary); }
+.iv-dim-score { font-weight: 700; }
+.iv-dim-bar { height: 7px; background: var(--bg-secondary); border-radius: 999px; overflow: hidden; }
+.iv-dim-fill { height: 100%; border-radius: 999px; transition: width 0.6s var(--ease); }
+.iv-dim-comment { font-size: 0.8rem; color: var(--text-muted); margin: 5px 0 0; }
+
+.iv-list { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 6px; }
+.iv-list li { font-size: 0.88rem; line-height: 1.45; }
+.iv-list-good li { color: #9be8c8; }
+.iv-list-gap li { color: #ffd2a0; }
+
+.iv-diff-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.iv-diff-cell {
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  background: var(--bg-secondary); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 14px;
+}
+.iv-diff-stat { font-size: 1.4rem; font-weight: 800; color: var(--text-primary); }
+.iv-diff-cap { font-size: 0.72rem; color: var(--text-muted); }
+
+.iv-results-actions { display: flex; justify-content: center; margin-top: 8px; }
+.iv-btn-primary { padding: 11px 24px; background: var(--accent-grad); color: #fff; border: none; }
+.iv-btn-primary:hover { filter: brightness(1.08); }

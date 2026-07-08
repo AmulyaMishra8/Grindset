@@ -53,6 +53,15 @@ const schema = z.object({
   SMTP_USER: z.string().optional(),
   SMTP_PASS: z.string().optional(),
   MAIL_FROM: z.string().default("Auth Service <no-reply@example.com>"),
+
+  // ---- AI Interview (Groq: LLM interviewer + Whisper STT) ----
+  // Optional: if no key is set, the interview routes return a clear "not
+  // configured" error instead of crashing the service at boot.
+  FIRST_GROQ_KEY: z.string().optional(),
+  SECOND_GROQ_KEY: z.string().optional(),
+  THIRD_GROQ_KEY: z.string().optional(),
+  // How many interviews a single user may START per UTC day.
+  INTERVIEW_DAILY_LIMIT: z.coerce.number().int().positive().default(2),
 });
 
 const parsed = schema.safeParse(process.env);
