@@ -8,12 +8,10 @@ import { ApiError } from "../../api/client";
 import { AuthLayout } from "../../components/AuthLayout";
 import { FormField } from "../../components/FormField";
 import { Alert } from "../../components/Alert";
-import { ResendVerification } from "../../components/ResendVerification";
 
 export function RegisterPage() {
   const [formError, setFormError] = useState("");
   const [done, setDone] = useState(false);
-  const [submittedEmail, setSubmittedEmail] = useState("");
 
   const {
     register,
@@ -25,7 +23,6 @@ export function RegisterPage() {
     setFormError("");
     try {
       await authApi.register(values);
-      setSubmittedEmail(values.email);
       setDone(true);
     } catch (err) {
       setFormError(err instanceof ApiError ? err.message : "Something went wrong");
@@ -34,14 +31,10 @@ export function RegisterPage() {
 
   if (done) {
     return (
-      <AuthLayout title="Almost there" footer={<Link to="/login">Back to sign in</Link>}>
+      <AuthLayout title="Account created" footer={<Link to="/login">Go to sign in</Link>}>
         <Alert kind="success">
-          If that email is new, we've sent a verification link. Check your inbox.
+          Your account is ready. You can sign in now.
         </Alert>
-        <p className="muted mt-16" style={{ fontSize: 13 }}>
-          Didn't get it? Resend it below.
-        </p>
-        <ResendVerification defaultEmail={submittedEmail} />
       </AuthLayout>
     );
   }
