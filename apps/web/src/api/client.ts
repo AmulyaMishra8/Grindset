@@ -50,6 +50,9 @@ async function rawRequest<T>(path: string, options: RequestOptions = {}): Promis
     method,
     headers,
     credentials: "include",
+    // Never let the browser serve a cached API response. Problem data changes
+    // (e.g. when stubs are re-seeded) and stale reads showed old starter code.
+    cache: "no-store",
     body: options.body ? JSON.stringify(options.body) : undefined,
   });
 
