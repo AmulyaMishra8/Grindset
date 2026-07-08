@@ -4,6 +4,7 @@
 // (free, no key, works offline). Same speak() handle either way.
 
 import { API_URL, readCookie } from "../api/client";
+import { analyseAudioElement, simulateMouth, resetVoiceLevel } from "./voiceLevel";
 
 export interface SpeakHandle {
   cancel: () => void;
@@ -68,9 +69,12 @@ function speakBrowser(text: string, opts: SpeakOptions = {}): void {
   u.rate = 1.0;
   u.pitch = 1.0;
 
-  u.onstart = () => opts.onStart?.();
-  u.onend = () => opts.onEnd?.();
+  // No analysable audio stream from SpeechSynthesis, so flap the mouth on a timer.
+  let stopMouth: (() => void) | null = null;
+  u.onstart = () => { stopMouth = simulateMouth(); opts.onStart?.(); };
+  u.onend = () => { stopMouth?.(); opts.onEnd?.(); };
   u.onerror = () => {
+    stopMouth?.();
     opts.onError?.();
     opts.onEnd?.();
   };
@@ -82,7 +86,7 @@ function speakBrowser(text: string, opts: SpeakOptions = {}): void {
 // straight to the browser voice for the rest of the session.
 let serverTtsDisabled = false;
 
-type SpeakState = { cancelled: boolean; audio: HTMLAudioElement | null };
+type SpeakState = { cancelled: boolean; audio: HTMLAudioElement | null; cleanup: (() => void) | null };
 
 // Try the ElevenLabs server voice. Resolves true if it handled playback (or the
 // user cancelled first), false to fall back to the browser voice.
@@ -106,9 +110,13 @@ async function speakViaServer(text: string, opts: SpeakOptions, state: SpeakStat
     const url = URL.createObjectURL(blob);
     const audio = new Audio(url);
     state.audio = audio;
+    // Real lip-sync from the audio's loudness; if Web Audio is unavailable the
+    // element still plays and we flap the mouth on a timer instead.
+    const stopViz = analyseAudioElement(audio) ?? simulateMouth();
+    state.cleanup = stopViz;
     audio.onplay = () => opts.onStart?.();
-    audio.onended = () => { opts.onEnd?.(); URL.revokeObjectURL(url); };
-    audio.onerror = () => { opts.onError?.(); opts.onEnd?.(); URL.revokeObjectURL(url); };
+    audio.onended = () => { stopViz(); opts.onEnd?.(); URL.revokeObjectURL(url); };
+    audio.onerror = () => { stopViz(); opts.onError?.(); opts.onEnd?.(); URL.revokeObjectURL(url); };
     await audio.play();
     return true;
   } catch {
@@ -123,7 +131,7 @@ async function speakViaServer(text: string, opts: SpeakOptions, state: SpeakStat
  */
 export function speak(text: string, opts: SpeakOptions = {}): SpeakHandle {
   cancelSpeech(); // never overlap with a browser utterance already in flight
-  const state: SpeakState = { cancelled: false, audio: null };
+  const state: SpeakState = { cancelled: false, audio: null, cleanup: null };
 
   if (serverTtsDisabled) {
     speakBrowser(text, opts);
@@ -136,8 +144,10 @@ export function speak(text: string, opts: SpeakOptions = {}): SpeakHandle {
   return {
     cancel: () => {
       state.cancelled = true;
+      state.cleanup?.();
       if (state.audio) { state.audio.pause(); state.audio.src = ""; state.audio = null; }
       cancelSpeech();
+      resetVoiceLevel();
     },
   };
 }
