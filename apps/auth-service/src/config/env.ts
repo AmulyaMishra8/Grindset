@@ -62,6 +62,13 @@ const schema = z.object({
   THIRD_GROQ_KEY: z.string().optional(),
   // How many interviews a single user may START per UTC day.
   INTERVIEW_DAILY_LIMIT: z.coerce.number().int().positive().default(2),
+
+  // ---- AI Interview voice (ElevenLabs TTS) ----
+  // Optional: if unset, the interviewer voice falls back to the browser's
+  // built-in SpeechSynthesis (free). Scope the key to Text-to-Speech only.
+  ELEVENLABS_API_KEY: z.string().optional(),
+  // Premade ElevenLabs voice id (default "Adam"). Flash v2.5 keeps credits low.
+  ELEVENLABS_VOICE_ID: z.string().default("pNInz6obpgDQGcFmaJgB"),
 });
 
 const parsed = schema.safeParse(process.env);

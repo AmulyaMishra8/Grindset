@@ -9,6 +9,7 @@ import {
   type RoleId,
 } from "../interview/personas";
 import { chatCompletion, transcribeAudio, interviewConfigured } from "../interview/groq";
+import { synthesize } from "../interview/tts";
 import {
   createSession,
   getSession,
@@ -87,6 +88,17 @@ export async function transcribe(req: Request, res: Response) {
   const mimeType = req.get("content-type") || "audio/webm";
   const text = await transcribeAudio(audio, mimeType);
   res.json({ text });
+}
+
+// POST /speak { text } — synthesise the interviewer's line to MP3 audio.
+// Returns audio/mpeg on success; the client falls back to the browser voice on
+// any error (unconfigured, out of credits, etc.).
+export async function speak(req: Request, res: Response) {
+  const { text } = req.body as { text: string };
+  const audio = await synthesize(text);
+  res.setHeader("Content-Type", "audio/mpeg");
+  res.setHeader("Cache-Control", "no-store");
+  res.send(audio);
 }
 
 // POST /message { sessionId, text } — one candidate turn → interviewer reply.
