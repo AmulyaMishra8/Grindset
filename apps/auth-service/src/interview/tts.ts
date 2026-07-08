@@ -28,18 +28,19 @@ function stripTags(text: string): string {
   return text.replace(/\[(Easy|Medium|Hard)\]\s*/gi, "").trim();
 }
 
-export async function synthesize(rawText: string): Promise<Buffer> {
+export async function synthesize(rawText: string, voiceId?: string): Promise<Buffer> {
   const key = env.ELEVENLABS_API_KEY;
   if (!key) throw new AppError(400, "tts_not_configured", "Voice synthesis is not configured");
 
+  const voice = voiceId || env.ELEVENLABS_VOICE_ID;
   const text = stripTags(rawText).slice(0, 2000); // free tier caps ~2500 chars/request
   if (!text) throw new AppError(400, "tts_empty", "Nothing to speak");
 
-  const cacheKey = createHash("sha1").update(`${MODEL_ID}:${env.ELEVENLABS_VOICE_ID}:${text}`).digest("hex");
+  const cacheKey = createHash("sha1").update(`${MODEL_ID}:${voice}:${text}`).digest("hex");
   const hit = cache.get(cacheKey);
   if (hit) return hit;
 
-  const url = `https://api.elevenlabs.io/v1/text-to-speech/${env.ELEVENLABS_VOICE_ID}?output_format=${OUTPUT_FORMAT}`;
+  const url = `https://api.elevenlabs.io/v1/text-to-speech/${voice}?output_format=${OUTPUT_FORMAT}`;
   const res = await fetch(url, {
     method: "POST",
     headers: { "xi-api-key": key, "Content-Type": "application/json", Accept: "audio/mpeg" },

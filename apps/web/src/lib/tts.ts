@@ -14,6 +14,7 @@ export interface SpeakOptions {
   onStart?: () => void;
   onEnd?: () => void;
   onError?: () => void;
+  role?: string; // interviewer role id → picks that persona's ElevenLabs voice
 }
 
 export function ttsSupported(): boolean {
@@ -97,7 +98,7 @@ async function speakViaServer(text: string, opts: SpeakOptions, state: SpeakStat
       method: "POST",
       credentials: "include",
       headers: { "Content-Type": "application/json", ...(csrf ? { "X-CSRF-Token": csrf } : {}) },
-      body: JSON.stringify({ text }),
+      body: JSON.stringify({ text, role: opts.role }),
     });
 
     if (res.status === 400) { serverTtsDisabled = true; return false; } // not configured
