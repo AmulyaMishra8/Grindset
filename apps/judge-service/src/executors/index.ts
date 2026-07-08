@@ -32,11 +32,72 @@ function sandboxEnv(): NodeJS.ProcessEnv {
   return env;
 }
 
-const LANG_CONFIG: Record<string, { ext: string; cmd: string; args: (f: string) => string[] }> = {
-  javascript: { ext: "js",  cmd: "node",   args: (f) => [f] },
-  typescript: { ext: "ts",  cmd: "npx",    args: (f) => ["tsx", f] },
-  python:     { ext: "py",  cmd: "python", args: (f) => [f] },
+// A runnable interpreter invocation. Each language lists candidates in priority
+// order; we fall through to the next one only when the binary itself is missing
+// (spawn ENOENT), so a Linux box with `python3` but no `python` still works.
+type Candidate = { cmd: string; args: (f: string) => string[] };
+
+const IS_WIN = process.platform === "win32";
+const NPX = IS_WIN ? "npx.cmd" : "npx";
+
+const LANG_CONFIG: Record<string, { ext: string; candidates: Candidate[] }> = {
+  // Use the running node binary directly — never assume `node` is on PATH.
+  javascript: { ext: "js", candidates: [{ cmd: process.execPath, args: (f) => [f] }] },
+  // tsx as a node loader is the robust path (no npx cache / network); npx is a
+  // fallback for environments where the loader flag isn't picked up.
+  typescript: {
+    ext: "ts",
+    candidates: [
+      { cmd: process.execPath, args: (f) => ["--import", "tsx", f] },
+      { cmd: NPX, args: (f) => ["tsx", f] },
+    ],
+  },
+  // Linux (Render) ships `python3`; local Windows dev has `python`. Try both.
+  python: {
+    ext: "py",
+    candidates: [
+      { cmd: "python3", args: (f) => [f] },
+      { cmd: "python", args: (f) => [f] },
+    ],
+  },
 };
+
+function runCandidate(cand: Candidate, filename: string): Promise<ExecuteResult & { spawnFailed?: boolean }> {
+  return new Promise((resolve) => {
+    let stdout = "";
+    let stderr = "";
+    let timedOut = false;
+    let settled = false;
+
+    const done = (r: ExecuteResult & { spawnFailed?: boolean }) => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timer);
+      resolve(r);
+    };
+
+    const proc = spawn(cand.cmd, cand.args(filename), { env: sandboxEnv() });
+
+    const timer = setTimeout(() => {
+      timedOut = true;
+      proc.kill("SIGKILL");
+    }, TIMEOUT_MS);
+
+    proc.stdout.on("data", (d) => (stdout += d.toString()));
+    proc.stderr.on("data", (d) => (stderr += d.toString()));
+
+    // Without this, a missing binary emits 'error', never 'close', and the
+    // promise would hang forever — the original bug for non-JS languages.
+    proc.on("error", (err: NodeJS.ErrnoException) => {
+      const missing = err.code === "ENOENT";
+      done({ stdout: "", stderr: err.message, timedOut: false, exitCode: 127, spawnFailed: missing });
+    });
+
+    proc.on("close", (code) => {
+      done({ stdout: stdout.trim(), stderr: stderr.trim(), timedOut, exitCode: code ?? 1 });
+    });
+  });
+}
 
 export async function executeCode(language: string, code: string): Promise<ExecuteResult> {
   const config = LANG_CONFIG[language];
@@ -45,28 +106,19 @@ export async function executeCode(language: string, code: string): Promise<Execu
   const filename = join(tmpdir(), `grindset_${randomUUID()}.${config.ext}`);
   await writeFile(filename, code, "utf8");
 
-  return new Promise((resolve) => {
-    let stdout = "";
-    let stderr = "";
-    let timedOut = false;
-
-    const proc = spawn(config.cmd, config.args(filename), {
-      timeout: TIMEOUT_MS,
-      env: sandboxEnv(),
-    });
-
-    proc.stdout.on("data", (d) => (stdout += d.toString()));
-    proc.stderr.on("data", (d) => (stderr += d.toString()));
-
-    const timer = setTimeout(() => {
-      timedOut = true;
-      proc.kill("SIGKILL");
-    }, TIMEOUT_MS);
-
-    proc.on("close", async (code) => {
-      clearTimeout(timer);
-      await unlink(filename).catch(() => {});
-      resolve({ stdout: stdout.trim(), stderr: stderr.trim(), timedOut, exitCode: code ?? 1 });
-    });
-  });
+  try {
+    let last: ExecuteResult & { spawnFailed?: boolean } = {
+      stdout: "", stderr: `No interpreter available for ${language}`, timedOut: false, exitCode: 127,
+    };
+    for (const cand of config.candidates) {
+      last = await runCandidate(cand, filename);
+      // Only advance to the next candidate when the binary was missing; a real
+      // runtime error (non-zero exit with output) is the user's code failing.
+      if (!last.spawnFailed) break;
+    }
+    const { spawnFailed, ...result } = last;
+    return result;
+  } finally {
+    await unlink(filename).catch(() => {});
+  }
 }
