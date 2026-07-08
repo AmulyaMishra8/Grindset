@@ -65,3 +65,17 @@ services:
         sync: false
       - key: MISTRAL_KEY
         sync: false
+      # ── Email (SMTP) — verification & password-reset links ──
+      # WITHOUT these, the auth service does NOT send email — it only prints the
+      # links to the logs (see services/mailer.ts). Set them to a transactional
+      # SMTP provider (Resend, Brevo, SendGrid, Mailgun, or Gmail app password).
+      - key: SMTP_HOST
+        sync: false  # e.g. smtp.resend.com
+      - key: SMTP_PORT
+        sync: false  # 587 (STARTTLS) or 465 (TLS)
+      - key: SMTP_USER
+        sync: false
+      - key: SMTP_PASS
+        sync: false
+      - key: MAIL_FROM
+        sync: false  # e.g. "Grindset <no-reply@yourdomain.com>"
