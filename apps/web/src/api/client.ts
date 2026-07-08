@@ -8,8 +8,12 @@
 //      retry the original request.
 // ----------------------------------------------------------------------------
 
-// Empty string = relative URLs, routed through Vite proxy → gateway (4000) → auth-service (4003)
-export const API_URL = import.meta.env.VITE_API_URL ?? "";
+// Always same-origin: relative URLs go through the Vite proxy in dev and the
+// single gateway service in prod (it serves the SPA and proxies /auth,/api,…).
+// This keeps auth cookies FIRST-PARTY — a cross-origin API host (e.g. a stale
+// VITE_API_URL) makes login fail CORS and breaks cookies in Brave/Safari/
+// incognito, so we deliberately don't read an override here.
+export const API_URL = "";
 
 export class ApiError extends Error {
   constructor(
