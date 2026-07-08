@@ -15,7 +15,7 @@ import { Errors } from "../lib/AppError";
 
 export async function register(req: Request, res: Response) {
   await authService.register(req.body, req);
-  res.status(201).json({ ok: true, message: "Check your email to verify your account." });
+  res.status(201).json({ ok: true, message: "Account created — you can sign in now." });
 }
 
 export async function verifyEmail(req: Request, res: Response) {

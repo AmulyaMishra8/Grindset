@@ -24,7 +24,8 @@ export type LoginResult =
 
 // --- Registration ---------------------------------------------------------
 // To avoid leaking which emails are registered, we ALWAYS report success.
-// If the email is new we create the account and send a verification link.
+// Email verification is disabled: new accounts are usable immediately (they can
+// sign in right away), so we mark them verified on creation and send no email.
 export async function register(input: RegisterInput, req: Request): Promise<void> {
   const existing = await prisma.user.findUnique({ where: { email: input.email } });
   if (existing) {
@@ -37,12 +38,10 @@ export async function register(input: RegisterInput, req: Request): Promise<void
       email: input.email,
       passwordHash: await hashPassword(input.password),
       displayName: input.displayName ?? null,
+      emailVerified: true,
     },
   });
 
-  const token = await createVerificationToken(user.id, "EMAIL_VERIFICATION", 60 * 60 * 24);
-  const link = `${env.WEB_ORIGIN}/verify-email?token=${token}`;
-  await sendVerificationEmail(user.email, link);
   await recordEvent("register.success", { req, userId: user.id });
 }
 
