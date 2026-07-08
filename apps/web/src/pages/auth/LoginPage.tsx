@@ -69,12 +69,6 @@ export function LoginPage() {
           error={errors.password?.message}
           {...register("password")}
         />
-        <div className="row-between mt-16">
-          <span />
-          <Link to="/forgot-password" className="muted">
-            Forgot password?
-          </Link>
-        </div>
         <button className="btn mt-16" disabled={isSubmitting}>
           {isSubmitting ? "Signing in..." : "Sign in"}
         </button>
