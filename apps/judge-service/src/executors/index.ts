@@ -99,6 +99,28 @@ function runCandidate(cand: Candidate, filename: string): Promise<ExecuteResult 
   });
 }
 
+// Runs a trivial program through the real execution path for each language so
+// we can confirm — from the actual deploy environment — which interpreters are
+// present. Surfaced at startup and via /health; the sandbox degrades gracefully
+// (clear error, no hang) for any that are missing.
+export async function probeInterpreters(): Promise<Record<string, { ok: boolean; detail: string }>> {
+  const checks: Record<string, string> = {
+    javascript: `console.log("ok")`,
+    typescript: `const __x: string = "ok"; console.log(__x)`,
+    python: `print("ok")`,
+  };
+  const out: Record<string, { ok: boolean; detail: string }> = {};
+  for (const [lang, code] of Object.entries(checks)) {
+    try {
+      const r = await executeCode(lang, code);
+      out[lang] = { ok: r.stdout === "ok" && r.exitCode === 0, detail: r.stdout || r.stderr || `exit ${r.exitCode}` };
+    } catch (e) {
+      out[lang] = { ok: false, detail: (e as Error).message };
+    }
+  }
+  return out;
+}
+
 export async function executeCode(language: string, code: string): Promise<ExecuteResult> {
   const config = LANG_CONFIG[language];
   if (!config) throw new Error(`Unsupported language: ${language}`);
