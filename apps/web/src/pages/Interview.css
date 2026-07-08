@@ -125,9 +125,10 @@
 .iv-hair { fill: #1a1a26; }
 .iv-eye { fill: #e6e8f5; transition: transform var(--t); }
 .iv-avatar-thinking .iv-eye { transform: translateY(-2px); }
-.iv-mouth { fill: #e88; transform-origin: center; transform-box: fill-box; }
-.iv-avatar-speaking .iv-mouth { animation: iv-talk 0.28s ease-in-out infinite alternate; }
-@keyframes iv-talk { from { transform: scaleY(0.4); } to { transform: scaleY(1.5); } }
+/* Mouth scaleY is driven per-frame from the live audio level in Avatar.tsx
+   (real lip-sync), so no CSS keyframe animation here — it would override the
+   inline transform. A tiny transition just softens frame-to-frame steps. */
+.iv-mouth { fill: #e88; transform-origin: center; transform-box: fill-box; transition: transform 40ms linear; }
 
 .iv-avatar-label {
   position: absolute; bottom: -6px;
