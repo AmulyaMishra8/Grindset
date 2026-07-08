@@ -60,8 +60,9 @@ const schema = z.object({
   FIRST_GROQ_KEY: z.string().optional(),
   SECOND_GROQ_KEY: z.string().optional(),
   THIRD_GROQ_KEY: z.string().optional(),
-  // How many interviews a single user may START per UTC day.
-  INTERVIEW_DAILY_LIMIT: z.coerce.number().int().positive().default(2),
+  // How many interviews a single user may START per UTC day. 0 = unlimited
+  // (the default), so there's no cap unless you deliberately set one.
+  INTERVIEW_DAILY_LIMIT: z.coerce.number().int().nonnegative().default(0),
 
   // ---- AI Interview voice (ElevenLabs TTS) ----
   // Optional: if unset, the interviewer voice falls back to the browser's

@@ -18,30 +18,34 @@ export interface QuotaStatus {
   used: number;
   limit: number;
   remaining: number;
+  unlimited: boolean; // when true there is no daily cap (INTERVIEW_DAILY_LIMIT<=0)
 }
 
 export async function getQuota(userId: string): Promise<QuotaStatus> {
   const limit = env.INTERVIEW_DAILY_LIMIT;
+  const unlimited = limit <= 0;
   const used = Number((await redis.get(KEY(userId))) ?? 0);
-  return { used, limit, remaining: Math.max(0, limit - used) };
+  return { used, limit, remaining: unlimited ? -1 : Math.max(0, limit - used), unlimited };
 }
 
 /**
- * Atomically consume one interview from today's budget. Returns whether it was
- * allowed plus the resulting status. Sets the 24h TTL on the first use of the
- * day so the counter self-expires.
+ * Consume one interview from today's budget. Returns whether it was allowed plus
+ * the resulting status. When the limit is 0/negative the feature is uncapped and
+ * this always allows (we still count usage for visibility). The 24h TTL is set
+ * on the first use of the day so the counter self-expires.
  */
 export async function consumeQuota(userId: string): Promise<{ allowed: boolean } & QuotaStatus> {
   const limit = env.INTERVIEW_DAILY_LIMIT;
+  const unlimited = limit <= 0;
   const key = KEY(userId);
 
   const used = await redis.incr(key);
   if (used === 1) await redis.expire(key, DAY_TTL);
 
-  if (used > limit) {
+  if (!unlimited && used > limit) {
     // Over budget — give the slot back so the count reflects reality.
     await redis.decr(key);
-    return { allowed: false, used: limit, limit, remaining: 0 };
+    return { allowed: false, used: limit, limit, remaining: 0, unlimited };
   }
-  return { allowed: true, used, limit, remaining: Math.max(0, limit - used) };
+  return { allowed: true, used, limit, remaining: unlimited ? -1 : Math.max(0, limit - used), unlimited };
 }

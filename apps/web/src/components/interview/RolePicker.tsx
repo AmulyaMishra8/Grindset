@@ -11,16 +11,17 @@ interface RolePickerProps {
 }
 
 export default function RolePicker({ roles, quota, starting, onPick }: RolePickerProps) {
-  const outOfBudget = quota ? quota.remaining <= 0 : false;
+  // No cap when the server reports unlimited (INTERVIEW_DAILY_LIMIT=0).
+  const outOfBudget = quota && !quota.unlimited ? quota.remaining <= 0 : false;
 
   return (
     <div className="iv-picker">
       <div className="iv-picker-head">
         <h1 className="iv-h1">AI Interview</h1>
         <p className="iv-tagline">
-          A live, voice-driven mock interview with Ethan. Pick a round to begin.
+          A live, voice-driven mock interview. Pick a round to begin.
         </p>
-        {quota && (
+        {quota && !quota.unlimited && (
           <p className={`iv-quota${outOfBudget ? " iv-quota-empty" : ""}`}>
             {outOfBudget
               ? "You've used all of today's interviews — come back tomorrow."
