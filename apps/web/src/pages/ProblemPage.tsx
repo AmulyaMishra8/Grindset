@@ -158,10 +158,19 @@ export default function ProblemPage() {
             onEditorReady={(ed) => (editorRef.current = ed)}
             onCodeChange={setCode}
             onLanguageChange={(newLang) => {
-              const newStub = problem.starterCode?.[newLang] ?? problem.starterCode?.javascript ?? "";
+              const stubs = problem.starterCode ?? {};
+              const newStub = stubs[newLang] ?? stubs.javascript ?? "";
               setLanguage(newLang);
-              // Only swap in the new stub if the editor still holds the untouched one.
-              setCode((cur) => (cur === stubRef.current ? newStub : cur));
+              // Swap in the new language's stub as long as the editor still holds
+              // starter code (empty, or matching ANY language's stub). Compare with
+              // line-endings/whitespace normalised — Monaco can hand back a subtly
+              // different string, and an exact === check would wrongly keep the old
+              // stub and never switch languages.
+              const norm = (s: string) => s.replace(/\r\n/g, "\n").trim();
+              setCode((cur) => {
+                const untouched = norm(cur) === "" || Object.values(stubs).some((s) => norm(s) === norm(cur));
+                return untouched ? newStub : cur;
+              });
               stubRef.current = newStub;
             }}
             onToggleAI={() => setAiOpen((p) => !p)}
