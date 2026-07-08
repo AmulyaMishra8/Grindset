@@ -94,8 +94,9 @@ export async function transcribe(req: Request, res: Response) {
 // Returns audio/mpeg on success; the client falls back to the browser voice on
 // any error (unconfigured, out of credits, etc.).
 export async function speak(req: Request, res: Response) {
-  const { text } = req.body as { text: string };
-  const audio = await synthesize(text);
+  const { text, role } = req.body as { text: string; role?: RoleId };
+  const voiceId = role && PERSONAS[role] ? PERSONAS[role].voiceId : undefined;
+  const audio = await synthesize(text, voiceId);
   res.setHeader("Content-Type", "audio/mpeg");
   res.setHeader("Cache-Control", "no-store");
   res.send(audio);

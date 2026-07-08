@@ -1,7 +1,8 @@
 // The four interviewer roles. Each is just a different system prompt + opening
-// question + scoring rubric fed to the SAME LLM — one engine, four personas, all
-// voiced by "Ethan Wong". Difficulty is always one of exactly three buckets
-// (Easy | Medium | Hard) so badges/colours match the Problems page.
+// question + scoring rubric fed to the SAME LLM — one engine, four named
+// personas, each with its own ElevenLabs voice. Difficulty is always one of
+// exactly three buckets (Easy | Medium | Hard) so badges/colours match the
+// Problems page.
 
 export type Difficulty = "Easy" | "Medium" | "Hard";
 
@@ -18,6 +19,7 @@ export interface Persona {
   interviewer: string; // the named persona conducting this round
   blurb: string;       // one line shown on the role card
   accent: string;      // hex colour for the card / avatar ring
+  voiceId: string;     // ElevenLabs voice for TTS (distinct per interviewer)
   systemPrompt: string;
   openingQuestion: string;
   rubric: RubricDimension[];
@@ -44,6 +46,7 @@ export const PERSONAS: Record<RoleId, Persona> = {
     interviewer: "Alex Chen",
     blurb: "Data structures & algorithms. Approach → complexity → edge cases.",
     accent: "#6366f1",
+    voiceId: "pNInz6obpgDQGcFmaJgB", // Adam (M)
     systemPrompt: `${houseRules("Alex Chen")}
 
 Your focus: DATA STRUCTURES & ALGORITHMS.
@@ -66,6 +69,7 @@ Your focus: DATA STRUCTURES & ALGORITHMS.
     interviewer: "Priya Sharma",
     blurb: "Architecture & scale. Trade-offs, bottlenecks, failure modes.",
     accent: "#0ea5e9",
+    voiceId: "EXAVITQu4vr4xnSDxMaL", // Sarah (F)
     systemPrompt: `${houseRules("Priya Sharma")}
 
 Your focus: SYSTEM DESIGN.
@@ -88,6 +92,7 @@ Your focus: SYSTEM DESIGN.
     interviewer: "Marcus Reid",
     blurb: "Product & analytics. Metrics, prioritisation, measuring success.",
     accent: "#f59e0b",
+    voiceId: "JBFqnCBsd6RMkjVDRZzb", // George (M)
     systemPrompt: `${houseRules("Marcus Reid")}
 
 Your focus: BUSINESS / PRODUCT ANALYTICS (case-style).
@@ -110,6 +115,7 @@ Your focus: BUSINESS / PRODUCT ANALYTICS (case-style).
     interviewer: "Jordan Lee",
     blurb: "Soft skills & fit. STAR stories on conflict, leadership, drive.",
     accent: "#ec4899",
+    voiceId: "cgSgspJ2msm6clMCkdW9", // Jessica (F)
     systemPrompt: `${houseRules("Jordan Lee")}
 
 Your focus: HR / BEHAVIOURAL.

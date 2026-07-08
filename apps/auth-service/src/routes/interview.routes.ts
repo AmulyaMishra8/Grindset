@@ -17,7 +17,10 @@ const messageSchema = z.object({
   text: z.string().trim().min(1).max(4000),
 });
 const endSchema = z.object({ sessionId: z.string().min(1) });
-const speakSchema = z.object({ text: z.string().trim().min(1).max(2000) });
+const speakSchema = z.object({
+  text: z.string().trim().min(1).max(2000),
+  role: z.enum(ROLE_IDS as [string, ...string[]]).optional(),
+});
 
 // LLM/STT calls cost tokens, so throttle the chatty endpoints per user.
 const turnLimiter = rateLimit({ windowSeconds: 60, max: 40 });

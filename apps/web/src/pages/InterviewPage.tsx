@@ -51,9 +51,11 @@ export default function InterviewPage() {
     return () => cancelSpeech();
   }, []);
 
-  const sayAloud = (text: string) => {
-    if (!ttsSupported()) return;
+  const sayAloud = (text: string, role?: string) => {
+    // speak() uses the ElevenLabs server voice (per-persona) and falls back to
+    // the browser voice, so we don't gate on ttsSupported() anymore.
     speak(text, {
+      role,
       onStart: () => setSpeaking(true),
       onEnd: () => setSpeaking(false),
     });
@@ -70,7 +72,7 @@ export default function InterviewPage() {
       setTurns([{ role: "assistant", content: r.opening.text }]);
       setAtCap(false);
       setPhase("live");
-      sayAloud(r.opening.text);
+      sayAloud(r.opening.text, r.persona.id);
     } catch (e) {
       setError(e instanceof ApiError ? e.message : "Could not start the interview");
     } finally {
@@ -93,7 +95,7 @@ export default function InterviewPage() {
       const r = await interviewApi.sendMessage(sessionId, answer);
       setTurns((prev) => [...prev, { role: "assistant", content: r.reply.text }]);
       setAtCap(r.atCap);
-      sayAloud(r.reply.text);
+      sayAloud(r.reply.text, persona?.id);
     } catch (e) {
       setError(e instanceof ApiError ? e.message : "The interviewer didn't respond — try again");
     } finally {
@@ -181,6 +183,7 @@ export default function InterviewPage() {
         <Avatar
           name={persona?.interviewer ?? "Interviewer"}
           accent={persona?.accent ?? "#6366f1"}
+          variant={persona?.id}
           speaking={speaking}
           listening={listening}
           thinking={thinking}
