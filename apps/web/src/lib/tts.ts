@@ -1,7 +1,9 @@
-// Provider-agnostic text-to-speech. Tonight's default is the browser's built-in
-// SpeechSynthesis (free, no key, works offline). The shape here (speak() returning
-// a handle with onboundary/onend) is deliberately provider-neutral so an Azure /
-// ElevenLabs adapter can drop in later behind the same interface.
+// Provider-agnostic text-to-speech. Primary path is the server's ElevenLabs
+// voice (POST /api/interview/speak → MP3); if that isn't configured, errors, or
+// runs out of credits, we fall back to the browser's built-in SpeechSynthesis
+// (free, no key, works offline). Same speak() handle either way.
+
+import { API_URL, readCookie } from "../api/client";
 
 export interface SpeakHandle {
   cancel: () => void;
@@ -48,15 +50,12 @@ export function primeVoices(): void {
   };
 }
 
-/**
- * Speak `text`. Strips the "[Medium] " difficulty tag the interviewer prefixes
- * onto questions so it isn't read aloud. Returns a handle to cancel playback.
- */
-export function speak(text: string, opts: SpeakOptions = {}): SpeakHandle {
+// The browser SpeechSynthesis path — the free fallback.
+function speakBrowser(text: string, opts: SpeakOptions = {}): void {
   if (!ttsSupported()) {
     opts.onStart?.();
     opts.onEnd?.();
-    return { cancel: () => {} };
+    return;
   }
 
   const synth = window.speechSynthesis;
@@ -77,7 +76,70 @@ export function speak(text: string, opts: SpeakOptions = {}): SpeakHandle {
   };
 
   synth.speak(u);
-  return { cancel: () => synth.cancel() };
+}
+
+// Once the server tells us TTS isn't configured (400), stop trying it and go
+// straight to the browser voice for the rest of the session.
+let serverTtsDisabled = false;
+
+type SpeakState = { cancelled: boolean; audio: HTMLAudioElement | null };
+
+// Try the ElevenLabs server voice. Resolves true if it handled playback (or the
+// user cancelled first), false to fall back to the browser voice.
+async function speakViaServer(text: string, opts: SpeakOptions, state: SpeakState): Promise<boolean> {
+  try {
+    const csrf = readCookie("csrf_token");
+    const res = await fetch(`${API_URL}/api/interview/speak`, {
+      method: "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json", ...(csrf ? { "X-CSRF-Token": csrf } : {}) },
+      body: JSON.stringify({ text }),
+    });
+
+    if (res.status === 400) { serverTtsDisabled = true; return false; } // not configured
+    if (!res.ok) return false; // transient (401/429/5xx) — use the browser voice this turn
+    if (state.cancelled) return true;
+
+    const blob = await res.blob();
+    if (state.cancelled) return true;
+
+    const url = URL.createObjectURL(blob);
+    const audio = new Audio(url);
+    state.audio = audio;
+    audio.onplay = () => opts.onStart?.();
+    audio.onended = () => { opts.onEnd?.(); URL.revokeObjectURL(url); };
+    audio.onerror = () => { opts.onError?.(); opts.onEnd?.(); URL.revokeObjectURL(url); };
+    await audio.play();
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Speak `text` — ElevenLabs server voice if available, browser voice otherwise.
+ * The "[Medium] " difficulty tag is stripped before it's read aloud (server and
+ * browser both strip it). Returns a handle to cancel playback.
+ */
+export function speak(text: string, opts: SpeakOptions = {}): SpeakHandle {
+  cancelSpeech(); // never overlap with a browser utterance already in flight
+  const state: SpeakState = { cancelled: false, audio: null };
+
+  if (serverTtsDisabled) {
+    speakBrowser(text, opts);
+  } else {
+    speakViaServer(text, opts, state).then((handled) => {
+      if (!handled && !state.cancelled) speakBrowser(text, opts);
+    });
+  }
+
+  return {
+    cancel: () => {
+      state.cancelled = true;
+      if (state.audio) { state.audio.pause(); state.audio.src = ""; state.audio = null; }
+      cancelSpeech();
+    },
+  };
 }
 
 export function cancelSpeech(): void {
