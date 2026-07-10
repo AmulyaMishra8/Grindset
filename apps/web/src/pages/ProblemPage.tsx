@@ -18,17 +18,15 @@ export default function ProblemPage() {
   const [notFound, setNotFound] = useState(false);
 
   const [splitPct, setSplitPct] = useState(40);
-  const [aiOpen, setAiOpen] = useState(false);
-  const [aiHeight, setAiHeight] = useState(280);
+  const [activeTab, setActiveTab] = useState<"editor" | "ai">("editor");
   const [code, setCode] = useState("");
   const [language, setLanguage] = useState("javascript");
   const [aiMessages, setAiMessages] = useState<AiMessage[]>([]);
 
   const containerRef = useRef<HTMLDivElement>(null);
   const draggingH = useRef(false);
-  const draggingV = useRef(false);
 
-  const editorRef = useRef<{ revealLine: (n: number) => void } | null>(null);
+  const editorRef = useRef<{ revealLine: (n: number) => void; layout: () => void } | null>(null);
   const typingRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const stubRef = useRef(""); // the stub currently treated as the untouched baseline
 
@@ -54,6 +52,13 @@ export default function ProblemPage() {
 
   // Stop any in-flight typing animation if the page unmounts.
   useEffect(() => () => { if (typingRef.current) clearTimeout(typingRef.current); }, []);
+
+  // Both tabs stay mounted so Monaco keeps its undo stack and the junior can type
+  // into it off-screen. The hidden tab is display:none, which leaves the editor
+  // measuring 0x0 — automaticLayout can't see that, so re-layout on reveal.
+  useEffect(() => {
+    if (activeTab === "editor") editorRef.current?.layout();
+  }, [activeTab]);
 
   useEffect(() => {
     setLoading(true);
@@ -90,30 +95,15 @@ export default function ProblemPage() {
     document.body.style.userSelect = "none";
   }, []);
 
-  const onVMouseDown = useCallback(() => {
-    draggingV.current = true;
-    document.body.style.cursor = "row-resize";
-    document.body.style.userSelect = "none";
-  }, []);
-
   const onMouseMove = useCallback((e: React.MouseEvent) => {
-    if (!containerRef.current) return;
+    if (!draggingH.current || !containerRef.current) return;
     const rect = containerRef.current.getBoundingClientRect();
-
-    if (draggingH.current) {
-      const pct = ((e.clientX - rect.left) / rect.width) * 100;
-      setSplitPct(Math.min(Math.max(pct, 20), 75));
-    }
-
-    if (draggingV.current) {
-      const fromBottom = rect.bottom - e.clientY;
-      setAiHeight(Math.min(Math.max(fromBottom, 150), rect.height * 0.6));
-    }
+    const pct = ((e.clientX - rect.left) / rect.width) * 100;
+    setSplitPct(Math.min(Math.max(pct, 20), 75));
   }, []);
 
   const onMouseUp = useCallback(() => {
     draggingH.current = false;
-    draggingV.current = false;
     document.body.style.cursor = "";
     document.body.style.userSelect = "";
   }, []);
@@ -151,55 +141,65 @@ export default function ProblemPage() {
         <div className="v-divider" onMouseDown={onHMouseDown} />
 
         <div className="editor-pane" style={{ width: `${100 - splitPct}%` }}>
-          <CodeEditor
-            problem={problem}
-            code={code}
-            language={language}
-            onEditorReady={(ed) => (editorRef.current = ed)}
-            onCodeChange={setCode}
-            onLanguageChange={(newLang) => {
-              const stubs = problem.starterCode ?? {};
-              const newStub = stubs[newLang] ?? stubs.javascript ?? "";
-              setLanguage(newLang);
-              // Swap in the new language's stub as long as the editor still holds
-              // starter code (empty, or matching ANY language's stub). Compare with
-              // line-endings/whitespace normalised — Monaco can hand back a subtly
-              // different string, and an exact === check would wrongly keep the old
-              // stub and never switch languages.
-              const norm = (s: string) => s.replace(/\r\n/g, "\n").trim();
-              setCode((cur) => {
-                const untouched = norm(cur) === "" || Object.values(stubs).some((s) => norm(s) === norm(cur));
-                return untouched ? newStub : cur;
-              });
-              stubRef.current = newStub;
-            }}
-            onToggleAI={() => setAiOpen((p) => !p)}
-            aiOpen={aiOpen}
-            mode={mode}
-          />
+          <div className="pane-tabs" role="tablist">
+            <button
+              role="tab"
+              aria-selected={activeTab === "editor"}
+              className={`pane-tab ${activeTab === "editor" ? "pane-tab-active" : ""}`}
+              onClick={() => setActiveTab("editor")}
+            >
+              Editor
+            </button>
+            <button
+              role="tab"
+              aria-selected={activeTab === "ai"}
+              className={`pane-tab ${activeTab === "ai" ? "pane-tab-active" : ""}`}
+              onClick={() => setActiveTab("ai")}
+            >
+              <span className="pane-tab-icon">✦</span> AI
+            </button>
+          </div>
+
+          <div className="pane-body">
+            <div className={`pane-view ${activeTab === "editor" ? "" : "pane-view-hidden"}`}>
+              <CodeEditor
+                problem={problem}
+                code={code}
+                language={language}
+                onEditorReady={(ed) => (editorRef.current = ed)}
+                onCodeChange={setCode}
+                onLanguageChange={(newLang) => {
+                  const stubs = problem.starterCode ?? {};
+                  const newStub = stubs[newLang] ?? stubs.javascript ?? "";
+                  setLanguage(newLang);
+                  setCode(newStub);
+                  stubRef.current = newStub;
+                }}
+                mode={mode}
+              />
+            </div>
+
+            <div className={`pane-view ${activeTab === "ai" ? "" : "pane-view-hidden"}`}>
+              <AIChat
+                problem={problem}
+                code={code}
+                language={language}
+                messages={aiMessages}
+                onMessagesChange={setAiMessages}
+                mode={mode}
+                onApplyCode={(newCode, lang) => {
+                  const langMap: Record<string, string> = { js: "javascript", ts: "typescript", py: "python", javascript: "javascript", typescript: "typescript", python: "python" };
+                  if (langMap[lang]) setLanguage(langMap[lang]);
+                  // Flip to the editor so the junior's code is typed in where you can
+                  // watch it, rather than animating behind the hidden chat panel.
+                  setActiveTab("editor");
+                  typeCode(newCode);
+                }}
+              />
+            </div>
+          </div>
         </div>
       </div>
-
-      {aiOpen && (
-        <>
-          <div className="h-divider" onMouseDown={onVMouseDown} />
-          <div className="ai-panel" style={{ height: aiHeight }}>
-            <AIChat
-              problem={problem}
-              code={code}
-              language={language}
-              messages={aiMessages}
-              onMessagesChange={setAiMessages}
-              mode={mode}
-              onApplyCode={(newCode, lang) => {
-                const langMap: Record<string, string> = { js: "javascript", ts: "typescript", py: "python", javascript: "javascript", typescript: "typescript", python: "python" };
-                if (langMap[lang]) setLanguage(langMap[lang]);
-                typeCode(newCode);
-              }}
-            />
-          </div>
-        </>
-      )}
     </div>
   );
 }
