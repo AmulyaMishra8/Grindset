@@ -5,6 +5,7 @@ import { chat } from "../controllers/chat.controller";
 import { pmChat } from "../controllers/pm-chat.controller";
 import { getProblem, listProblems, listPracticeProblems, listTestProblems, startProblemSession } from "../controllers/problems.controller";
 import { getTests } from "../controllers/tests.controller";
+import { getMyStats } from "../controllers/stats.controller";
 import { requireAuth } from "../middleware/requireAuth";
 
 const router = Router();
@@ -21,6 +22,7 @@ router.use((_req, res, next) => {
 // internals — all of it requires a logged-in user.
 router.use(requireAuth);
 
+router.get("/me/stats", getMyStats);
 router.get("/problems", listProblems);
 router.get("/practice/problems", listPracticeProblems);
 router.get("/test/problems", listTestProblems);
