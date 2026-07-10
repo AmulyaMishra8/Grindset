@@ -555,6 +555,28 @@ export const submitSolution = async (req: Request, res: Response) => {
     // Step 3 — Mistral evaluation
     emit("stage", { stage: "analyzing" });
     const passed = testResults.filter((r) => r.passed).length;
+    const total = testResults.length;
+
+    // Record the attempt before the LLM call — evaluation is slow and can fail,
+    // and the objective test result is what the stats are built from. A problem
+    // with no generated tests must not count as solved.
+    try {
+      await prisma.submission.create({
+        data: {
+          userId: req.user!.id,
+          problemId,
+          mode,
+          language,
+          passed,
+          total,
+          solved: total > 0 && passed === total,
+        },
+      });
+    } catch (err) {
+      // Stats are secondary — never fail a submission because the write failed.
+      console.error("Failed to record submission:", err);
+    }
+
     const evaluation = await evaluateWithMistral(
       code,
       language,
@@ -571,7 +593,7 @@ export const submitSolution = async (req: Request, res: Response) => {
 
     return end({
       status: "complete",
-      score: { passed, total: testResults.length },
+      score: { passed, total },
       complexity: testGen.complexity,
       testResults,
       evaluation,

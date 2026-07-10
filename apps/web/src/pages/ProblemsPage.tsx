@@ -131,10 +131,16 @@ export default function ProblemsPage() {
           )}
 
           {loading && (
-            <div className="problems-table-wrap">
+            <div className="problem-grid">
               {Array.from({ length: 6 }).map((_, i) => (
-                <div className="skeleton-row" key={i} style={{ animationDelay: `${i * 0.06}s` }}>
-                  <span className="sk sk-id" /><span className="sk sk-title" /><span className="sk sk-domain" /><span className="sk sk-badge" />
+                <div className="problem-card skeleton-card" key={i} style={{ animationDelay: `${i * 0.06}s` }}>
+                  <div className="skeleton-card-top">
+                    <span className="sk sk-id" /><span className="sk sk-badge" />
+                  </div>
+                  <span className="sk sk-title" />
+                  <div className="skeleton-card-foot">
+                    <span className="sk sk-domain" /><span className="sk sk-time" />
+                  </div>
                 </div>
               ))}
             </div>
@@ -146,41 +152,36 @@ export default function ProblemsPage() {
                 {filtered.length} {filtered.length === 1 ? "problem" : "problems"}
                 {(query || diff !== "All") && <span className="filtered-of"> of {problems.length}</span>}
               </p>
-              <table className="problems-table">
-                <thead>
-                  <tr>
-                    <th>#</th>
-                    <th>Title</th>
-                    <th>Domain</th>
-                    <th>Difficulty</th>
-                    <th>Time</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filtered.length === 0 && (
-                    <tr><td colSpan={5} className="problems-empty">
-                      {problems.length === 0 ? TAB_META[tab].emptyText : "No problems match your filters."}
-                    </td></tr>
-                  )}
-                  {filtered.map((p) => (
-                    <tr
+              {filtered.length === 0 ? (
+                <div className="problems-empty-state">
+                  <span className="empty-glyph" aria-hidden>⌗</span>
+                  <p>{problems.length === 0 ? TAB_META[tab].emptyText : "No problems match your filters."}</p>
+                </div>
+              ) : (
+                <div className="problem-grid">
+                  {filtered.map((p, i) => (
+                    <button
                       key={p.id}
-                      className={`problem-row problem-row-${tab}`}
+                      className={`problem-card problem-card-${tab}`}
+                      style={{ animationDelay: `${Math.min(i, 8) * 0.03}s` }}
                       onClick={() => navigate(`/problems/${p.id}?mode=${tab}`)}
                     >
-                      <td className="col-id">{p.id}</td>
-                      <td className="col-title">{p.title}</td>
-                      <td className="col-domain"><span className="domain-chip">{p.domain}</span></td>
-                      <td className="col-difficulty">
+                      <div className="card-top">
+                        <span className="card-id">#{p.id}</span>
                         <span className={`difficulty-badge ${difficultyClass(p.difficulty)}`}>
                           <span className="diff-dot" />{p.difficulty}
                         </span>
-                      </td>
-                      <td className="col-time">~{p.estimatedMinutes}m</td>
-                    </tr>
+                      </div>
+                      <h3 className="card-title">{p.title}</h3>
+                      <div className="card-foot">
+                        <span className="domain-chip">{p.domain}</span>
+                        <span className="card-time">~{p.estimatedMinutes}m</span>
+                      </div>
+                      <span className="card-arrow" aria-hidden>→</span>
+                    </button>
                   ))}
-                </tbody>
-              </table>
+                </div>
+              )}
             </>
           )}
         </div>

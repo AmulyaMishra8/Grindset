@@ -57,15 +57,13 @@ type Props = {
   code: string;
   language: string;
   onCodeChange: (code: string) => void;
-  onEditorReady?: (editor: { revealLine: (n: number) => void }) => void;
+  onEditorReady?: (editor: { revealLine: (n: number) => void; layout: () => void }) => void;
   onLanguageChange: (lang: string) => void;
-  onToggleAI: () => void;
-  aiOpen: boolean;
   mode?: "practice" | "test";
 };
 
 export default function CodeEditor({
-  problem, code, language, onCodeChange, onEditorReady, onLanguageChange, onToggleAI, aiOpen, mode = "practice",
+  problem, code, language, onCodeChange, onEditorReady, onLanguageChange, mode = "practice",
 }: Props) {
   const [submitted, setSubmitted] = useState(false);
   const [overlayOpen, setOverlayOpen] = useState(false);
@@ -206,12 +204,6 @@ export default function CodeEditor({
       )}
 
       <div className="editor-actions">
-        <button
-          className={`action-btn ai-toggle-btn ${aiOpen ? "ai-toggle-active" : ""}`}
-          onClick={onToggleAI}
-        >
-          <span className="ai-btn-icon">✦</span> AI
-        </button>
         <button
           className="action-btn run-btn"
           onClick={handleRun}

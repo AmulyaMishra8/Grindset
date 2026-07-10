@@ -17,6 +17,7 @@ export interface Quota {
   used: number;
   limit: number;
   remaining: number;
+  unlimited?: boolean;
 }
 
 export interface RolesResponse {

@@ -22,6 +22,26 @@ model Problem {
   createdAt          DateTime      @default(now())
   practiceSets       PracticeSet[]
   testSets           TestSet[]
+  submissions        Submission[]
+}
+
+// One row per /submit that made it as far as running the tests. `userId` is the
+// auth-service user id — no FK, because users live in a different database
+// (Supabase) than this one (Neon).
+model Submission {
+  id        Int      @id @default(autoincrement())
+  userId    String
+  problemId Int
+  problem   Problem  @relation(fields: [problemId], references: [id])
+  mode      String   // "practice" | "test"
+  language  String
+  passed    Int
+  total     Int
+  solved    Boolean  // passed == total && total > 0, denormalised so stats stay a plain count
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([userId, problemId])
 }
 
 model PracticeSet {

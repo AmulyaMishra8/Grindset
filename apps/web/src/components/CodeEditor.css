@@ -187,30 +187,6 @@
   transition: background 0.15s, color 0.15s;
 }
 
-.ai-toggle-btn {
-  background: var(--bg-active);
-  color: var(--text-secondary);
-  border: 1px solid var(--border);
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.ai-toggle-btn:hover {
-  color: var(--accent);
-  border-color: var(--accent);
-}
-
-.ai-toggle-active {
-  color: var(--accent);
-  border-color: var(--accent);
-  background: rgba(124,77,255,0.1);
-}
-
-.ai-btn-icon {
-  font-size: 14px;
-}
-
 .submit-btn {
   background: var(--green);
   color: #fff;

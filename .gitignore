@@ -5,3 +5,7 @@ dist/
 .turbo/
 *.log
 *.pem
+
+# Vendored CPython runtime the judge sandbox uses locally — platform-specific
+# binaries, not source.
+apps/judge-service/Python/

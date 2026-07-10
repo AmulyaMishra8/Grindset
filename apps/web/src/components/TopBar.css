@@ -84,23 +84,3 @@
   background: var(--bg-hover);
 }
 
-.topbar-avatar {
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-  background: var(--accent-grad);
-  color: #fff;
-  font-weight: 700;
-  font-size: 12px;
-  letter-spacing: 0.02em;
-  text-decoration: none;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 0 0 1px var(--border-light), 0 2px 8px -2px var(--accent-glow);
-  transition: transform var(--t-fast), box-shadow var(--t-fast);
-}
-.topbar-avatar:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 0 0 1px var(--accent), 0 4px 12px -2px var(--accent-glow);
-}
