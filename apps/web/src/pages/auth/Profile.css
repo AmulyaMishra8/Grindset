@@ -1,0 +1,455 @@
+/* The account page. Tokens come from :root (see index.css).
+
+   The rule holds: red only marks something outstanding — problems you submitted
+   and never got passing, and an unverified email. A solved problem gets a plain
+   bone check, because there's nothing to go fix. */
+
+.pf-page {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 36px 24px 80px;
+  color: var(--bone);
+  font-family: var(--body);
+  animation: grindset-fade-up 0.35s var(--ease);
+}
+
+/* ── Identity ── */
+.pf-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+  padding-bottom: 26px;
+  border-bottom: 1px solid var(--rule);
+}
+
+.pf-identity {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-width: 0;
+}
+
+.pf-avatar {
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: var(--ink-raised);
+  border: 1px solid var(--rule);
+  font-family: var(--mono);
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--bone);
+}
+
+.pf-identity-text {
+  min-width: 0;
+}
+
+.pf-name {
+  font-family: var(--display);
+  font-size: clamp(24px, 3vw, 34px);
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  overflow-wrap: anywhere;
+}
+
+.pf-email {
+  margin-top: 5px;
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--bone-mute);
+  overflow-wrap: anywhere;
+}
+
+/* ── Buttons ── */
+.pf-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  padding: 9px 16px;
+  border-radius: var(--radius);
+  border: 1px solid transparent;
+  font-family: var(--body);
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background var(--t-fast), border-color var(--t-fast), color var(--t-fast);
+}
+
+.pf-btn-ghost {
+  background: transparent;
+  border-color: var(--rule);
+  color: var(--bone-dim);
+}
+
+.pf-btn-ghost:hover {
+  border-color: var(--bone-mute);
+  color: var(--bone);
+  background: var(--ink-raised);
+}
+
+.pf-btn-primary {
+  background: var(--pen-fill);
+  color: #fff;
+}
+
+.pf-btn-primary:hover {
+  background: var(--pen);
+}
+
+/* ── Sections ── */
+.pf-section {
+  padding-top: 32px;
+}
+
+.pf-section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+.pf-section-title {
+  margin-bottom: 16px;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--bone-mute);
+}
+
+.pf-section-head .pf-section-title {
+  margin-bottom: 0;
+}
+
+.pf-empty {
+  font-family: var(--mono);
+  font-size: 12.5px;
+  color: var(--bone-mute);
+}
+
+/* ── Progress ── */
+.pf-progress {
+  padding: 22px;
+  background: var(--ink-raised);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-lg);
+}
+
+.pf-progress-top {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+
+.pf-count {
+  display: flex;
+  align-items: baseline;
+  gap: 9px;
+}
+
+.pf-count-num {
+  font-family: var(--display);
+  font-size: 42px;
+  font-weight: 800;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.pf-count-of {
+  font-size: 13px;
+  color: var(--bone-mute);
+}
+
+.pf-unresolved {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--pen);
+}
+
+.pf-track {
+  display: block;
+  height: 6px;
+  border-radius: 1px;
+  background: var(--rule-soft);
+  overflow: hidden;
+}
+
+.pf-fill {
+  display: block;
+  height: 100%;
+  background: var(--bone);
+  transition: width 0.6s var(--ease);
+}
+
+.pf-diffs {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 22px;
+  padding-top: 20px;
+  border-top: 1px solid var(--rule);
+}
+
+.pf-diff {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.pf-diff .diff-meter {
+  width: 92px;
+  flex-shrink: 0;
+}
+
+.pf-diff-track {
+  flex: 1;
+  height: 5px;
+  border-radius: 1px;
+  background: var(--rule-soft);
+  overflow: hidden;
+}
+
+.pf-diff-fill {
+  display: block;
+  height: 100%;
+  background: var(--bone);
+  transition: width 0.6s var(--ease);
+}
+
+.pf-diff-count {
+  width: 46px;
+  flex-shrink: 0;
+  text-align: right;
+  font-family: var(--mono);
+  font-size: 12.5px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.pf-diff-total {
+  color: var(--bone-mute);
+  font-weight: 400;
+}
+
+/* ── Solved / unresolved ── */
+.pf-tabs {
+  display: flex;
+  gap: 6px;
+}
+
+.pf-tab {
+  background: transparent;
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  padding: 7px 12px;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--bone-mute);
+  transition: color var(--t-fast), border-color var(--t-fast), background var(--t-fast);
+}
+
+.pf-tab:hover {
+  color: var(--bone);
+  border-color: var(--bone-mute);
+}
+
+.pf-tab-on {
+  background: var(--bone);
+  border-color: var(--bone);
+  color: var(--ink);
+}
+
+.pf-list {
+  list-style: none;
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.pf-list li + li .pf-row {
+  border-top: 1px solid var(--rule);
+}
+
+.pf-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  background: var(--ink-raised);
+  text-decoration: none;
+  color: inherit;
+  transition: background var(--t-fast);
+}
+
+.pf-row:hover {
+  background: var(--ink-hover);
+}
+
+/* A problem you submitted and never got passing still carries a mark. */
+.pf-row-unresolved {
+  box-shadow: inset 2px 0 0 var(--pen);
+}
+
+.pf-row-id {
+  flex-shrink: 0;
+  font-family: var(--mono);
+  font-size: 11.5px;
+  color: var(--bone-mute);
+  font-variant-numeric: tabular-nums;
+}
+
+.pf-row-title {
+  flex: 1;
+  min-width: 0;
+  font-size: 14.5px;
+  font-weight: 500;
+  color: var(--bone);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pf-row-domain {
+  flex-shrink: 0;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--bone-mute);
+}
+
+.pf-row-status {
+  width: 58px;
+  flex-shrink: 0;
+  text-align: right;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--bone-dim);
+}
+
+.pf-row-unresolved .pf-row-status {
+  color: var(--pen);
+}
+
+.pf-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 48px 20px;
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-lg);
+  background: var(--ink-raised);
+  color: var(--bone-dim);
+  font-size: 14px;
+  text-align: center;
+}
+
+/* ── Account facts ── */
+.pf-facts {
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.pf-fact {
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+  padding: 14px 16px;
+  background: var(--ink-raised);
+}
+
+.pf-fact + .pf-fact {
+  border-top: 1px solid var(--rule);
+}
+
+.pf-fact dt {
+  width: 140px;
+  flex-shrink: 0;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--bone-mute);
+}
+
+.pf-fact dd {
+  flex: 1;
+  min-width: 0;
+  font-size: 14px;
+  overflow-wrap: anywhere;
+}
+
+.pf-unset {
+  color: var(--bone-mute);
+}
+
+/* An unverified email is an outstanding item, so it's marked. */
+.pf-flag {
+  color: var(--pen);
+}
+
+/* ── Two-factor ── */
+.pf-mfa-on {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding: 18px;
+  background: var(--ink-raised);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-lg);
+}
+
+.pf-mfa-state {
+  font-family: var(--display);
+  font-size: 18px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.pf-mfa-hint {
+  margin-top: 4px;
+  font-size: 13px;
+  color: var(--bone-dim);
+}
+
+/* MfaSetup reuses the shared auth form controls; give them room to breathe. */
+.pf-section .btn {
+  width: auto;
+}
+
+@media (max-width: 640px) {
+  .pf-row-domain {
+    display: none;
+  }
+
+  .pf-fact {
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .pf-fact dt {
+    width: auto;
+  }
+}

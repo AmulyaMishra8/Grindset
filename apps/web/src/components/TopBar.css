@@ -1,64 +1,88 @@
+/* App chrome, in the same language as the rest of the product: graphite ink,
+   bone type, no colour. Red stays reserved for the reviewer's pen, so the nav
+   marks its active item with weight and a bone rule rather than an accent. */
+
 .topbar {
-  height: 44px;
-  background: rgba(19, 19, 31, 0.8);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border-bottom: 1px solid var(--border);
+  --ink: #0a0b0d;
+  --ink-raised: #101217;
+  --ink-hover: #171a20;
+  --rule: #21252e;
+  --bone: #f0ece5;
+  --bone-mute: #83868e;
+
+  --mono: "IBM Plex Mono", ui-monospace, "SF Mono", Consolas, monospace;
+  --body: "IBM Plex Sans", system-ui, -apple-system, sans-serif;
+
+  height: 52px;
+  flex-shrink: 0;
+  z-index: 10;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 16px;
-  flex-shrink: 0;
-  z-index: 10;
-  overflow: visible;
+  gap: 16px;
+  padding: 0 clamp(16px, 3vw, 24px);
+  background: var(--ink);
+  border-bottom: 1px solid var(--rule);
+  font-family: var(--body);
 }
 
 .topbar-left {
   display: flex;
   align-items: center;
-  gap: 24px;
+  gap: 28px;
 }
 
 .topbar-logo-link {
   display: inline-flex;
   align-items: center;
+  border-radius: 3px;
 }
 
+/* The PNG is a square with the wordmark in a thin band through the middle —
+   cover-crop to that band instead of scaling the whole transparent canvas. */
 .topbar-logo {
-  height: 120px;
-  width: auto;
-  max-width: 320px;
-  object-fit: contain;
-  position: relative;
-  top: -5px;
-  z-index: 11;
+  height: 20px;
+  width: 100px;
+  object-fit: cover;
+  display: block;
 }
 
 .topbar-nav {
   display: flex;
-  gap: 4px;
+  gap: 2px;
 }
 
 .nav-btn {
   position: relative;
   background: transparent;
-  color: var(--text-secondary);
+  color: var(--bone-mute);
   font-size: 13px;
-  font-weight: 600;
-  padding: 5px 12px;
-  border-radius: 8px;
+  font-weight: 500;
+  padding: 6px 11px;
+  border-radius: 4px;
   text-decoration: none;
-  transition: color var(--t-fast), background var(--t-fast);
+  transition: color 0.15s ease, background 0.15s ease;
 }
 
 .nav-btn:hover {
-  color: var(--text-primary);
-  background: var(--bg-hover);
+  color: var(--bone);
+  background: var(--ink-hover);
 }
 
 .nav-btn.active {
-  color: var(--text-primary);
-  background: var(--accent-soft);
+  color: var(--bone);
+  font-weight: 600;
+}
+
+.nav-btn.active::after {
+  content: "";
+  position: absolute;
+  left: 11px;
+  right: 11px;
+  bottom: -2px;
+  height: 2px;
+  background: var(--bone);
+  border-radius: 1px;
 }
 
 .topbar-right {
@@ -69,18 +93,22 @@
 
 .topbar-icon-btn {
   background: transparent;
-  color: var(--text-secondary);
+  color: var(--bone-mute);
   display: flex;
   align-items: center;
   justify-content: center;
   width: 32px;
   height: 32px;
-  border-radius: 8px;
-  transition: color var(--t-fast), background var(--t-fast);
+  border-radius: 4px;
+  transition: color 0.15s ease, background 0.15s ease;
 }
 
 .topbar-icon-btn:hover {
-  color: var(--text-primary);
-  background: var(--bg-hover);
+  color: var(--bone);
+  background: var(--ink-hover);
 }
 
+.topbar :focus-visible {
+  outline: 2px solid var(--bone);
+  outline-offset: 2px;
+}

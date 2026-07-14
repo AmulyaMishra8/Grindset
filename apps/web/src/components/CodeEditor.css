@@ -1,8 +1,12 @@
+/* Editor chrome. The rule holds here too: a failing test is marked in red, a
+   passing one gets no colour — the check is bone. If your run comes back clean,
+   the panel is silent. Every red line is something to go fix. */
+
 .code-editor-panel {
   display: flex;
   flex-direction: column;
   height: 100%;
-  background: var(--bg-panel);
+  background: var(--ink);
   overflow: hidden;
 }
 
@@ -11,49 +15,32 @@
   align-items: center;
   justify-content: space-between;
   padding: 8px 12px;
-  border-bottom: 1px solid var(--border);
-  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--rule);
+  background: var(--ink);
   flex-shrink: 0;
 }
 
 .lang-select {
-  background: var(--bg-active);
-  color: var(--text-primary);
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  padding: 5px 10px;
-  font-size: 13px;
-  font-family: inherit;
+  background: var(--ink-raised);
+  color: var(--bone);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  padding: 6px 10px;
+  font-family: var(--mono);
+  font-size: 11.5px;
   cursor: pointer;
   outline: none;
-  transition: border-color 0.15s;
+  transition: border-color var(--t-fast);
 }
 
 .lang-select:hover,
 .lang-select:focus {
-  border-color: var(--border-light);
+  border-color: var(--bone-mute);
 }
 
-.toolbar-actions {
-  display: flex;
-  gap: 4px;
-}
-
-.toolbar-icon-btn {
-  background: transparent;
-  color: var(--text-secondary);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 30px;
-  height: 30px;
-  border-radius: 6px;
-  transition: color 0.15s, background 0.15s;
-}
-
-.toolbar-icon-btn:hover {
-  color: var(--text-primary);
-  background: var(--bg-hover);
+.lang-select:disabled {
+  color: var(--bone-mute);
+  cursor: not-allowed;
 }
 
 .editor-body {
@@ -62,367 +49,227 @@
   min-height: 0;
 }
 
-/* Result drawer */
-.result-drawer {
-  border-top: 1px solid var(--border);
-  background: var(--bg-secondary);
-  flex-shrink: 0;
-  max-height: 200px;
-  display: flex;
-  flex-direction: column;
-}
-
-.result-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 8px 14px;
-  border-bottom: 1px solid var(--border);
-  flex-shrink: 0;
-}
-
-.result-loading {
-  color: var(--text-secondary);
-  font-size: 13px;
-  font-style: italic;
-}
-
-.result-status {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-weight: 700;
-  font-size: 13px;
-}
-
-.status-accepted { color: var(--easy); }
-.status-error    { color: var(--hard); }
-.status-warn     { color: var(--medium); }
-.status-open     { color: var(--text-secondary); }
-
-.result-open-msg {
-  color: var(--text-secondary);
-  font-size: 13px;
-  line-height: 1.65;
-  padding: 4px 0;
-}
-
-.result-runtime {
-  font-weight: 400;
-  font-size: 12px;
-  color: var(--text-secondary);
-}
-
-.result-close {
-  background: transparent;
-  color: var(--text-muted);
-  font-size: 12px;
-  padding: 2px 6px;
-  border-radius: 4px;
-  transition: color 0.15s;
-}
-
-.result-close:hover { color: var(--text-primary); }
-
-.result-body {
-  overflow-y: auto;
-  padding: 8px 14px 12px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.result-error {
-  color: var(--hard);
-  font-family: "Fira Code", Consolas, monospace;
-  font-size: 12px;
-  white-space: pre-wrap;
-  background: rgba(255,71,87,0.08);
-  padding: 8px 10px;
-  border-radius: 6px;
-  border-left: 2px solid var(--hard);
-}
-
-.test-result {
-  padding: 7px 10px;
-  border-radius: 6px;
-  font-size: 13px;
-}
-
-.test-pass { background: rgba(0,229,160,0.07); border-left: 2px solid var(--easy); }
-.test-fail { background: rgba(255,71,87,0.07); border-left: 2px solid var(--hard); }
-
-.test-label { font-weight: 600; }
-.test-pass .test-label { color: var(--easy); }
-.test-fail .test-label { color: var(--hard); }
-
-.test-detail {
-  margin-top: 4px;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  color: var(--text-secondary);
-  font-size: 12px;
-}
-
-.test-detail code { color: var(--text-primary); background: transparent; padding: 0; }
-.test-error { color: var(--hard); font-size: 11px; }
-
-/* Bottom action bar */
-.editor-actions {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 10px 12px;
-  border-top: 1px solid var(--border);
-  background: var(--bg-secondary);
-  flex-shrink: 0;
-}
-
-.action-btn {
-  font-size: 13px;
-  font-weight: 500;
-  padding: 6px 16px;
-  border-radius: 6px;
-  transition: background 0.15s, color 0.15s;
-}
-
-.submit-btn {
-  background: var(--green);
-  color: #fff;
-}
-
-.submit-btn:hover:not(:disabled) {
-  background: var(--green-hover);
-}
-
-.submit-btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-.submit-locked {
-  background: var(--bg-active) !important;
-  color: var(--text-muted) !important;
-  border: 1px solid var(--border);
-}
-
-/* ── Run button ── */
-.run-btn {
-  background: var(--bg-active);
-  color: var(--text-primary);
-  border: 1px solid var(--border);
-  font-variant-numeric: tabular-nums;
-}
-.run-btn:hover:not(:disabled) {
-  border-color: var(--accent);
-  color: var(--accent);
-}
-.run-btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-/* ── Run results panel ── */
+/* ── Run results ── */
 .run-results {
-  border-top: 1px solid var(--border);
-  background: var(--bg-secondary);
+  border-top: 1px solid var(--rule);
+  background: var(--ink-raised);
   max-height: 38%;
   display: flex;
   flex-direction: column;
   flex-shrink: 0;
   overflow: hidden;
 }
+
 .run-results-head {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 8px 14px;
-  border-bottom: 1px solid var(--border);
+  padding: 9px 14px;
+  border-bottom: 1px solid var(--rule);
 }
+
 .run-results-title {
-  font-size: 12.5px;
-  font-weight: 700;
-  color: var(--text-primary);
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--bone);
 }
+
 .run-results-close {
   background: transparent;
-  color: var(--text-muted);
+  color: var(--bone-mute);
   font-size: 18px;
   line-height: 1;
   padding: 0 4px;
+  border-radius: var(--radius-sm);
 }
-.run-results-close:hover { color: var(--text-primary); }
+
+.run-results-close:hover { color: var(--bone); }
+
 .run-results-body {
   overflow-y: auto;
   padding: 6px 0;
 }
+
 .run-case {
   display: flex;
   align-items: baseline;
-  gap: 8px;
-  padding: 5px 14px;
-  font-size: 12.5px;
-  line-height: 1.4;
+  gap: 10px;
+  padding: 6px 14px;
+  font-family: var(--mono);
+  font-size: 12px;
+  line-height: 1.5;
 }
+
+/* A failing case is the only line that gets marked. */
+.run-case.fail {
+  background: var(--pen-wash);
+  box-shadow: inset 2px 0 0 var(--pen);
+}
+
 .run-case-icon {
-  font-weight: 800;
+  font-weight: 700;
   flex-shrink: 0;
 }
-.run-case.pass .run-case-icon { color: var(--green, #22c55e); }
-.run-case.fail .run-case-icon { color: #ef4444; }
-.run-case-desc { color: var(--text-secondary); }
-.run-case.fail .run-case-desc { color: var(--text-primary); }
+
+.run-case.pass .run-case-icon { color: var(--bone-dim); }
+.run-case.fail .run-case-icon { color: var(--pen); }
+
+.run-case-desc { color: var(--bone-mute); }
+.run-case.fail .run-case-desc { color: var(--bone); }
+
 .run-case-detail {
   margin-left: auto;
   padding-left: 12px;
-  color: var(--text-muted);
-  font-family: var(--font-mono, monospace);
+  color: var(--pen);
+  font-family: var(--mono);
   font-size: 11.5px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 50%;
-}
-.run-msg {
-  padding: 10px 14px;
-  font-size: 12.5px;
-  color: var(--text-secondary);
+  max-width: 52%;
 }
 
-/* ── Solution (revealed after submit) ── */
+.run-msg {
+  padding: 12px 14px;
+  font-family: var(--mono);
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--bone-dim);
+}
+
+/* ── Action bar ── */
+.editor-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border-top: 1px solid var(--rule);
+  background: var(--ink);
+  flex-shrink: 0;
+}
+
+.action-btn {
+  font-family: var(--body);
+  font-size: 13px;
+  font-weight: 600;
+  padding: 8px 16px;
+  border: 1px solid transparent;
+  border-radius: var(--radius);
+  transition: background var(--t-fast), color var(--t-fast), border-color var(--t-fast);
+}
+
+.run-btn {
+  background: transparent;
+  color: var(--bone);
+  border-color: var(--rule);
+  font-variant-numeric: tabular-nums;
+}
+
+.run-btn:hover:not(:disabled) {
+  border-color: var(--bone-mute);
+  background: var(--ink-raised);
+}
+
+.run-btn:disabled {
+  color: var(--bone-mute);
+  cursor: not-allowed;
+}
+
+/* Submit is the moment you get graded — it carries the primary weight. */
+.submit-btn {
+  margin-left: auto;
+  background: var(--pen-fill);
+  color: #fff;
+}
+
+.submit-btn:hover:not(:disabled) {
+  background: var(--pen);
+}
+
+.submit-btn:disabled {
+  cursor: not-allowed;
+}
+
+.submit-locked {
+  background: transparent !important;
+  color: var(--bone-mute) !important;
+  border-color: var(--rule) !important;
+}
+
 .solution-btn {
   background: transparent;
-  color: var(--medium, #f5a623);
-  border: 1px solid var(--medium, #f5a623);
-}
-.solution-btn:hover {
-  background: rgba(245, 166, 35, 0.12);
+  color: var(--bone-dim);
+  border-color: var(--rule);
 }
 
+.solution-btn:hover {
+  color: var(--bone);
+  border-color: var(--bone-mute);
+}
+
+/* ── Reference solution modal ── */
 .solution-modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.6);
+  background: rgba(0, 0, 0, 0.68);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 50;
   padding: 24px;
-  backdrop-filter: blur(2px);
+  backdrop-filter: blur(3px);
 }
+
 .solution-modal {
-  background: var(--bg-secondary);
-  border: 1px solid var(--border);
-  border-radius: 12px;
+  background: var(--ink-raised);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-lg);
   width: min(760px, 100%);
   max-height: 85vh;
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  box-shadow: 0 24px 60px -12px rgba(0, 0, 0, 0.5);
+  box-shadow: var(--shadow);
 }
+
 .solution-modal-head {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 12px 16px;
-  border-bottom: 1px solid var(--border);
+  padding: 13px 16px;
+  border-bottom: 1px solid var(--rule);
 }
+
 .solution-modal-title {
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--text-primary);
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--bone-mute);
 }
+
 .solution-modal-close {
   background: transparent;
-  color: var(--text-muted);
+  color: var(--bone-mute);
   font-size: 20px;
   line-height: 1;
   padding: 0 4px;
+  border-radius: var(--radius-sm);
 }
-.solution-modal-close:hover { color: var(--text-primary); }
+
+.solution-modal-close:hover { color: var(--bone); }
+
 .solution-code {
   margin: 0;
   padding: 16px;
   overflow: auto;
-  font-family: var(--font-mono, 'Fira Code', monospace);
-  font-size: 13px;
-  line-height: 1.6;
-  color: var(--text-primary);
+  background: var(--ink);
+  font-family: var(--mono);
+  font-size: 12.5px;
+  line-height: 1.65;
+  color: var(--bone);
   white-space: pre;
 }
-
-/* ── Test cases list ── */
-.test-cases {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-/* ── Untestable state ── */
-.untestable-msg {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  padding: 10px 12px;
-  background: rgba(255,159,67,0.08);
-  border: 1px solid rgba(255,159,67,0.25);
-  border-radius: 8px;
-}
-
-.untestable-reason {
-  color: var(--medium);
-  font-size: 13px;
-  font-weight: 500;
-}
-
-.untestable-hint {
-  color: var(--text-secondary);
-  font-size: 12px;
-  line-height: 1.6;
-}
-
-/* ── AI analysis section ── */
-.analysis-section {
-  margin-top: 8px;
-  border-top: 1px solid var(--border);
-  padding-top: 12px;
-}
-
-.analysis-title {
-  font-size: 11px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.07em;
-  color: var(--accent);
-  margin-bottom: 10px;
-}
-
-.analysis-body {
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-}
-
-.analysis-heading {
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--text-primary);
-  margin-top: 8px;
-}
-
-.analysis-line {
-  font-size: 13px;
-  color: var(--text-secondary);
-  line-height: 1.65;
-}
-
-.analysis-item {
-  font-size: 13px;
-  color: var(--text-secondary);
-  line-height: 1.65;
-  padding-left: 4px;
-}
-
-.analysis-gap { height: 4px; }

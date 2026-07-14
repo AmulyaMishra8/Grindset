@@ -1,8 +1,12 @@
+/* The workspace: the PM thread on the left, the editor and the junior on the
+   right. Tokens come from :root now — see index.css. */
+
 .problem-page {
   display: flex;
   flex-direction: column;
   height: 100%;
   overflow: hidden;
+  background: var(--ink);
 }
 
 .main-area {
@@ -24,38 +28,45 @@
   flex-direction: column;
 }
 
-/* Editor / AI tabs — both views stay mounted, the inactive one is hidden. */
+/* Editor / Junior tabs — both views stay mounted, the inactive one is hidden. */
 .pane-tabs {
   display: flex;
-  border-bottom: 1px solid var(--border);
-  padding: 0 16px;
+  gap: 2px;
   flex-shrink: 0;
-  background: var(--bg-secondary);
+  padding: 0 12px;
+  background: var(--ink);
+  border-bottom: 1px solid var(--rule);
 }
 
 .pane-tab {
+  position: relative;
   background: transparent;
-  color: var(--text-secondary);
-  font-size: 13px;
+  color: var(--bone-mute);
+  font-family: var(--mono);
+  font-size: 10.5px;
   font-weight: 500;
-  padding: 10px 14px;
-  border-bottom: 2px solid transparent;
-  margin-bottom: -1px;
-  transition: color 0.15s, border-color 0.15s;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  padding: 12px 12px 11px;
+  transition: color var(--t-fast);
 }
 
 .pane-tab:hover {
-  color: var(--text-primary);
+  color: var(--bone);
 }
 
 .pane-tab-active {
-  color: var(--text-primary);
-  border-bottom-color: var(--accent);
+  color: var(--bone);
 }
 
-.pane-tab-icon {
-  color: var(--accent);
-  margin-right: 2px;
+.pane-tab-active::after {
+  content: "";
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: -1px;
+  height: 2px;
+  background: var(--bone);
 }
 
 .pane-body {
@@ -73,15 +84,49 @@
 }
 
 .v-divider {
-  width: 5px;
+  width: 1px;
   flex-shrink: 0;
-  background: var(--border);
+  background: var(--rule);
   cursor: col-resize;
-  transition: background 0.15s;
+  border-left: 2px solid transparent;
+  border-right: 2px solid transparent;
+  background-clip: padding-box;
+  transition: background var(--t-fast);
 }
 
 .v-divider:hover,
 .v-divider:active {
-  background: var(--accent);
+  background: var(--bone-mute);
+  background-clip: padding-box;
 }
 
+/* ── Page-level states ── */
+.pp-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  height: 100%;
+  color: var(--bone-mute);
+  font-family: var(--mono);
+  font-size: 13px;
+}
+
+.pp-state button {
+  background: transparent;
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  padding: 8px 14px;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--bone);
+  transition: border-color var(--t-fast), background var(--t-fast);
+}
+
+.pp-state button:hover {
+  border-color: var(--bone-mute);
+  background: var(--ink-raised);
+}

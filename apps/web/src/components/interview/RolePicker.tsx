@@ -2,6 +2,15 @@ import type { RoleMeta, Quota } from "../../api/interview";
 
 // The role selection screen — four persona cards + the user's remaining daily
 // budget. Picking a card starts an interview.
+//
+// The personas used to be told apart by a per-role accent colour, which put four
+// more hues on a page where red already means something. They're told apart by
+// who they are instead: the interviewer's initials, their name, and the round.
+
+function initials(name: string): string {
+  const parts = name.trim().split(/\s+/);
+  return (parts[0][0] + (parts.length > 1 ? parts[parts.length - 1][0] : "")).toUpperCase();
+}
 
 interface RolePickerProps {
   roles: RoleMeta[];
@@ -17,14 +26,15 @@ export default function RolePicker({ roles, quota, starting, onPick }: RolePicke
   return (
     <div className="iv-picker">
       <div className="iv-picker-head">
+        <p className="iv-eyebrow">Live voice round</p>
         <h1 className="iv-h1">AI Interview</h1>
         <p className="iv-tagline">
-          A live, voice-driven mock interview. Pick a round to begin.
+          Four interviewers, four rounds. Pick one and they'll start asking.
         </p>
         {quota && !quota.unlimited && (
           <p className={`iv-quota${outOfBudget ? " iv-quota-empty" : ""}`}>
             {outOfBudget
-              ? "You've used all of today's interviews — come back tomorrow."
+              ? "You've used all of today's interviews. Come back tomorrow."
               : `${quota.remaining} of ${quota.limit} interviews left today`}
           </p>
         )}
@@ -35,11 +45,10 @@ export default function RolePicker({ roles, quota, starting, onPick }: RolePicke
           <button
             key={r.id}
             className="iv-role-card"
-            style={{ ["--accent" as string]: r.accent }}
             disabled={!!starting || outOfBudget}
             onClick={() => onPick(r.id)}
           >
-            <div className="iv-role-dot" />
+            <span className="iv-role-initials">{initials(r.interviewer)}</span>
             <h3 className="iv-role-label">{r.label}</h3>
             <p className="iv-role-interviewer">with {r.interviewer}</p>
             <p className="iv-role-blurb">{r.blurb}</p>

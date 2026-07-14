@@ -31,7 +31,11 @@ export function RegisterPage() {
 
   if (done) {
     return (
-      <AuthLayout title="Account created" footer={<Link to="/login">Go to sign in</Link>}>
+      <AuthLayout
+        eyebrow="New account"
+        title="Account created"
+        footer={<Link to="/login">Go to sign in</Link>}
+      >
         <Alert kind="success">
           Your account is ready. You can sign in now.
         </Alert>
@@ -41,8 +45,9 @@ export function RegisterPage() {
 
   return (
     <AuthLayout
+      eyebrow="New account"
       title="Create account"
-      subtitle="Start by entering your details"
+      subtitle="No card. Your first task is waiting in the queue."
       footer={
         <>
           Already have an account? <Link to="/login">Sign in</Link>

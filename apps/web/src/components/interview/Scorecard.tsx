@@ -1,13 +1,15 @@
+import DifficultyMeter from "../DifficultyMeter";
 import type { Scorecard as ScorecardData } from "../../api/interview";
 
 // End-of-interview results: an overall ring, per-dimension bars, strengths/gaps,
 // and the Easy/Medium/Hard breakdown.
+//
+// The old version coloured every score green/amber/red, which meant the page was
+// a rainbow whether you did well or badly. Red is the reviewer's pen across this
+// product, so it appears here only where you actually fell short: a dimension
+// under the bar, and each gap — set as the same ↳ margin note used everywhere.
 
-function scoreColor(score: number): string {
-  if (score >= 75) return "#22c55e";
-  if (score >= 50) return "#f59e0b";
-  return "#ef4444";
-}
+const PAR = 60;
 
 function fmtDuration(s: number): string {
   const m = Math.floor(s / 60);
@@ -24,40 +26,46 @@ interface ScorecardProps {
 }
 
 export default function Scorecard({ data, roleLabel, durationS, persisted, onRestart }: ScorecardProps) {
-  const ring = scoreColor(data.overall);
   const diffs: Array<"Easy" | "Medium" | "Hard"> = ["Easy", "Medium", "Hard"];
+  const weakOverall = data.overall < PAR;
 
   return (
     <div className="iv-results">
       <div className="iv-results-head">
         <div
-          className="iv-score-ring"
-          style={{ ["--ring" as string]: ring, ["--pct" as string]: `${data.overall}%` }}
+          className={`iv-score-ring${weakOverall ? " iv-score-ring-weak" : ""}`}
+          style={{ ["--pct" as string]: `${data.overall}%` }}
         >
           <span className="iv-score-num">{data.overall}</span>
           <span className="iv-score-of">/100</span>
         </div>
         <div className="iv-results-meta">
-          <h1 className="iv-h1">{roleLabel} interview</h1>
+          <p className="iv-eyebrow">{roleLabel} round · {fmtDuration(durationS)}</p>
+          <h1 className="iv-h1">Your scorecard</h1>
           <p className="iv-results-summary">{data.summary}</p>
-          <p className="iv-results-sub">Duration: {fmtDuration(durationS)}</p>
         </div>
       </div>
 
       <section className="iv-card">
         <h2 className="iv-card-title">By dimension</h2>
-        {data.dimensions.map((d) => (
-          <div className="iv-dim-row" key={d.label}>
-            <div className="iv-dim-top">
-              <span className="iv-dim-label">{d.label}</span>
-              <span className="iv-dim-score" style={{ color: scoreColor(d.score) }}>{d.score}</span>
+        {data.dimensions.map((d) => {
+          const weak = d.score < PAR;
+          return (
+            <div className="iv-dim-row" key={d.label}>
+              <div className="iv-dim-top">
+                <span className="iv-dim-label">{d.label}</span>
+                <span className={`iv-dim-score${weak ? " iv-weak" : ""}`}>{d.score}</span>
+              </div>
+              <div className="iv-dim-bar">
+                <div
+                  className={`iv-dim-fill${weak ? " iv-dim-fill-weak" : ""}`}
+                  style={{ width: `${d.score}%` }}
+                />
+              </div>
+              <p className="iv-dim-comment">{d.comment}</p>
             </div>
-            <div className="iv-dim-bar">
-              <div className="iv-dim-fill" style={{ width: `${d.score}%`, background: scoreColor(d.score) }} />
-            </div>
-            <p className="iv-dim-comment">{d.comment}</p>
-          </div>
-        ))}
+          );
+        })}
       </section>
 
       <div className="iv-two-col">
@@ -87,7 +95,7 @@ export default function Scorecard({ data, roleLabel, durationS, persisted, onRes
             const b = data.perDifficulty[d];
             return (
               <div className="iv-diff-cell" key={d}>
-                <span className={`iv-diff iv-diff-${d.toLowerCase()}`}>{d}</span>
+                <DifficultyMeter level={d} />
                 <span className="iv-diff-stat">{b.handledWell}/{b.asked}</span>
                 <span className="iv-diff-cap">handled well</span>
               </div>
@@ -98,7 +106,8 @@ export default function Scorecard({ data, roleLabel, durationS, persisted, onRes
 
       {!persisted && (
         <p className="iv-muted iv-note">
-          Note: this result wasn’t saved to history (the history table isn’t migrated on this environment yet).
+          This result wasn’t saved to your history — the history table isn’t migrated on this
+          environment yet.
         </p>
       )}
 

@@ -2,13 +2,16 @@
 // four interviewers gets a distinct look (hair, skin tone, glasses) so they read
 // as different people, and the mouth is lip-synced to the ACTUAL audio via the
 // shared voice level (getVoiceLevel).
+//
+// The face is what tells the interviewers apart, so the server's per-role accent
+// colour is no longer painted onto the UI — everything around it is graphite and
+// bone, and red stays reserved for the reviewer's pen. Skin and hair are
+// illustration, not status, so they keep their colour.
 
 import { useEffect, useRef } from "react";
 import { getVoiceLevel } from "../../lib/voiceLevel";
 
 interface AvatarProps {
-  name: string;
-  accent: string;
   variant?: string; // interviewer role id → picks the look below
   speaking: boolean;
   listening: boolean;
@@ -26,9 +29,10 @@ const LOOKS: Record<string, Look> = {
   hr:            { skin: "#f1c9a6", hair: "#5b3a22", long: true,  glasses: false },
 };
 
-export default function Avatar({ name, accent, variant, speaking, listening, thinking }: AvatarProps) {
+// The name and live state are shown in the stage panel beneath the avatar, so
+// the face doesn't carry a label of its own — it used to sit on top of the chin.
+export default function Avatar({ variant, speaking, listening, thinking }: AvatarProps) {
   const state = speaking ? "speaking" : thinking ? "thinking" : listening ? "listening" : "idle";
-  const firstName = name.split(" ")[0];
   const look = (variant && LOOKS[variant]) || LOOKS.dsa;
 
   const mouthRef = useRef<SVGRectElement>(null);
@@ -49,16 +53,16 @@ export default function Avatar({ name, accent, variant, speaking, listening, thi
   }, [speaking]);
 
   return (
-    <div className={`iv-avatar iv-avatar-${state}`} style={{ ["--accent" as string]: accent }}>
+    <div className={`iv-avatar iv-avatar-${state}`}>
       <div className="iv-avatar-ring" />
       <svg viewBox="0 0 120 120" className="iv-avatar-face" aria-hidden="true">
         {/* long hair sits behind the head */}
         {look.long && (
           <path d="M24 60 Q22 22 60 20 Q98 22 96 60 L94 98 Q90 76 86 64 Q60 36 34 64 Q30 76 26 98 Z" fill={look.hair} />
         )}
-        {/* shoulders / shirt in the persona accent */}
-        <path d="M16 120 Q16 96 44 90 L76 90 Q104 96 104 120 Z" fill={accent} opacity="0.92" />
-        <path d="M16 120 Q16 96 44 90 L60 120 Z" fill="#000" opacity="0.06" />
+        {/* shoulders / shirt — neutral, so no persona brings its own hue */}
+        <path d="M16 120 Q16 96 44 90 L76 90 Q104 96 104 120 Z" fill="#2b303a" />
+        <path d="M16 120 Q16 96 44 90 L60 120 Z" fill="#000" opacity="0.12" />
         {/* neck */}
         <rect x="52" y="78" width="16" height="16" rx="4" fill={look.skin} />
         <rect x="52" y="86" width="16" height="8" fill="#000" opacity="0.08" />
@@ -88,12 +92,6 @@ export default function Avatar({ name, accent, variant, speaking, listening, thi
         {/* mouth — scaleY driven per-frame by the live audio level */}
         <rect ref={mouthRef} x="50" y="70" width="20" height="6" rx="3" className="iv-mouth" />
       </svg>
-      <div className="iv-avatar-label">
-        {firstName}
-        <span className="iv-avatar-state">
-          {state === "speaking" ? "speaking…" : state === "thinking" ? "thinking…" : state === "listening" ? "listening…" : "ready"}
-        </span>
-      </div>
     </div>
   );
 }

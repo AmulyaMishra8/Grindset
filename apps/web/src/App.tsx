@@ -91,7 +91,9 @@ export default function App() {
               element={
                 <div className="app">
                   <TopBar />
-                  <main className="app-main" style={{ padding: "24px" }}>
+                  {/* app-main is overflow:hidden by default — the profile page is
+                      taller than the viewport, so it needs its own scroll. */}
+                  <main className="app-main" style={{ overflowY: "auto" }}>
                     <ProfilePage />
                   </main>
                 </div>
