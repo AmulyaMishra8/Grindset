@@ -66,6 +66,20 @@ export function LoginPage() {
           No account? <Link to="/register">Create one</Link>
         </>
       }
+      asideTop={
+        <div className="auth-demo">
+          <p className="auth-demo-head">Just looking around?</p>
+          <dl className="auth-demo-creds">
+            <dt>Email</dt>
+            <dd>{DEMO.email}</dd>
+            <dt>Password</dt>
+            <dd>{DEMO.password}</dd>
+          </dl>
+          <button type="button" className="auth-demo-fill" onClick={fillDemo}>
+            Fill in the demo account
+          </button>
+        </div>
+      }
     >
       <Alert kind="error">{formError || oauthError}</Alert>
       <form onSubmit={handleSubmit(onSubmit)}>
@@ -90,19 +104,6 @@ export function LoginPage() {
 
       <div className="divider"><span>or</span></div>
       <SocialButtons />
-
-      <div className="auth-demo">
-        <p className="auth-demo-head">Just looking around?</p>
-        <dl className="auth-demo-creds">
-          <dt>Email</dt>
-          <dd>{DEMO.email}</dd>
-          <dt>Password</dt>
-          <dd>{DEMO.password}</dd>
-        </dl>
-        <button type="button" className="auth-demo-fill" onClick={fillDemo}>
-          Fill in the demo account
-        </button>
-      </div>
     </AuthLayout>
   );
 }
