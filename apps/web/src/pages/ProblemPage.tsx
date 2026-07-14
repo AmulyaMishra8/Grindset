@@ -109,18 +109,14 @@ export default function ProblemPage() {
   }, []);
 
   if (loading) {
-    return (
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "100%", color: "var(--text-muted, #888)" }}>
-        Loading...
-      </div>
-    );
+    return <div className="pp-state">Loading…</div>;
   }
 
   if (notFound || !problem) {
     return (
-      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "100%", gap: 12 }}>
-        <p style={{ color: "var(--text-muted, #888)" }}>Problem not found.</p>
-        <button onClick={() => navigate("/problems/1")}>Go to Problem 1</button>
+      <div className="pp-state">
+        <p>That problem doesn't exist.</p>
+        <button onClick={() => navigate("/problems")}>Back to problems</button>
       </div>
     );
   }
@@ -150,13 +146,14 @@ export default function ProblemPage() {
             >
               Editor
             </button>
+            {/* "Junior" — the product's own word for who you're briefing here. */}
             <button
               role="tab"
               aria-selected={activeTab === "ai"}
               className={`pane-tab ${activeTab === "ai" ? "pane-tab-active" : ""}`}
               onClick={() => setActiveTab("ai")}
             >
-              <span className="pane-tab-icon">✦</span> AI
+              Junior
             </button>
           </div>
 

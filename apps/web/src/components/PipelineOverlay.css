@@ -1,7 +1,13 @@
+/* The submit pipeline: generate tests → run in the sandbox → senior review.
+   This is where the product's whole promise lands, so the rule is at its
+   loudest here. Failing tests, weak scores and a "go back and fix it" verdict
+   are marked in red. A clean pass is just clean — no green, no fanfare.
+   Tokens come from :root (see index.css). */
+
 .pipeline-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.65);
+  background: rgba(0, 0, 0, 0.7);
   backdrop-filter: blur(4px);
   display: flex;
   align-items: center;
@@ -11,16 +17,16 @@
 }
 
 .pipeline-card {
-  background: var(--bg-panel);
-  border: 1px solid var(--border);
-  border-radius: 14px;
+  background: var(--ink-raised);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-lg);
   width: 100%;
-  max-width: 560px;
-  max-height: 85vh;
+  max-width: 580px;
+  max-height: 86vh;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.5);
+  box-shadow: var(--shadow);
 }
 
 /* ── Header ── */
@@ -33,44 +39,46 @@
 }
 
 .pipeline-title {
-  font-size: 15px;
-  font-weight: 600;
-  color: var(--text-primary);
+  font-family: var(--mono);
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--bone-mute);
 }
 
 .pipeline-close {
   background: transparent;
-  color: var(--text-muted);
+  color: var(--bone-mute);
   font-size: 13px;
   padding: 4px 8px;
-  border-radius: 6px;
-  transition: color 0.15s;
+  border-radius: var(--radius-sm);
+  transition: color var(--t-fast);
 }
 
-.pipeline-close:hover { color: var(--text-primary); }
+.pipeline-close:hover { color: var(--bone); }
 
-/* ── Stage list ── */
+/* ── Stages ── */
 .pipeline-stages {
   display: flex;
   flex-direction: column;
-  gap: 0;
-  padding: 20px 24px;
+  padding: 18px 24px;
 }
 
 .pipeline-stage {
   display: flex;
   align-items: flex-start;
   gap: 14px;
-  padding: 12px 0;
-  border-bottom: 1px solid var(--border);
-  transition: opacity 0.2s;
+  padding: 13px 0;
+  border-bottom: 1px solid var(--rule);
+  transition: opacity 0.2s ease;
 }
 
 .pipeline-stage:last-child { border-bottom: none; }
 
 .ps-pending { opacity: 0.35; }
-.ps-active  { opacity: 1; }
-.ps-done    { opacity: 1; }
+.ps-active,
+.ps-done { opacity: 1; }
 
 .ps-icon {
   width: 22px;
@@ -83,97 +91,94 @@
 }
 
 .ps-done .ps-icon svg {
-  width: 18px;
-  height: 18px;
-  color: var(--easy);
+  width: 17px;
+  height: 17px;
+  color: var(--bone-dim);
 }
 
-/* Spinner */
 .ps-spinner {
   display: block;
-  width: 16px;
-  height: 16px;
-  border: 2px solid rgba(124, 77, 255, 0.25);
-  border-top-color: var(--accent);
+  width: 15px;
+  height: 15px;
+  border: 2px solid var(--rule);
+  border-top-color: var(--bone);
   border-radius: 50%;
   animation: ps-spin 0.7s linear infinite;
 }
 
-@keyframes ps-spin {
-  to { transform: rotate(360deg); }
-}
+@keyframes ps-spin { to { transform: rotate(360deg); } }
 
-/* Pending dot */
 .ps-dot {
   display: block;
-  width: 8px;
-  height: 8px;
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
-  background: var(--border);
+  background: var(--rule);
   margin: 0 auto;
 }
 
 .ps-text {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 3px;
+  min-width: 0;
 }
 
 .ps-label {
-  font-size: 13px;
+  font-size: 13.5px;
   font-weight: 500;
-  color: var(--text-primary);
+  color: var(--bone);
 }
 
 .ps-sub {
   font-size: 12px;
-  color: var(--text-muted);
+  line-height: 1.5;
+  color: var(--bone-mute);
 }
 
-/* Active label pulses subtly */
-.ps-active .ps-label {
-  color: var(--accent);
-}
+.ps-active .ps-label { color: var(--bone); }
+.ps-pending .ps-label { color: var(--bone-dim); }
 
-/* ── Results section ── */
+/* ── Results ── */
 .pipeline-result {
-  padding: 0 24px 28px;
   display: flex;
   flex-direction: column;
   gap: 16px;
-  border-top: 1px solid var(--border);
-  padding-top: 20px;
+  padding: 20px 24px 28px;
+  border-top: 1px solid var(--rule);
   margin-top: 4px;
 }
 
-/* Hiring decision badge */
+/* ── The verdict ── */
 .hiring-badge {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 12px 16px;
-  border-radius: 10px;
+  padding: 14px 16px;
+  border-radius: var(--radius);
   border: 1px solid;
 }
 
-.hb-icon {
-  font-size: 14px;
-  line-height: 1;
-}
-
 .hb-label {
-  font-size: 15px;
-  font-weight: 700;
-  letter-spacing: 0.01em;
+  font-family: var(--display);
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
 }
 
-.hb-strong-hire   { background: rgba(0,229,160,0.1);  border-color: rgba(0,229,160,0.35);  color: var(--easy); }
-.hb-hire          { background: rgba(0,229,160,0.06); border-color: rgba(0,229,160,0.2);   color: var(--easy); }
-.hb-reservations  { background: rgba(255,159,67,0.08); border-color: rgba(255,159,67,0.3);  color: var(--medium); }
-.hb-no-hire       { background: rgba(255,71,87,0.06); border-color: rgba(255,71,87,0.25);  color: var(--hard); }
-.hb-strong-no-hire{ background: rgba(255,71,87,0.1);  border-color: rgba(255,71,87,0.4);   color: var(--hard); }
+/* A verdict you'd be happy with needs no colour to say so. */
+.hb-clean {
+  background: transparent;
+  border-color: var(--rule);
+  color: var(--bone);
+}
 
-/* Summary row */
+/* One that means "go back and fix something" carries the mark. */
+.hb-marked {
+  background: var(--pen-wash);
+  border-color: var(--pen);
+  color: var(--pen);
+}
+
+/* ── Summary ── */
 .pres-summary {
   display: flex;
   align-items: center;
@@ -182,22 +187,6 @@
   flex-wrap: wrap;
 }
 
-.pres-complexity {
-  display: flex;
-  gap: 6px;
-}
-
-.complexity-pill {
-  background: var(--bg-active);
-  border: 1px solid var(--border);
-  border-radius: 20px;
-  padding: 3px 10px;
-  font-size: 12px;
-  color: var(--text-secondary);
-  font-family: "Fira Code", Consolas, monospace;
-}
-
-/* Score */
 .pres-score {
   display: flex;
   align-items: baseline;
@@ -205,155 +194,197 @@
 }
 
 .pres-score-num {
-  font-size: 28px;
-  font-weight: 700;
+  font-family: var(--display);
+  font-size: 30px;
+  font-weight: 800;
+  line-height: 1;
+  color: var(--bone);
+  font-variant-numeric: tabular-nums;
 }
-
-.score-full    { color: var(--easy); }
-.score-partial { color: var(--medium); }
-.score-zero    { color: var(--hard); }
 
 .pres-score-label {
-  font-size: 13px;
-  color: var(--text-muted);
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--bone-mute);
 }
 
-/* Score breakdown */
+/* Anything short of every test passing, or under par, is marked. */
+.score-weak {
+  color: var(--pen) !important;
+}
+
+.pres-complexity {
+  display: flex;
+  gap: 6px;
+}
+
+.complexity-pill {
+  background: var(--ink);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-sm);
+  padding: 4px 9px;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--bone-dim);
+}
+
+/* ── Score breakdown ── */
 .pres-scores {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  padding: 14px 0;
-  border-top: 1px solid var(--border);
-  border-bottom: 1px solid var(--border);
+  gap: 12px;
+  padding: 16px 0;
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
 }
 
 .score-bar-row {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
 }
 
 .score-bar-label {
-  font-size: 12px;
-  color: var(--text-secondary);
-  width: 150px;
+  width: 156px;
   flex-shrink: 0;
+  font-size: 12.5px;
+  color: var(--bone-dim);
 }
 
 .score-bar-track {
   flex: 1;
-  height: 6px;
-  background: var(--bg-active);
-  border-radius: 3px;
+  height: 5px;
+  background: var(--rule-soft);
+  border-radius: 1px;
   overflow: hidden;
 }
 
 .score-bar-fill {
   height: 100%;
-  border-radius: 3px;
-  transition: width 0.6s ease;
+  background: var(--bone);
+  transition: width 0.6s var(--ease);
+}
+
+.score-bar-fill-weak {
+  background: var(--pen);
 }
 
 .score-bar-num {
-  font-size: 13px;
-  font-weight: 600;
-  width: 28px;
-  text-align: right;
+  width: 26px;
   flex-shrink: 0;
+  text-align: right;
+  font-family: var(--mono);
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--bone);
+  font-variant-numeric: tabular-nums;
 }
 
 .score-average {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding-top: 8px;
-  border-top: 1px solid var(--border);
-  margin-top: 2px;
+  padding-top: 12px;
+  border-top: 1px solid var(--rule);
 }
 
 .score-avg-label {
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--text-primary);
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--bone-mute);
 }
 
 .score-avg-num {
-  font-size: 18px;
-  font-weight: 700;
+  font-family: var(--display);
+  font-size: 19px;
+  font-weight: 800;
+  color: var(--bone);
+  font-variant-numeric: tabular-nums;
 }
 
-/* Test cases */
+/* ── Test cases ── */
 .pres-tests {
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  gap: 4px;
 }
 
 .pres-test {
   display: flex;
   align-items: flex-start;
   gap: 10px;
-  padding: 8px 12px;
-  border-radius: 8px;
+  padding: 9px 12px;
+  border-radius: var(--radius-sm);
   font-size: 13px;
 }
 
-.ptest-pass { background: rgba(0,229,160,0.07);  border-left: 2px solid var(--easy); }
-.ptest-fail { background: rgba(255,71,87,0.07);   border-left: 2px solid var(--hard); }
+.ptest-pass {
+  background: transparent;
+}
+
+.ptest-fail {
+  background: var(--pen-wash);
+  box-shadow: inset 2px 0 0 var(--pen);
+}
 
 .ptest-icon {
+  font-family: var(--mono);
   font-size: 12px;
   font-weight: 700;
-  margin-top: 1px;
+  margin-top: 2px;
   flex-shrink: 0;
 }
 
-.ptest-pass .ptest-icon { color: var(--easy); }
-.ptest-fail .ptest-icon { color: var(--hard); }
+.ptest-pass .ptest-icon { color: var(--bone-dim); }
+.ptest-fail .ptest-icon { color: var(--pen); }
 
 .ptest-body {
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: 4px;
   min-width: 0;
 }
 
-.ptest-desc {
-  color: var(--text-primary);
-  font-weight: 500;
-}
+.ptest-pass .ptest-desc { color: var(--bone-mute); }
+.ptest-fail .ptest-desc { color: var(--bone); font-weight: 500; }
 
 .ptest-detail {
   display: flex;
   flex-direction: column;
   gap: 2px;
-  color: var(--text-secondary);
-  font-size: 12px;
+  font-family: var(--mono);
+  font-size: 11.5px;
+  line-height: 1.55;
+  color: var(--pen);
 }
 
 .ptest-detail code {
-  background: var(--code-bg);
-  padding: 1px 5px;
-  border-radius: 4px;
-  font-family: "Fira Code", Consolas, monospace;
-  font-size: 0.88em;
-  color: var(--text-primary);
+  background: transparent;
+  border: none;
+  padding: 0;
+  font-family: var(--mono);
+  font-size: 1em;
+  color: var(--bone);
 }
 
-/* AI Analysis */
+/* ── The senior's review ── */
 .pres-analysis {
-  border-top: 1px solid var(--border);
-  padding-top: 14px;
+  border-top: 1px solid var(--rule);
+  padding-top: 16px;
 }
 
 .pres-analysis-title {
-  font-size: 11px;
-  font-weight: 700;
+  margin-bottom: 12px;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
-  letter-spacing: 0.07em;
-  color: var(--accent);
-  margin-bottom: 10px;
+  color: var(--bone-mute);
 }
 
 .ov-analysis-body {
@@ -363,63 +394,74 @@
 }
 
 .ov-a-heading {
-  font-size: 13px;
+  margin-top: 10px;
+  font-family: var(--display);
+  font-size: 14px;
   font-weight: 700;
-  color: var(--text-primary);
-  margin-top: 8px;
+  color: var(--bone);
 }
 
-.ov-a-line {
-  font-size: 13px;
-  color: var(--text-secondary);
+.ov-a-line,
+.ov-a-item {
+  font-size: 13.5px;
   line-height: 1.65;
+  color: var(--bone-dim);
 }
 
 .ov-a-item {
-  font-size: 13px;
-  color: var(--text-secondary);
-  line-height: 1.65;
   padding-left: 4px;
 }
 
-.ov-a-gap { height: 4px; }
+.ov-a-line strong,
+.ov-a-item strong {
+  color: var(--bone);
+  font-weight: 600;
+}
 
-/* Error / untestable states */
+.ov-a-gap { height: 5px; }
+
+/* ── Failure states ── */
 .pres-error {
-  color: var(--hard);
-  font-family: "Fira Code", Consolas, monospace;
+  border-radius: var(--radius);
+  border-left: 2px solid var(--pen);
+  background: var(--pen-wash);
+  padding: 11px 13px;
+  font-family: var(--mono);
   font-size: 12px;
+  line-height: 1.6;
+  color: var(--bone);
   white-space: pre-wrap;
-  background: rgba(255,71,87,0.08);
-  padding: 10px 12px;
-  border-radius: 8px;
-  border-left: 2px solid var(--hard);
 }
 
 .pres-untestable {
-  background: rgba(255,159,67,0.08);
-  border: 1px solid rgba(255,159,67,0.25);
-  border-radius: 8px;
-  padding: 12px 14px;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 7px;
+  border-radius: var(--radius);
+  border-left: 2px solid var(--pen);
+  background: var(--pen-wash);
+  padding: 13px 14px;
 }
 
 .pres-ut-reason {
-  color: var(--medium);
-  font-size: 13px;
-  font-weight: 500;
+  font-family: var(--mono);
+  font-size: 12.5px;
+  color: var(--pen);
 }
 
 .pres-ut-hint {
-  color: var(--text-secondary);
-  font-size: 12px;
+  font-size: 12.5px;
   line-height: 1.6;
+  color: var(--bone-dim);
 }
 
 .pres-msg {
-  color: var(--text-secondary);
-  font-size: 13px;
+  font-family: var(--mono);
+  font-size: 12.5px;
   line-height: 1.65;
+  color: var(--bone-dim);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ps-spinner { animation: none; }
 }

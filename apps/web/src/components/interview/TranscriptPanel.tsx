@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import DifficultyMeter from "../DifficultyMeter";
 import type { Turn } from "../../api/interview";
 
 // The running conversation. Interviewer questions keep their [difficulty] tag as
@@ -37,7 +38,9 @@ export default function TranscriptPanel({ turns, interviewer, pendingUser, think
               <div className="iv-turn-who">{who}</div>
               <div className="iv-bubble iv-bubble-ai">
                 {difficulty && (
-                  <span className={`iv-diff iv-diff-${difficulty.toLowerCase()}`}>{difficulty}</span>
+                  <span className="iv-bubble-diff">
+                    <DifficultyMeter level={difficulty} />
+                  </span>
                 )}
                 {body}
               </div>
@@ -61,7 +64,7 @@ export default function TranscriptPanel({ turns, interviewer, pendingUser, think
 
       {thinking && (
         <div className="iv-turn iv-turn-ai">
-          <div className="iv-turn-who">Ethan</div>
+          <div className="iv-turn-who">{who}</div>
           <div className="iv-bubble iv-bubble-ai iv-bubble-thinking">
             <span className="iv-dot" /><span className="iv-dot" /><span className="iv-dot" />
           </div>

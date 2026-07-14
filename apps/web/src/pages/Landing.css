@@ -1,41 +1,73 @@
 /* ── Landing page ─────────────────────────────────────────────────────────────
-   The app shell sets body{overflow:hidden}, so the landing owns its scroll. */
+   The app shell sets body{overflow:hidden}, so the landing owns its scroll.
+
+   Palette comes from the wordmark: white type, one red dot. Red is the
+   reviewer's pen here — it only ever marks a miss. Nothing that's *right* is
+   coloured, so there is no green, and no gradient anywhere. */
 
 .landing {
+  --ink: #0a0b0d;
+  --ink-raised: #101217;
+  --rule: #21252e;
+  --rule-soft: #171a20;
+
+  --bone: #f0ece5;
+  --bone-dim: #9d9a94;
+  --bone-mute: #83868e;
+
+  /* The pen writes at full strength; button fills sit a shade deeper so white
+     label text clears 4.5:1 against them. Same red, two jobs. */
+  --pen: #ff2e24;
+  --pen-fill: #e02218;
+  --pen-wash: rgba(255, 46, 36, 0.09);
+
+  --paper: #ece7de;
+  --paper-ink: #14161a;
+  --paper-mute: #63605a;
+
+  --display: "Archivo", "Arial Narrow", system-ui, sans-serif;
+  --body: "IBM Plex Sans", system-ui, -apple-system, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, "SF Mono", Consolas, monospace;
+
+  --shell: 1180px;
+
   height: 100%;
   overflow-y: auto;
-  display: flex;
-  flex-direction: column;
+  background: var(--ink);
+  color: var(--bone);
+  font-family: var(--body);
+  -webkit-font-smoothing: antialiased;
 }
 
 /* ── Top bar ── */
 .ld-nav {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 clamp(16px, 5vw, 48px);
-  height: 64px;
-  flex-shrink: 0;
   position: sticky;
   top: 0;
   z-index: 10;
-  background: rgba(11, 11, 18, 0.82);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  height: 68px;
+  padding: 0 clamp(18px, 5vw, 44px);
+  background: rgba(10, 11, 13, 0.86);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--rule-soft);
 }
 
+/* The source PNG is a square with the wordmark in a thin band through the
+   middle; cover-crop to that band instead of scaling the whole canvas. */
 .ld-logo {
-  height: 110px;
-  width: auto;
-  max-width: 280px;
-  object-fit: contain;
+  height: 24px;
+  width: 120px;
+  object-fit: cover;
 }
 
 .ld-nav-actions {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
 }
 
 /* ── Buttons ── */
@@ -43,291 +75,576 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  border-radius: 4px;
+  font-family: var(--body);
   font-size: 13px;
   font-weight: 600;
-  padding: 8px 16px;
-  border-radius: var(--radius-sm);
+  letter-spacing: 0.01em;
+  padding: 9px 16px;
   text-decoration: none;
-  transition: background var(--t-fast), color var(--t-fast), box-shadow var(--t-fast);
   white-space: nowrap;
+  transition: background 0.15s var(--ease), color 0.15s var(--ease),
+    border-color 0.15s var(--ease), transform 0.15s var(--ease);
 }
 
 .ld-btn-primary {
-  background: var(--accent-grad);
+  background: var(--pen-fill);
   color: #fff;
 }
 
 .ld-btn-primary:hover {
-  box-shadow: var(--shadow-glow);
+  background: var(--pen);
+  transform: translateY(-1px);
 }
 
 .ld-btn-ghost {
-  color: var(--text-secondary);
-  border: 1px solid var(--border-light);
+  color: var(--bone-dim);
+  border: 1px solid var(--rule);
 }
 
 .ld-btn-ghost:hover {
-  color: var(--text-primary);
-  background: var(--bg-hover);
+  color: var(--bone);
+  border-color: var(--bone-mute);
 }
 
 .ld-btn-lg {
   font-size: 15px;
-  padding: 12px 24px;
-  border-radius: var(--radius);
+  padding: 13px 22px;
 }
 
 /* ── Hero ── */
 .ld-hero {
-  text-align: center;
-  padding: clamp(56px, 10vh, 120px) 24px clamp(48px, 8vh, 96px);
-  max-width: 860px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  align-items: center;
+  gap: clamp(36px, 5vw, 72px);
+  width: 100%;
+  max-width: var(--shell);
   margin: 0 auto;
+  padding: clamp(48px, 8vh, 96px) clamp(18px, 5vw, 44px) clamp(56px, 9vh, 104px);
 }
 
-.ld-kicker {
-  color: var(--accent-hover);
-  font-size: 13px;
-  font-weight: 700;
-  letter-spacing: 0.12em;
+.ld-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
-  margin-bottom: 20px;
+  color: var(--bone-mute);
+  margin-bottom: 22px;
+}
+
+.ld-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--pen);
+  flex-shrink: 0;
 }
 
 .ld-h1 {
-  font-size: clamp(30px, 5vw, 52px);
-  line-height: 1.15;
+  font-family: var(--display);
   font-weight: 800;
+  font-size: clamp(38px, 5.3vw, 68px);
+  line-height: 0.94;
   letter-spacing: -0.02em;
+  text-transform: uppercase;
+  text-wrap: balance;
 }
 
-.ld-h1-accent {
-  background: linear-gradient(135deg, #9c6fff 0%, #7cd4fd 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
+/* The skill that's now hollow, drawn hollow. */
+.ld-h1-hollow {
   color: transparent;
+  -webkit-text-stroke: 1.2px var(--bone-mute);
+}
+
+.ld-h1-solid {
+  color: var(--bone);
+}
+
+/* The wordmark's red dot, returning as the full stop. */
+.ld-h1-stop {
+  color: var(--pen);
 }
 
 .ld-sub {
-  color: var(--text-secondary);
-  font-size: clamp(15px, 1.8vw, 17px);
-  line-height: 1.7;
-  max-width: 640px;
-  margin: 24px auto 0;
+  max-width: 46ch;
+  margin-top: 26px;
+  color: var(--bone-dim);
+  font-size: 15.5px;
+  line-height: 1.68;
 }
 
 .ld-cta-row {
   display: flex;
-  justify-content: center;
   flex-wrap: wrap;
-  gap: 14px;
-  margin-top: 36px;
+  gap: 10px;
+  margin-top: 30px;
+}
+
+/* ── Signature: the split transcript ── */
+.ld-transcript {
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  background: var(--ink-raised);
+  font-family: var(--mono);
+  font-size: 12.5px;
+  line-height: 1.6;
+  overflow: hidden;
+}
+
+.ld-tr-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 11px 16px;
+  border-bottom: 1px solid var(--rule);
+  background: rgba(255, 255, 255, 0.015);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--bone-mute);
+}
+
+.ld-tr-file {
+  color: var(--bone-mute);
+  opacity: 0.7;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.ld-track {
+  padding: 18px 16px;
+}
+
+.ld-track-pass {
+  border-top: 1px solid var(--rule);
+}
+
+.ld-line {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+  margin-bottom: 10px;
+}
+
+.ld-role {
+  flex-shrink: 0;
+  width: 96px;
+  color: var(--bone-mute);
+}
+
+.ld-said {
+  flex: 1;
+  min-width: 0;
+  color: var(--bone);
+}
+
+.ld-said-dim {
+  color: var(--bone-dim);
+}
+
+/* The marked-up phrase + the pen stroke under it. */
+.ld-marked {
+  position: relative;
+  display: inline-block;
+  white-space: nowrap;
+}
+
+.ld-squiggle {
+  position: absolute;
+  left: 0;
+  bottom: -7px;
+  width: 100%;
+  height: 8px;
+  overflow: visible;
+}
+
+.ld-squiggle path {
+  fill: none;
+  stroke: var(--pen);
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-dasharray: 190;
+  stroke-dashoffset: 190;
+  animation: ld-draw 0.7s ease-out 1s forwards;
+}
+
+.ld-note {
+  margin: 16px 0 12px 106px;
+  color: var(--pen);
+  opacity: 0;
+  animation: ld-appear 0.4s ease-out 1.6s forwards;
+}
+
+.ld-result {
+  margin-top: 14px;
+  padding: 8px 10px;
+  border-radius: 3px;
+  color: var(--bone-dim);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.ld-result-fail {
+  color: var(--bone);
+  background: var(--pen-wash);
+}
+
+.ld-verdict {
+  margin-top: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.ld-verdict-fail {
+  color: var(--pen);
+}
+
+/* Right is right, so it gets no colour — only the pen marks things. */
+.ld-verdict-pass {
+  color: var(--bone);
 }
 
 /* ── Sections ── */
 .ld-section {
-  padding: clamp(48px, 8vh, 88px) clamp(20px, 5vw, 48px);
-  max-width: 1080px;
-  margin: 0 auto;
   width: 100%;
+  max-width: var(--shell);
+  margin: 0 auto;
+  padding: clamp(56px, 9vh, 100px) clamp(18px, 5vw, 44px);
 }
 
 .ld-section-alt {
   max-width: none;
-  background: var(--bg-secondary);
-  border-top: 1px solid var(--border);
-  border-bottom: 1px solid var(--border);
+  background: var(--ink-raised);
+  border-top: 1px solid var(--rule-soft);
+  border-bottom: 1px solid var(--rule-soft);
 }
 
 .ld-h2 {
-  font-size: clamp(22px, 3vw, 30px);
+  font-family: var(--display);
   font-weight: 700;
-  letter-spacing: -0.01em;
+  font-size: clamp(26px, 3.4vw, 40px);
+  line-height: 1.06;
+  letter-spacing: -0.015em;
+  text-transform: uppercase;
   text-align: center;
-  margin-bottom: clamp(28px, 5vh, 48px);
+  margin-bottom: clamp(32px, 5vh, 52px);
 }
 
-/* ── Steps ── */
-.ld-steps {
+.ld-h2-left {
+  text-align: left;
+  margin-bottom: 20px;
+}
+
+/* ── Stages: the marker is the role, not a number ── */
+.ld-stages {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 20px;
+  gap: 1px;
+  background: var(--rule);
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  overflow: hidden;
 }
 
-.ld-step {
-  background: var(--bg-panel);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  padding: 26px 24px;
+.ld-stage {
+  background: var(--ink);
+  padding: 26px 24px 28px;
 }
 
-.ld-step-n {
-  font-family: var(--font-mono);
-  font-size: 13px;
+.ld-stage-who {
+  display: inline-block;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  color: var(--bone-mute);
+  border: 1px solid var(--rule);
+  border-radius: 3px;
+  padding: 3px 8px;
+}
+
+.ld-stage-title {
+  font-family: var(--display);
+  font-size: 20px;
   font-weight: 700;
-  color: var(--accent-hover);
+  letter-spacing: -0.005em;
+  margin: 16px 0 9px;
 }
 
-.ld-step-title {
-  font-size: 17px;
-  font-weight: 700;
-  margin: 10px 0 8px;
+.ld-stage-text {
+  color: var(--bone-dim);
+  font-size: 14.5px;
+  line-height: 1.62;
 }
 
-.ld-step-text {
-  color: var(--text-secondary);
-  font-size: 14px;
-  line-height: 1.65;
-}
-
-/* ── Scoring split ── */
+/* ── Scoring ── */
 .ld-split {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: clamp(28px, 5vw, 64px);
   align-items: center;
-  max-width: 1080px;
+  gap: clamp(32px, 5vw, 72px);
+  max-width: var(--shell);
   margin: 0 auto;
 }
 
-.ld-split-copy .ld-h2 {
-  text-align: left;
+.ld-copy {
+  color: var(--bone-dim);
+  font-size: 15px;
+  line-height: 1.72;
+  margin-bottom: 14px;
+  max-width: 46ch;
+}
+
+.ld-report {
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  background: var(--ink);
+  padding: 22px;
+}
+
+.ld-report-head {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--bone-mute);
+  padding-bottom: 16px;
+  margin-bottom: 20px;
+  border-bottom: 1px solid var(--rule);
+}
+
+.ld-score {
   margin-bottom: 18px;
 }
 
-.ld-copy {
-  color: var(--text-secondary);
-  font-size: 15px;
-  line-height: 1.75;
-  margin-bottom: 14px;
-}
-
-.ld-scorecard {
-  background: var(--bg-panel);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  padding: 26px;
-  box-shadow: var(--shadow);
-}
-
-.ld-score-row {
-  margin-bottom: 16px;
-}
-
 .ld-score-label {
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: 8px;
   font-size: 13px;
-  font-weight: 600;
-  margin-bottom: 6px;
+  font-weight: 500;
+  margin-bottom: 8px;
 }
 
-.ld-score-note {
-  color: var(--accent-hover);
-  font-style: normal;
-  font-weight: 700;
+/* The double weighting is the whole argument — so the pen points at it. */
+.ld-score-weight {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--pen);
+  border: 1px solid var(--pen);
+  border-radius: 3px;
+  padding: 0 5px;
+  line-height: 1.5;
 }
 
 .ld-score-track {
-  height: 8px;
-  border-radius: 4px;
-  background: var(--bg-active);
+  display: block;
+  height: 6px;
+  border-radius: 1px;
+  background: var(--rule-soft);
   overflow: hidden;
 }
 
 .ld-score-fill {
+  display: block;
   height: 100%;
-  border-radius: 4px;
-  background: var(--accent-grad);
+  background: var(--bone);
 }
 
-.ld-score-verdict {
-  margin-top: 20px;
-  padding-top: 16px;
-  border-top: 1px solid var(--border);
-  font-size: 14px;
-  color: var(--text-secondary);
-}
-
-.ld-score-verdict strong {
-  color: var(--easy);
+.ld-report-verdict {
+  margin-top: 24px;
+  padding-top: 18px;
+  border-top: 1px solid var(--rule);
+  font-family: var(--mono);
+  font-size: 12.5px;
+  line-height: 1.65;
+  color: var(--bone-dim);
 }
 
 /* ── Features ── */
 .ld-features {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 20px;
+  gap: 1px;
+  background: var(--rule);
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  overflow: hidden;
 }
 
 .ld-feature {
-  background: var(--bg-panel);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  padding: 24px;
-  transition: border-color var(--t-fast);
+  background: var(--ink);
+  padding: 26px 24px;
+  transition: background 0.18s var(--ease);
 }
 
 .ld-feature:hover {
-  border-color: var(--border-light);
+  background: var(--ink-raised);
 }
 
 .ld-feature-title {
-  font-size: 16px;
+  font-family: var(--display);
+  font-size: 19px;
   font-weight: 700;
-  margin-bottom: 8px;
+  margin-bottom: 9px;
 }
 
 .ld-feature-text {
-  color: var(--text-secondary);
-  font-size: 14px;
-  line-height: 1.65;
+  color: var(--bone-dim);
+  font-size: 14.5px;
+  line-height: 1.62;
+  max-width: 44ch;
 }
 
-/* ── Final CTA + footer ── */
+/* ── Final CTA: the page ends on paper, where you sign ── */
 .ld-final {
+  background: var(--paper);
+  color: var(--paper-ink);
   text-align: center;
-  padding: clamp(48px, 8vh, 88px) 24px;
+  padding: clamp(64px, 10vh, 112px) 24px;
 }
 
-.ld-final .ld-h2 {
-  margin-bottom: 28px;
+.ld-final-h {
+  font-family: var(--display);
+  font-weight: 800;
+  font-size: clamp(28px, 4.2vw, 50px);
+  line-height: 1.02;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  text-wrap: balance;
+  max-width: 16ch;
+  margin: 0 auto 30px;
+}
+
+.ld-final-note {
+  margin-top: 18px;
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--paper-mute);
+}
+
+/* The app-wide focus ring is the old purple; the landing has its own palette. */
+.landing :focus-visible {
+  outline: 2px solid var(--bone);
+  outline-offset: 3px;
+}
+
+.ld-final :focus-visible {
+  outline-color: var(--paper-ink);
 }
 
 .ld-footer {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 20px clamp(20px, 5vw, 48px);
-  border-top: 1px solid var(--border);
-  color: var(--text-muted);
-  font-size: 13px;
+  padding: 22px clamp(18px, 5vw, 44px);
+  border-top: 1px solid var(--rule-soft);
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--bone-mute);
 }
 
 .ld-footer a {
-  color: var(--text-secondary);
+  color: var(--bone-dim);
   text-decoration: none;
 }
 
 .ld-footer a:hover {
-  color: var(--text-primary);
+  color: var(--bone);
 }
 
+/* ── Page-load sequence: one orchestrated moment, then it stops ── */
+@keyframes ld-rise {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: none; }
+}
+
+@keyframes ld-appear {
+  to { opacity: 1; }
+}
+
+@keyframes ld-draw {
+  to { stroke-dashoffset: 0; }
+}
+
+.ld-eyebrow,
+.ld-h1,
+.ld-sub,
+.ld-cta-row,
+.ld-transcript {
+  animation: ld-rise 0.6s var(--ease) backwards;
+}
+
+.ld-eyebrow    { animation-delay: 0.05s; }
+.ld-h1         { animation-delay: 0.12s; }
+.ld-sub        { animation-delay: 0.24s; }
+.ld-cta-row    { animation-delay: 0.32s; }
+.ld-transcript { animation-delay: 0.4s; }
+
 /* ── Responsive ── */
-@media (max-width: 860px) {
-  .ld-steps {
+@media (max-width: 980px) {
+  .ld-hero {
     grid-template-columns: 1fr;
+    gap: 40px;
   }
 
-  .ld-split {
-    grid-template-columns: 1fr;
+  .ld-sub {
+    max-width: 60ch;
   }
 
+  .ld-stages,
+  .ld-split,
   .ld-features {
     grid-template-columns: 1fr;
   }
 
-  .ld-logo {
-    height: 80px;
-    max-width: 200px;
+  .ld-split {
+    gap: 32px;
+  }
+}
+
+@media (max-width: 620px) {
+  /* Outline type stops being legible at this size — fill it in. */
+  .ld-h1-hollow {
+    color: var(--bone-mute);
+    -webkit-text-stroke: 0;
+  }
+
+  .ld-role {
+    min-width: 0;
+    width: 100%;
+  }
+
+  .ld-note {
+    margin-left: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ld-eyebrow,
+  .ld-h1,
+  .ld-sub,
+  .ld-cta-row,
+  .ld-transcript,
+  .ld-note,
+  .ld-squiggle path {
+    animation: none;
+    opacity: 1;
+  }
+
+  .ld-squiggle path {
+    stroke-dashoffset: 0;
+  }
+
+  .ld-btn:hover {
+    transform: none;
   }
 }

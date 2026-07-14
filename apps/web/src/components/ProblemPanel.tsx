@@ -1,17 +1,10 @@
 import { useState, useRef, useEffect } from "react";
 import type { Problem, ChatFormat } from "../data/problems";
+import DifficultyMeter from "./DifficultyMeter";
 import { api } from "../api/client";
 import "./ProblemPanel.css";
 
-const EW_COLOR = "#5c6bc0";
 const EW_INITIALS = "EW";
-
-function darkenColor(hex: string): string {
-  const r = parseInt(hex.slice(1, 3), 16);
-  const g = parseInt(hex.slice(3, 5), 16);
-  const b = parseInt(hex.slice(5, 7), 16);
-  return `rgb(${Math.round(r * 0.35)}, ${Math.round(g * 0.35)}, ${Math.round(b * 0.35)})`;
-}
 
 function renderText(text: string) {
   const parts = text.split(/(`[^`]+`)/g);
@@ -33,7 +26,6 @@ function InteractiveThread({ chat, problem }: { chat: ChatFormat; problem: Probl
   const [loading, setLoading] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const ewDark = darkenColor(EW_COLOR);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -81,7 +73,7 @@ function InteractiveThread({ chat, problem }: { chat: ChatFormat; problem: Probl
           <div key={`init-${i}`} className="chat-message">
             <div className="chat-avatar-col">
               {i === 0
-                ? <div className="chat-avatar" style={{ background: EW_COLOR, color: ewDark }}>{EW_INITIALS}</div>
+                ? <div className="chat-avatar">{EW_INITIALS}</div>
                 : <div className="chat-avatar-spacer" />
               }
             </div>
@@ -141,7 +133,7 @@ function InteractiveThread({ chat, problem }: { chat: ChatFormat; problem: Probl
             <div key={`h-${i}`} className="chat-message">
               <div className="chat-avatar-col">
                 {showAvatar
-                  ? <div className="chat-avatar" style={{ background: EW_COLOR, color: ewDark }}>{EW_INITIALS}</div>
+                  ? <div className="chat-avatar">{EW_INITIALS}</div>
                   : <div className="chat-avatar-spacer" />
                 }
               </div>
@@ -194,10 +186,6 @@ function InteractiveThread({ chat, problem }: { chat: ChatFormat; problem: Probl
 // ── Main panel ───────────────────────────────────────────────────────────────
 export default function ProblemPanel({ problem, mode = "practice" }: { problem: Problem; mode?: "practice" | "test" }) {
   const hasThread = !!problem.chatFormat;
-  const difficultyClass =
-    problem.difficulty === "Easy" ? "badge-easy"
-    : problem.difficulty === "Medium" ? "badge-medium"
-    : "badge-hard";
 
   return (
     <div className="problem-panel">
@@ -210,7 +198,7 @@ export default function ProblemPanel({ problem, mode = "practice" }: { problem: 
                   {mode === "test" ? "Test" : "Practice"}
                 </span>
               </div>
-              <span className={`difficulty-badge ${difficultyClass}`}>{problem.difficulty}</span>
+              <DifficultyMeter level={problem.difficulty} />
             </div>
             <div className="problem-meta">
               <span className="meta-domain">{problem.domain}</span>

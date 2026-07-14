@@ -3,10 +3,14 @@
   flex-direction: column;
   height: 100vh;
   overflow: hidden;
+  /* Neutral graphite, not the legacy purple-tinted body wash in index.css. Every
+     converted page sits on this, so the gutters around a centred page match. */
+  background: #0a0b0d;
 }
 
 .app-main {
   flex: 1;
   overflow: hidden;
   min-height: 0;
+  background: #0a0b0d;
 }

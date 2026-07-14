@@ -1,167 +1,456 @@
-:root {
-  /* Background = the same near-black as the logo wordmark */
-  --bg: #0a0a0a;
-  --card: #151515;
-  --card-border: #272727;
-  --text: #f2f2f2;
-  --muted: #9a9a9a;
-  /* Accent = the logo's orange */
-  --primary: #ff4d17;
-  --primary-hover: #e63e0c;
-  --error: #ef4444;
-  --success: #22c55e;
-  --input-bg: #0f0f0f;
-}
+/* ── Auth screens ─────────────────────────────────────────────────────────────
+   Same language as the landing page: graphite ink, bone type, and the logo's
+   red used as the reviewer's pen. Here the pen has an obvious job — it marks
+   the fields you got wrong, in the same margin-note form the landing uses.
 
-* { box-sizing: border-box; }
+   Scoped to the auth containers so it can't leak into the app shell (which is
+   still on the legacy purple theme in index.css). */
 
-/* The auth theme (orange wash + glow) is scoped to the auth screens ONLY so it
-   never leaks onto the rest of the app (which uses the purple theme in
-   index.css). These containers fill the viewport on auth pages. */
 .auth-screen,
-.center-screen {
-  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  background: var(--bg);
-  color: var(--text);
-  /* Gentle orange wash from the very top */
-  background-image: radial-gradient(1100px 480px at 50% -12%, rgba(255, 77, 23, 0.12), transparent 72%);
-  background-repeat: no-repeat;
-}
-
-/* Animated orange glow sitting behind the login panel */
-.auth-screen::before,
-.center-screen::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
-  background: radial-gradient(760px 560px at 50% 48%, rgba(255, 77, 23, 0.34), transparent 62%);
-  animation: glowPulse 7s ease-in-out infinite alternate;
-}
-@keyframes glowPulse {
-  from { opacity: 0.7; transform: scale(1); }
-  to   { opacity: 1;   transform: scale(1.06); }
-}
-/* Respect users who prefer no motion */
-@media (prefers-reduced-motion: reduce) {
-  body::before { animation: none; }
-}
-
-/* Logo mark, fixed top-left on every page */
-.brand {
-  position: fixed;
-  top: 18px;
-  left: 22px;
-  z-index: 20;
-  display: inline-flex;
-}
-.brand img {
-  height: 44px;
-  width: 44px;
-  display: block;
-  box-shadow: 0 6px 18px rgba(255, 77, 23, 0.25);
-  transition: transform 0.15s ease;
-}
-.brand img:hover {
-  transform: translateY(-1px) scale(1.03);
-}
-
-.auth-screen a, .center-screen a, .page a { color: var(--primary); text-decoration: none; }
-.auth-screen a:hover, .center-screen a:hover, .page a:hover { text-decoration: underline; }
-
 .center-screen,
+.page {
+  --ink: #0a0b0d;
+  --ink-raised: #101217;
+  --rule: #21252e;
+  --rule-soft: #171a20;
+
+  --bone: #f0ece5;
+  --bone-dim: #9d9a94;
+  --bone-mute: #83868e;
+
+  --pen: #ff2e24;
+  --pen-fill: #e02218;
+  --pen-wash: rgba(255, 46, 36, 0.09);
+
+  --display: "Archivo", "Arial Narrow", system-ui, sans-serif;
+  --body: "IBM Plex Sans", system-ui, -apple-system, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, "SF Mono", Consolas, monospace;
+
+  background: var(--ink);
+  color: var(--bone);
+  font-family: var(--body);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Frame ── */
 .auth-screen {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 0.78fr);
+  min-height: 100vh;
+}
+
+.center-screen {
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 24px;
+  font-family: var(--mono);
+  font-size: 13px;
+  color: var(--bone-mute);
 }
 
-.auth-card {
+.auth-form-pane {
+  display: flex;
+  flex-direction: column;
+  padding: 32px clamp(24px, 6vw, 80px) 48px;
+}
+
+.auth-brand {
+  display: inline-flex;
+  align-self: flex-start;
+  border-radius: 3px;
+}
+
+.auth-brand img {
+  height: 24px;
+  width: 120px;
+  object-fit: cover; /* the PNG is a square with the wordmark in a thin band */
+  display: block;
+}
+
+.auth-form {
   width: 100%;
-  max-width: 400px;
-  background: linear-gradient(180deg, #181818, var(--card));
-  border: 1px solid var(--card-border);
-  border-radius: 18px;
-  padding: 34px;
-  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  max-width: 380px;
+  margin: auto 0;
+  padding: 48px 0;
 }
 
-.auth-title { margin: 0 0 4px; font-size: 24px; }
-.auth-subtitle { margin: 0 0 24px; color: var(--muted); font-size: 14px; }
-.auth-footer { margin-top: 20px; text-align: center; font-size: 14px; color: var(--muted); }
+/* ── Headings ── */
+.auth-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin: 0 0 18px;
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--bone-mute);
+}
 
-.field { display: block; margin-bottom: 16px; }
-.field-label { display: block; font-size: 13px; margin-bottom: 6px; color: var(--muted); }
+.auth-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--pen);
+  flex-shrink: 0;
+}
+
+.auth-title {
+  margin: 0;
+  font-family: var(--display);
+  font-weight: 800;
+  font-size: clamp(30px, 3.4vw, 42px);
+  line-height: 1.02;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+}
+
+/* The red dot from the wordmark, returning as the full stop. */
+.auth-title::after {
+  content: ".";
+  color: var(--pen);
+}
+
+.auth-subtitle {
+  margin: 12px 0 0;
+  color: var(--bone-dim);
+  font-size: 14.5px;
+  line-height: 1.6;
+}
+
+.auth-form form {
+  margin-top: 28px;
+}
+
+.auth-footer {
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid var(--rule-soft);
+  font-size: 13.5px;
+  color: var(--bone-dim);
+}
+
+.auth-screen a,
+.center-screen a,
+.page a {
+  color: var(--bone);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-color: var(--rule);
+  transition: text-decoration-color 0.15s ease;
+}
+
+.auth-screen a:hover,
+.center-screen a:hover,
+.page a:hover {
+  text-decoration-color: var(--pen);
+}
+
+.auth-brand:hover,
+.auth-brand {
+  text-decoration: none;
+}
+
+/* ── Right pane: the three people you manage ── */
+.auth-aside {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 28px;
+  padding: 48px clamp(32px, 5vw, 64px);
+  background: var(--ink-raised);
+  border-left: 1px solid var(--rule);
+}
+
+.auth-aside-head {
+  margin: 0;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--bone-mute);
+}
+
+.auth-roles {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-width: 420px;
+}
+
+.auth-role {
+  display: flex;
+  gap: 18px;
+  padding: 20px 0;
+  border-top: 1px solid var(--rule);
+}
+
+.auth-role:last-child {
+  border-bottom: 1px solid var(--rule);
+}
+
+.auth-role-who {
+  flex-shrink: 0;
+  width: 66px;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  color: var(--bone-mute);
+  padding-top: 3px;
+}
+
+.auth-role-line {
+  color: var(--bone-dim);
+  font-size: 15px;
+  line-height: 1.55;
+}
+
+/* ── Fields ── */
+.field {
+  display: block;
+  margin-bottom: 18px;
+}
+
+.field-label {
+  display: block;
+  margin-bottom: 8px;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--bone-mute);
+}
+
 .field-input {
   width: 100%;
-  padding: 10px 12px;
-  background: var(--input-bg);
-  border: 1px solid var(--card-border);
-  border-radius: 8px;
-  color: var(--text);
-  font-size: 14px;
+  padding: 11px 13px;
+  background: var(--ink-raised);
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  color: var(--bone);
+  font-family: var(--body);
+  font-size: 15px;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
+
+.field-input::placeholder {
+  color: var(--bone-mute);
+}
+
 .field-input:focus {
   outline: none;
-  border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(255, 77, 23, 0.18);
+  border-color: var(--bone-mute);
+  box-shadow: 0 0 0 3px rgba(240, 236, 229, 0.07);
 }
-.field-input--error { border-color: var(--error); }
-.field-error { display: block; margin-top: 6px; color: var(--error); font-size: 12px; }
 
+.field-input--error {
+  border-color: var(--pen);
+}
+
+.field-input--error:focus {
+  border-color: var(--pen);
+  box-shadow: 0 0 0 3px var(--pen-wash);
+}
+
+/* Field errors are the pen's margin note — same mark as the landing hero. */
+.field-error {
+  display: block;
+  margin-top: 8px;
+  font-family: var(--mono);
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--pen);
+}
+
+.field-error::before {
+  content: "↳ ";
+}
+
+/* ── Buttons ── */
 .btn {
   width: 100%;
-  padding: 12px;
-  background: var(--primary);
+  padding: 12px 16px;
+  background: var(--pen-fill);
   color: #fff;
-  border: none;
-  border-radius: 10px;
-  font-size: 15px;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  font-family: var(--body);
+  font-size: 14.5px;
   font-weight: 600;
   cursor: pointer;
-  transition: background 0.15s ease, box-shadow 0.15s ease, transform 0.05s ease;
-  box-shadow: 0 8px 20px rgba(255, 77, 23, 0.25);
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
 }
-.btn:hover { background: var(--primary-hover); box-shadow: 0 10px 26px rgba(255, 77, 23, 0.35); }
-.btn:active { transform: translateY(1px); }
-.btn:disabled { opacity: 0.55; cursor: not-allowed; box-shadow: none; }
+
+.btn:hover {
+  background: var(--pen);
+}
+
+.btn:disabled {
+  background: var(--rule);
+  color: var(--bone-mute);
+  cursor: not-allowed;
+}
 
 .btn-secondary {
   background: transparent;
-  border: 1px solid var(--card-border);
-  color: var(--text);
-  box-shadow: none;
+  border-color: var(--rule);
+  color: var(--bone);
 }
-.btn-secondary:hover { background: var(--input-bg); box-shadow: none; }
 
-.alert { padding: 10px 12px; border-radius: 8px; font-size: 13px; margin-bottom: 16px; }
-.alert--error { background: rgba(239, 68, 68, 0.12); color: #fca5a5; }
-.alert--success { background: rgba(34, 197, 94, 0.12); color: #86efac; }
+.btn-secondary:hover {
+  background: var(--ink-raised);
+  border-color: var(--bone-mute);
+}
 
-.row-between { display: flex; justify-content: space-between; align-items: center; }
-.muted { color: var(--muted); }
-.mt-16 { margin-top: 16px; }
+.btn-secondary:disabled {
+  background: transparent;
+}
 
-/* Social login */
-.divider { display: flex; align-items: center; gap: 12px; margin: 20px 0; color: var(--muted); font-size: 12px; }
-.divider::before, .divider::after { content: ""; flex: 1; height: 1px; background: var(--card-border); }
-.social { display: flex; flex-direction: column; gap: 10px; }
-.social .btn { display: flex; align-items: center; justify-content: center; gap: 10px; text-decoration: none; }
-.social .btn:hover { text-decoration: none; }
-.social .btn svg { flex-shrink: 0; }
+/* ── Alerts ── */
+.alert {
+  margin-bottom: 18px;
+  padding: 11px 13px;
+  border-radius: 4px;
+  border-left: 2px solid;
+  font-family: var(--mono);
+  font-size: 12.5px;
+  line-height: 1.55;
+}
 
-/* Profile */
-.page { max-width: 640px; margin: 40px auto; padding: 0 24px; }
+.alert--error {
+  background: var(--pen-wash);
+  border-left-color: var(--pen);
+  color: var(--bone);
+}
+
+/* Nothing that went *right* is coloured — that rule holds across the product.
+   Uses a :root token, not an auth-scoped one: MfaSetup renders this inside the
+   profile page too, which is outside the auth containers. */
+.alert--success {
+  background: rgba(240, 236, 229, 0.05);
+  border-left-color: var(--bone-dim);
+  color: var(--bone);
+}
+
+/* ── Social ── */
+.divider {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: 22px 0;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--bone-mute);
+}
+
+.divider::before,
+.divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--rule);
+}
+
+.social {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.social .btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  text-decoration: none;
+}
+
+.social .btn svg {
+  flex-shrink: 0;
+}
+
+/* ── Profile / shared page chrome ── */
+.page {
+  max-width: 640px;
+  margin: 40px auto;
+  padding: 0 24px;
+}
+
 .panel {
-  background: var(--card);
-  border: 1px solid var(--card-border);
-  border-radius: 12px;
-  padding: 20px;
+  background: var(--ink-raised);
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  padding: 22px;
   margin-bottom: 16px;
 }
-.qr { display: block; margin: 16px auto; width: 200px; height: 200px; border-radius: 8px; }
-.codes { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-family: monospace; }
-.code-pill { background: var(--input-bg); padding: 8px; border-radius: 6px; text-align: center; }
+
+.qr {
+  display: block;
+  margin: 16px auto;
+  width: 200px;
+  height: 200px;
+  border-radius: 4px;
+}
+
+.codes {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  font-family: var(--mono);
+}
+
+.code-pill {
+  background: var(--ink);
+  border: 1px solid var(--rule);
+  padding: 8px;
+  border-radius: 3px;
+  text-align: center;
+  font-size: 13px;
+}
+
+.row-between {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.muted {
+  color: var(--bone-dim);
+}
+
+.mt-16 {
+  margin-top: 16px;
+}
+
+/* ── Focus ── */
+.auth-screen :focus-visible,
+.page :focus-visible {
+  outline: 2px solid var(--bone);
+  outline-offset: 3px;
+}
+
+.field-input:focus-visible {
+  outline: none;
+}
+
+/* ── Responsive ── */
+@media (max-width: 900px) {
+  .auth-screen {
+    grid-template-columns: 1fr;
+  }
+
+  /* The rail is context, not content — drop it rather than shrink it. */
+  .auth-aside {
+    display: none;
+  }
+
+  .auth-form {
+    margin: auto;
+  }
+}

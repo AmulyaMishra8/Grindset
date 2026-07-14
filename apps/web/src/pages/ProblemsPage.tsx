@@ -2,30 +2,28 @@ import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { api } from "../api/client";
 import type { Problem } from "../data/problems";
+import DifficultyMeter from "../components/DifficultyMeter";
 import "./ProblemsPage.css";
 
-type Tab = "practice" | "test" | "discuss";
+type Tab = "practice" | "test";
 type DiffFilter = "All" | "Easy" | "Medium" | "Hard";
 type ProblemSummary = Pick<Problem, "id" | "slug" | "title" | "difficulty" | "domain" | "estimatedMinutes">;
+
+// Only the fields this page needs; /me/stats returns the difficulty buckets too.
+type MyStats = { solved: number; total: number; solvedIds: number[]; unresolvedIds: number[] };
 
 const TAB_META: Record<Tab, { label: string; endpoint: string; description: string; emptyText: string }> = {
   practice: {
     label: "Practice",
     endpoint: "/api/judge/practice/problems",
-    description: "The AI junior has full context and asks smart questions. Learn what good prompting looks like by watching it happen.",
+    description: "The junior has full context and asks questions back. Coaching, no verdict.",
     emptyText: "No practice problems yet.",
   },
   test: {
-    label: "Test Yourself",
+    label: "Test yourself",
     endpoint: "/api/judge/test/problems",
-    description: "The AI junior starts with zero context. Your job is to decompose the task and guide it from scratch.",
+    description: "The junior starts with nothing. Decompose the task and brief it from scratch.",
     emptyText: "No test problems yet.",
-  },
-  discuss: {
-    label: "Discuss",
-    endpoint: "",
-    description: "",
-    emptyText: "",
   },
 };
 
@@ -37,6 +35,7 @@ export default function ProblemsPage() {
   const tab = (searchParams.get("tab") as Tab) ?? "practice";
 
   const [problems, setProblems] = useState<ProblemSummary[]>([]);
+  const [stats, setStats] = useState<MyStats | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [query, setQuery] = useState("");
@@ -45,7 +44,6 @@ export default function ProblemsPage() {
   const setTab = (t: Tab) => setSearchParams({ tab: t }, { replace: true });
 
   const load = (t: Tab) => {
-    if (t === "discuss") return;
     setLoading(true);
     setError(null);
     api.get<ProblemSummary[]>(TAB_META[t].endpoint)
@@ -56,8 +54,13 @@ export default function ProblemsPage() {
 
   useEffect(() => { load(tab); }, [tab]);
 
-  const difficultyClass = (d: string) =>
-    d === "Easy" ? "badge-easy" : d === "Medium" ? "badge-medium" : "badge-hard";
+  // Progress is a nice-to-have on this page: if it fails, the list still works.
+  useEffect(() => {
+    api.get<MyStats>("/api/judge/me/stats").then(setStats).catch(() => setStats(null));
+  }, []);
+
+  const solved = useMemo(() => new Set(stats?.solvedIds ?? []), [stats]);
+  const unresolved = useMemo(() => new Set(stats?.unresolvedIds ?? []), [stats]);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -69,123 +72,157 @@ export default function ProblemsPage() {
     });
   }, [problems, query, diff]);
 
+  const filtering = query.trim() !== "" || diff !== "All";
+
   return (
     <div className="problems-page">
-      {/* Tab bar */}
-      <div className="mode-tabs">
-        {(["practice", "test"] as Tab[]).map((t) => (
-          <button
-            key={t}
-            className={`mode-tab mode-tab-${t} ${tab === t ? "mode-tab-active" : ""}`}
-            onClick={() => setTab(t)}
-          >
-            {TAB_META[t].label}
-          </button>
-        ))}
-      </div>
-
-      {/* Practice / Test */}
-      {tab !== "discuss" && (
-        <div className="problems-scroll">
-          <div className={`mode-banner mode-banner-${tab}`}>
-            <span className={`mode-pill mode-pill-${tab}`}>
-              {tab === "practice" ? "Learning Mode" : "Assessment Mode"}
-            </span>
-            <p className="mode-desc">{TAB_META[tab].description}</p>
-          </div>
-
-          {/* Toolbar: search + difficulty filter */}
-          <div className="problems-toolbar">
-            <div className="search-box">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
-                <circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" />
-              </svg>
-              <input
-                type="text"
-                placeholder="Search problems or domains…"
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-              />
-              {query && (
-                <button className="search-clear" onClick={() => setQuery("")} aria-label="Clear search">×</button>
-              )}
-            </div>
-            <div className="diff-filters">
-              {DIFFICULTIES.map((d) => (
+      <div className="pp-inner">
+        {/* ── Header: which mode you're in, and where you stand ── */}
+        <header className="pp-head">
+          <div className="pp-head-copy">
+            <nav className="pp-tabs">
+              {(["practice", "test"] as Tab[]).map((t) => (
                 <button
-                  key={d}
-                  className={`diff-chip ${diff === d ? "diff-chip-active" : ""} diff-chip-${d.toLowerCase()}`}
-                  onClick={() => setDiff(d)}
+                  key={t}
+                  className={`pp-tab ${tab === t ? "pp-tab-on" : ""}`}
+                  onClick={() => setTab(t)}
                 >
-                  {d}
+                  {TAB_META[t].label}
                 </button>
               ))}
-            </div>
+            </nav>
+            {/* The tabs already name the mode — the title names the page. */}
+            <h1 className="pp-title">Problems</h1>
+            <p className="pp-desc">{TAB_META[tab].description}</p>
           </div>
 
-          {error && (
-            <div className="problems-error">
-              Could not load problems: {error}
-              <button onClick={() => load(tab)}>Retry</button>
-            </div>
-          )}
-
-          {loading && (
-            <div className="problem-grid">
-              {Array.from({ length: 6 }).map((_, i) => (
-                <div className="problem-card skeleton-card" key={i} style={{ animationDelay: `${i * 0.06}s` }}>
-                  <div className="skeleton-card-top">
-                    <span className="sk sk-id" /><span className="sk sk-badge" />
-                  </div>
-                  <span className="sk sk-title" />
-                  <div className="skeleton-card-foot">
-                    <span className="sk sk-domain" /><span className="sk sk-time" />
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-
-          {!loading && !error && (
-            <>
-              <p className="problems-subheading">
-                {filtered.length} {filtered.length === 1 ? "problem" : "problems"}
-                {(query || diff !== "All") && <span className="filtered-of"> of {problems.length}</span>}
+          {stats && stats.total > 0 && (
+            <div className="pp-progress">
+              <p className="pp-progress-head">Your progress</p>
+              <p className="pp-progress-count">
+                <span className="pp-solved">{stats.solved}</span>
+                <span className="pp-of">/ {stats.total} solved</span>
               </p>
-              {filtered.length === 0 ? (
-                <div className="problems-empty-state">
-                  <span className="empty-glyph" aria-hidden>⌗</span>
-                  <p>{problems.length === 0 ? TAB_META[tab].emptyText : "No problems match your filters."}</p>
-                </div>
-              ) : (
-                <div className="problem-grid">
-                  {filtered.map((p, i) => (
+              <span className="pp-progress-track" aria-hidden="true">
+                <span
+                  className="pp-progress-fill"
+                  style={{ width: `${(stats.solved / stats.total) * 100}%` }}
+                />
+              </span>
+              {stats.unresolvedIds.length > 0 && (
+                <p className="pp-unresolved">
+                  {stats.unresolvedIds.length} still unresolved
+                </p>
+              )}
+            </div>
+          )}
+        </header>
+
+        {/* ── Toolbar ── */}
+        <div className="pp-toolbar">
+          <div className="pp-search">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" aria-hidden="true">
+              <circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" />
+            </svg>
+            <input
+              type="text"
+              placeholder="Search problems or domains"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              aria-label="Search problems"
+            />
+            {query && (
+              <button className="pp-search-clear" onClick={() => setQuery("")} aria-label="Clear search">×</button>
+            )}
+          </div>
+          <div className="pp-chips">
+            {DIFFICULTIES.map((d) => (
+              <button
+                key={d}
+                className={`pp-chip ${diff === d ? "pp-chip-on" : ""}`}
+                onClick={() => setDiff(d)}
+                aria-pressed={diff === d}
+              >
+                {d}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {error && (
+          <div className="pp-error">
+            <span>Could not load problems. {error}</span>
+            <button onClick={() => load(tab)}>Try again</button>
+          </div>
+        )}
+
+        {loading && (
+          <div className="pp-grid">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div className="pp-card pp-skeleton" key={i} style={{ animationDelay: `${i * 0.06}s` }}>
+                <div className="pp-card-top"><span className="sk sk-id" /><span className="sk sk-diff" /></div>
+                <span className="sk sk-title" />
+                <div className="pp-card-foot"><span className="sk sk-domain" /><span className="sk sk-time" /></div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {!loading && !error && (
+          <>
+            <p className="pp-count">
+              {filtered.length} {filtered.length === 1 ? "problem" : "problems"}
+              {filtering && <span className="pp-count-of"> of {problems.length}</span>}
+            </p>
+
+            {filtered.length === 0 ? (
+              <div className="pp-empty">
+                <p>{problems.length === 0 ? TAB_META[tab].emptyText : "Nothing matches those filters."}</p>
+                {filtering && problems.length > 0 && (
+                  <button
+                    className="pp-empty-reset"
+                    onClick={() => { setQuery(""); setDiff("All"); }}
+                  >
+                    Clear filters
+                  </button>
+                )}
+              </div>
+            ) : (
+              <div className="pp-grid">
+                {filtered.map((p, i) => {
+                  // Red is the pen everywhere in this product: a problem you
+                  // submitted but never got green is still carrying a mark.
+                  const status = solved.has(p.id)
+                    ? "solved"
+                    : unresolved.has(p.id)
+                      ? "unresolved"
+                      : "";
+                  return (
                     <button
                       key={p.id}
-                      className={`problem-card problem-card-${tab}`}
+                      className={`pp-card ${status ? `pp-card-${status}` : ""}`}
                       style={{ animationDelay: `${Math.min(i, 8) * 0.03}s` }}
                       onClick={() => navigate(`/problems/${p.id}?mode=${tab}`)}
                     >
-                      <div className="card-top">
-                        <span className="card-id">#{p.id}</span>
-                        <span className={`difficulty-badge ${difficultyClass(p.difficulty)}`}>
-                          <span className="diff-dot" />{p.difficulty}
-                        </span>
+                      <div className="pp-card-top">
+                        <span className="pp-id">{String(p.id).padStart(2, "0")}</span>
+                        {status === "solved" && <span className="pp-status pp-status-solved">✓ Solved</span>}
+                        {status === "unresolved" && <span className="pp-status pp-status-unresolved">Unresolved</span>}
+                        <DifficultyMeter level={p.difficulty} />
                       </div>
-                      <h3 className="card-title">{p.title}</h3>
-                      <div className="card-foot">
-                        <span className="domain-chip">{p.domain}</span>
-                        <span className="card-time">~{p.estimatedMinutes}m</span>
+                      <h3 className="pp-card-title">{p.title}</h3>
+                      <div className="pp-card-foot">
+                        <span className="pp-domain">{p.domain}</span>
+                        <span className="pp-time">~{p.estimatedMinutes}m</span>
                       </div>
-                      <span className="card-arrow" aria-hidden>→</span>
                     </button>
-                  ))}
-                </div>
-              )}
-            </>
-          )}
-        </div>
-      )}
+                  );
+                })}
+              </div>
+            )}
+          </>
+        )}
+      </div>
     </div>
   );
 }
