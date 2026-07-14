@@ -375,6 +375,64 @@
   flex-shrink: 0;
 }
 
+/* ── Demo account ──
+   A shared public account for people reviewing the project. Kept visually quiet:
+   it's an aside for a visitor, not a step in the sign-in flow. */
+.auth-demo {
+  margin-top: 24px;
+  padding: 14px 15px;
+  border: 1px dashed var(--rule);
+  border-radius: 4px;
+}
+
+.auth-demo-head {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--bone-mute);
+}
+
+.auth-demo-creds {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 4px 12px;
+  margin: 12px 0 14px;
+  font-family: var(--mono);
+  font-size: 12px;
+}
+
+.auth-demo-creds dt {
+  color: var(--bone-mute);
+}
+
+.auth-demo-creds dd {
+  color: var(--bone);
+  overflow-wrap: anywhere;
+  /* Selectable, so it can be copied rather than retyped. */
+  user-select: all;
+}
+
+.auth-demo-fill {
+  width: 100%;
+  padding: 8px 12px;
+  background: transparent;
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--bone-dim);
+  transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+}
+
+.auth-demo-fill:hover {
+  color: var(--bone);
+  border-color: var(--bone-mute);
+  background: var(--ink-raised);
+}
+
 /* ── Profile / shared page chrome ── */
 .page {
   max-width: 640px;
