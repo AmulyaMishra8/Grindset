@@ -146,7 +146,7 @@ export default function InterviewPage() {
       <div className="iv-page">
         <div className="iv-notice">
           <h1 className="iv-h1">AI Interview</h1>
-          <p>This feature isn’t configured on the server yet (no Groq API key). Add one and reload.</p>
+          <p>The server has no Groq API key set, so the interviewers can't answer. Add one and reload.</p>
         </div>
       </div>
     );
@@ -181,17 +181,18 @@ export default function InterviewPage() {
     <div className="iv-page iv-live">
       <aside className="iv-stage">
         <Avatar
-          name={persona?.interviewer ?? "Interviewer"}
-          accent={persona?.accent ?? "#6366f1"}
           variant={persona?.id}
           speaking={speaking}
           listening={listening}
           thinking={thinking}
         />
         <div className="iv-stage-meta">
-          <span className="iv-stage-role" style={{ color: persona?.accent }}>{persona?.interviewer}</span>
+          <span className="iv-stage-role">{persona?.interviewer}</span>
           <span className="iv-stage-hint">{persona?.label} round</span>
-          {!ttsSupported() && <span className="iv-stage-hint">Voice output not supported in this browser</span>}
+          <span className="iv-stage-state">
+            {speaking ? "Speaking" : thinking ? "Thinking" : listening ? "Listening to you" : "Ready"}
+          </span>
+          {!ttsSupported() && <span className="iv-stage-hint">Voice output isn't supported in this browser</span>}
         </div>
         <button
           className="iv-btn-end"

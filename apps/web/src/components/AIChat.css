@@ -1,8 +1,12 @@
+/* The AI junior you brief. Your messages invert to bone, the junior's stay on
+   ink — the same two-voice treatment as the interview transcript, so a glance
+   tells you who said what. Tokens come from :root (see index.css). */
+
 .ai-chat {
   display: flex;
   flex-direction: column;
   height: 100%;
-  background: var(--bg-primary);
+  background: var(--ink);
   overflow: hidden;
 }
 
@@ -10,9 +14,10 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 8px 16px;
-  border-bottom: 1px solid var(--border);
-  background: var(--bg-secondary);
+  gap: 10px;
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--rule);
+  background: var(--ink);
   flex-shrink: 0;
 }
 
@@ -20,51 +25,56 @@
   display: flex;
   align-items: center;
   gap: 10px;
+  min-width: 0;
 }
 
 .ai-icon {
-  color: var(--accent);
-  font-size: 16px;
+  color: var(--bone-mute);
+  font-size: 13px;
 }
 
 .ai-title {
-  font-weight: 600;
-  font-size: 13px;
-  color: var(--text-primary);
+  font-family: var(--mono);
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--bone);
 }
 
 .ai-context-chip {
-  background: var(--bg-active);
-  color: var(--text-secondary);
-  font-size: 11px;
-  padding: 2px 8px;
-  border-radius: 10px;
-  border: 1px solid var(--border);
+  background: transparent;
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-sm);
+  color: var(--bone-mute);
+  font-family: var(--mono);
+  font-size: 9.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 3px 7px;
+  white-space: nowrap;
 }
 
-.ai-mode-chip-practice {
-  background: rgba(124, 77, 255, 0.1) !important;
-  color: var(--accent) !important;
-  border-color: rgba(124, 77, 255, 0.25) !important;
-}
-
+/* Test mode is the graded one — weight, not a second hue. */
 .ai-mode-chip-test {
-  background: rgba(255, 159, 67, 0.1) !important;
-  color: var(--medium) !important;
-  border-color: rgba(255, 159, 67, 0.25) !important;
+  border-color: var(--bone-mute) !important;
+  color: var(--bone) !important;
 }
 
 .ai-clear {
   background: transparent;
-  color: var(--text-muted);
-  font-size: 12px;
-  padding: 3px 8px;
-  border-radius: 4px;
-  transition: color 0.15s;
+  color: var(--bone-mute);
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 4px 6px;
+  border-radius: var(--radius-sm);
+  transition: color var(--t-fast);
 }
 
 .ai-clear:hover {
-  color: var(--text-secondary);
+  color: var(--bone);
 }
 
 .ai-messages {
@@ -86,81 +96,80 @@
   flex-direction: row-reverse;
 }
 
-.ai-avatar {
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  background: var(--bg-active);
-  border: 1px solid var(--accent);
-  color: var(--accent);
-  font-size: 13px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
+.ai-avatar,
 .user-avatar {
   width: 28px;
   height: 28px;
   border-radius: 50%;
-  background: var(--accent);
-  color: #fff;
-  font-size: 12px;
-  font-weight: 700;
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 600;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
 }
 
+.ai-avatar {
+  background: var(--ink-raised);
+  border: 1px solid var(--rule);
+  color: var(--bone-dim);
+}
+
+.user-avatar {
+  background: var(--bone);
+  color: var(--paper-ink);
+}
+
 .ai-bubble {
-  max-width: 70%;
-  padding: 10px 14px;
-  border-radius: 12px;
-  font-size: 13px;
-  line-height: 1.6;
-  color: var(--text-primary);
+  max-width: 80%;
+  padding: 11px 14px;
+  border-radius: var(--radius-lg);
+  font-size: 13.5px;
+  line-height: 1.65;
 }
 
 .ai-message-ai .ai-bubble {
-  background: var(--bg-secondary);
-  border: 1px solid var(--border);
-  border-top-left-radius: 4px;
+  background: var(--ink-raised);
+  border: 1px solid var(--rule);
+  color: var(--bone);
+  border-top-left-radius: 2px;
 }
 
 .ai-message-user .ai-bubble {
-  background: var(--accent);
-  color: #fff;
-  border-top-right-radius: 4px;
-}
-
-.ai-message-user .ai-bubble code {
-  background: rgba(255,255,255,0.2);
-  color: #fff;
+  background: var(--bone);
+  color: var(--paper-ink);
+  border-top-right-radius: 2px;
 }
 
 .ai-bubble code {
-  background: var(--bg-active);
-  color: var(--easy);
+  background: var(--ink);
+  border: 1px solid var(--rule);
+  color: var(--bone-dim);
   padding: 1px 5px;
-  border-radius: 4px;
-  font-family: "Fira Code", Consolas, monospace;
+  border-radius: var(--radius-sm);
+  font-family: var(--mono);
   font-size: 0.85em;
+}
+
+.ai-message-user .ai-bubble code {
+  background: rgba(20, 22, 26, 0.08);
+  border-color: rgba(20, 22, 26, 0.15);
+  color: var(--paper-ink);
 }
 
 .ai-typing {
   display: flex;
   align-items: center;
   gap: 4px;
-  padding: 14px;
+  padding: 12px 14px;
 }
 
 .ai-typing span {
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: var(--text-muted);
+  background: var(--bone-mute);
   animation: bounce 1.2s infinite;
 }
 
@@ -172,111 +181,111 @@
   40%           { transform: translateY(-5px); opacity: 1; }
 }
 
-/* Code blocks inside AI messages */
+/* ── Code the junior wrote ── */
 .ai-code-block {
-  margin: 8px 0;
-  border: 1px solid var(--border);
-  border-radius: 8px;
+  margin: 10px 0 4px;
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
   overflow: hidden;
-  font-size: 12px;
 }
 
 .ai-code-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 5px 10px;
-  background: var(--bg-active);
-  border-bottom: 1px solid var(--border);
+  gap: 10px;
+  padding: 6px 10px;
+  background: var(--ink);
+  border-bottom: 1px solid var(--rule);
 }
 
-.ai-code-lang {
-  font-family: "Fira Code", Consolas, monospace;
-  font-size: 11px;
-  color: var(--text-muted);
-  text-transform: lowercase;
+.ai-code-lang,
+.ai-code-applied {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--bone-mute);
 }
 
-/* Passive "the junior wrote this into the editor" indicator (no longer a button) */
 .ai-code-applied {
   display: flex;
   align-items: center;
   gap: 5px;
-  color: var(--accent);
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.02em;
-  opacity: 0.9;
+  color: var(--bone-dim);
 }
 
 .ai-code-pre {
   margin: 0;
-  padding: 10px 12px;
-  background: var(--bg-primary);
+  padding: 11px 12px;
+  background: var(--ink);
   overflow-x: auto;
-  font-family: "Fira Code", Consolas, monospace;
+  font-family: var(--mono);
   font-size: 12px;
-  line-height: 1.6;
-  color: var(--text-primary);
+  line-height: 1.65;
+  color: var(--bone);
   white-space: pre;
 }
 
-.ai-bubble {
-  max-width: 80%;
-}
-
+/* ── Brief the junior ── */
 .ai-input-row {
   display: flex;
   align-items: flex-end;
   gap: 8px;
   padding: 10px 16px;
-  border-top: 1px solid var(--border);
-  background: var(--bg-secondary);
+  border-top: 1px solid var(--rule);
+  background: var(--ink);
   flex-shrink: 0;
 }
 
 .ai-input {
   flex: 1;
-  background: var(--bg-active);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  color: var(--text-primary);
-  font-size: 13px;
-  font-family: inherit;
-  padding: 9px 12px;
+  background: var(--ink-raised);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  color: var(--bone);
+  font-family: var(--body);
+  font-size: 13.5px;
+  padding: 10px 12px;
   resize: none;
   outline: none;
-  line-height: 1.5;
-  transition: border-color 0.15s;
+  line-height: 1.55;
   overflow-y: auto;
+  transition: border-color var(--t-fast), box-shadow var(--t-fast);
 }
 
 .ai-input:focus {
-  border-color: var(--accent);
+  border-color: var(--bone-mute);
+  box-shadow: 0 0 0 3px rgba(240, 236, 229, 0.06);
 }
 
 .ai-input::placeholder {
-  color: var(--text-muted);
+  color: var(--bone-mute);
 }
 
 .ai-send {
   width: 36px;
   height: 36px;
-  border-radius: 10px;
-  background: var(--accent);
-  color: #fff;
+  border-radius: var(--radius);
+  background: var(--bone);
+  color: var(--paper-ink);
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  transition: background 0.15s, opacity 0.15s;
+  transition: background var(--t-fast);
 }
 
 .ai-send:hover:not(:disabled) {
-  background: var(--accent-hover);
+  background: #fff;
 }
 
 .ai-send:disabled {
-  opacity: 0.4;
+  background: var(--ink-hover);
+  color: var(--bone-mute);
   cursor: not-allowed;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ai-typing span { animation: none; }
 }

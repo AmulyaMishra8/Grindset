@@ -4,52 +4,76 @@
   padding: 0;
 }
 
+/* ── Design tokens ────────────────────────────────────────────────────────────
+   The palette is the wordmark: white type, one red dot. Graphite ink, bone type,
+   and the logo's red — which is the reviewer's pen.
+
+   The one rule everything else follows: RED ONLY EVER MARKS A MISS. A failing
+   test, an unresolved problem, a field you filled in wrong, a score under par, a
+   "needs work" verdict. Anything that's *right* gets no colour at all — that's
+   the point, and it's why there is no green anywhere. Ordinal things (difficulty)
+   are meters, not traffic-lights. Deliberate exceptions: a live mic is red, code
+   syntax highlighting has hue, and the interview avatars have skin tones.
+
+   The old purple theme (--accent: #7c4dff and friends) is gone. The legacy names
+   are kept below, remapped onto this palette, so nothing that still references
+   them renders off-brand. */
+
 :root {
   /* ── Surfaces ── */
-  --bg-primary: #0b0b12;
-  --bg-secondary: #13131f;
-  --bg-panel: #111118;
-  --bg-elevated: #16162400;
-  --bg-hover: #1a1a2e;
-  --bg-active: #1f1f35;
-  --border: #24243d;
-  --border-light: #3a3a5c;
+  --ink: #0a0b0d;
+  --ink-raised: #101217;
+  --ink-hover: #14161c;
+  --rule: #21252e;
+  --rule-soft: #171a20;
 
-  /* ── Text ── */
-  --text-primary: #eceefb;
-  --text-secondary: #8a93d2;
-  --text-muted: #565d8f;
+  /* ── Type ── */
+  --bone: #f0ece5;
+  --bone-dim: #9d9a94;
+  --bone-mute: #83868e;
 
-  /* ── Brand ── */
-  --accent: #7c4dff;
-  --accent-hover: #9c6fff;
-  --accent-soft: rgba(124, 77, 255, 0.12);
-  --accent-glow: rgba(124, 77, 255, 0.35);
-  --accent-grad: linear-gradient(135deg, #8b5cff 0%, #6a3dff 100%);
+  /* ── The pen ── */
+  --pen: #ff2e24;
+  /* A shade deeper, so white label text on a button clears 4.5:1. */
+  --pen-fill: #e02218;
+  --pen-wash: rgba(255, 46, 36, 0.09);
 
-  /* ── Status ── */
-  --easy: #1fe0a4;
-  --medium: #ffa94d;
-  --hard: #ff5470;
-  --green: #00c896;
-  --green-hover: #00b085;
+  --paper: #ece7de;
+  --paper-ink: #14161a;
 
-  --code-bg: #1a1a2e;
-  --scrollbar: #2a2a45;
+  /* ── Faces ── */
+  --display: "Archivo", "Arial Narrow", system-ui, sans-serif;
+  --body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, "SF Mono", Consolas, monospace;
 
   /* ── Scale ── */
-  --radius-sm: 7px;
-  --radius: 11px;
-  --radius-lg: 16px;
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
-  --shadow: 0 8px 24px -8px rgba(0, 0, 0, 0.55);
-  --shadow-glow: 0 0 0 1px var(--accent-soft), 0 10px 30px -12px var(--accent-glow);
+  --radius-sm: 3px;
+  --radius: 4px;
+  --radius-lg: 6px;
+  --shadow: 0 18px 44px -12px rgba(0, 0, 0, 0.7);
   --ease: cubic-bezier(0.22, 1, 0.36, 1);
-  --t-fast: 0.13s var(--ease);
+  --t-fast: 0.15s var(--ease);
   --t: 0.22s var(--ease);
 
-  --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  --font-mono: "JetBrains Mono", "Fira Code", "Cascadia Code", Consolas, monospace;
+  /* ── Legacy names, remapped. Do not use these in new code. ── */
+  --bg-primary: var(--ink);
+  --bg-secondary: var(--ink-raised);
+  --bg-panel: var(--ink-raised);
+  --bg-hover: var(--ink-hover);
+  --bg-active: var(--ink-hover);
+  --border: var(--rule);
+  --border-light: var(--bone-mute);
+  --text-primary: var(--bone);
+  --text-secondary: var(--bone-dim);
+  --text-muted: var(--bone-mute);
+  --accent: var(--pen);
+  --accent-hover: var(--pen);
+  --accent-soft: var(--pen-wash);
+  --hard: var(--pen);
+  --code-bg: var(--ink);
+  --scrollbar: #2a2e37;
+  --font-sans: var(--body);
+  --font-mono: var(--mono);
 }
 
 html, body, #root {
@@ -59,14 +83,9 @@ html, body, #root {
 }
 
 body {
-  font-family: var(--font-sans);
-  background: var(--bg-primary);
-  /* Subtle ambient glow so flat dark surfaces feel less inert. */
-  background-image:
-    radial-gradient(60rem 40rem at 80% -10%, rgba(124, 77, 255, 0.08), transparent 60%),
-    radial-gradient(50rem 35rem at -10% 110%, rgba(31, 224, 164, 0.05), transparent 55%);
-  background-attachment: fixed;
-  color: var(--text-primary);
+  font-family: var(--body);
+  background: var(--ink);
+  color: var(--bone);
   font-size: 14px;
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
@@ -74,7 +93,7 @@ body {
 }
 
 ::selection {
-  background: var(--accent-glow);
+  background: var(--pen);
   color: #fff;
 }
 
@@ -89,15 +108,15 @@ body {
   border: 2px solid transparent;
   background-clip: content-box;
 }
-::-webkit-scrollbar-thumb:hover { background: var(--border-light); background-clip: content-box; }
+::-webkit-scrollbar-thumb:hover { background: var(--bone-mute); background-clip: content-box; }
 
 code {
-  background: var(--code-bg);
+  background: var(--ink);
   padding: 1px 6px;
-  border-radius: 5px;
-  font-family: var(--font-mono);
+  border-radius: var(--radius-sm);
+  font-family: var(--mono);
   font-size: 0.88em;
-  color: #e6c07b;
+  color: var(--bone-dim);
 }
 
 button {
@@ -108,7 +127,7 @@ button {
 
 /* Shared focus ring for keyboard users. */
 :focus-visible {
-  outline: 2px solid var(--accent);
+  outline: 2px solid var(--bone);
   outline-offset: 2px;
 }
 

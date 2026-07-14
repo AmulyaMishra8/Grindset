@@ -10,6 +10,10 @@ type Bucket = { solved: number; attempted: number; total: number };
 // generated test passed (Submission.solved); "attempted" means any /submit that
 // got far enough to run tests. Both are counted per distinct problem, so
 // re-submitting the same problem never inflates the numbers.
+//
+// The per-problem id lists are returned alongside the totals so the problems
+// list can mark each card without a second round-trip — we already have the
+// sets here to compute the counts.
 export const getMyStats = async (req: Request, res: Response) => {
   const userId = req.user!.id;
 
@@ -54,5 +58,11 @@ export const getMyStats = async (req: Request, res: Response) => {
     empty(),
   );
 
-  res.json({ ...totals, byDifficulty });
+  res.json({
+    ...totals,
+    byDifficulty,
+    solvedIds: [...solvedIds],
+    // Attempted but not solved — the problems still carrying a red mark.
+    unresolvedIds: [...attemptedIds].filter((id) => !solvedIds.has(id)),
+  });
 };

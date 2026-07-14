@@ -45,8 +45,8 @@ export function LoginPage() {
 
   return (
     <AuthLayout
+      eyebrow="Sign in"
       title="Welcome back"
-      subtitle="Sign in to your account"
       footer={
         <>
           No account? <Link to="/register">Create one</Link>

@@ -1,0 +1,39 @@
+/* Shared across the problems list and the interview transcript/scorecard.
+   Colour-free on purpose — see DifficultyMeter.tsx. Inherits whatever bone/rule
+   tokens the surrounding page defines. */
+
+.diff-meter {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  flex-shrink: 0;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--bone-mute);
+  white-space: nowrap;
+}
+
+.diff-notches {
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 2px;
+}
+
+.notch {
+  width: 3px;
+  height: 6px;
+  background: var(--rule);
+  border-radius: 1px;
+}
+
+.notch:nth-child(2) { height: 9px; }
+.notch:nth-child(3) { height: 12px; }
+
+/* Filled bars are the wordmark's red — difficulty should be readable at a
+   glance across a grid of cards, and grey notches were too quiet to scan. */
+.notch-on {
+  background: var(--pen);
+}

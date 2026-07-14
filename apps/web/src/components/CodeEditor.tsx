@@ -17,31 +17,34 @@ const fmt = (v: unknown) => {
   return s.length > 80 ? s.slice(0, 80) + "…" : s;
 };
 
+// Syntax highlighting is one of the places hue is allowed — you can't read code
+// in monochrome. But it's tuned to the graphite/bone palette and stays clear of
+// the brand red, which inside the editor should only ever mean an error.
 const defineGrindsetTheme: BeforeMount = (monaco) => {
   monaco.editor.defineTheme("grindset-dark", {
     base: "vs-dark",
     inherit: true,
     rules: [
-      { token: "comment",  foreground: "424874", fontStyle: "italic" },
-      { token: "keyword",  foreground: "9c6fff" },
-      { token: "string",   foreground: "00e5a0" },
-      { token: "number",   foreground: "ff9f43" },
-      { token: "type",     foreground: "7cd4fd" },
-      { token: "function", foreground: "e8eaf6" },
+      { token: "comment",  foreground: "565b66", fontStyle: "italic" },
+      { token: "keyword",  foreground: "d9928c" },
+      { token: "string",   foreground: "c4b393" },
+      { token: "number",   foreground: "d8a657" },
+      { token: "type",     foreground: "93a9c4" },
+      { token: "function", foreground: "f0ece5" },
     ],
     colors: {
-      "editor.background":                    "#0d0d14",
-      "editor.foreground":                    "#e8eaf6",
-      "editor.lineHighlightBackground":       "#13131f",
-      "editor.selectionBackground":           "#1f1f4a",
-      "editor.inactiveSelectionBackground":   "#1a1a35",
-      "editorLineNumber.foreground":          "#2a2a45",
-      "editorLineNumber.activeForeground":    "#7986cb",
-      "editorCursor.foreground":              "#7986cb",
-      "editorIndentGuide.background1":        "#2a2a45",
-      "editorIndentGuide.activeBackground1":  "#3a3a5c",
-      "scrollbarSlider.background":           "#2a2a4580",
-      "scrollbarSlider.hoverBackground":      "#3a3a5c80",
+      "editor.background":                    "#0a0b0d",
+      "editor.foreground":                    "#f0ece5",
+      "editor.lineHighlightBackground":       "#101217",
+      "editor.selectionBackground":           "#2a2e37",
+      "editor.inactiveSelectionBackground":   "#1a1d24",
+      "editorLineNumber.foreground":          "#2a2e37",
+      "editorLineNumber.activeForeground":    "#83868e",
+      "editorCursor.foreground":              "#f0ece5",
+      "editorIndentGuide.background1":        "#1a1d24",
+      "editorIndentGuide.activeBackground1":  "#2a2e37",
+      "scrollbarSlider.background":           "#2a2e3780",
+      "scrollbarSlider.hoverBackground":      "#83868e50",
     },
   });
 };

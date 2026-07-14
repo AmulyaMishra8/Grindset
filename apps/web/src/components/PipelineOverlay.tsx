@@ -76,40 +76,52 @@ function AnalysisText({ text }: { text: string }) {
   );
 }
 
+// The senior's review comes back as light markdown. It uses backticks for the
+// values it's quoting back at you (`[1,4]`), so those have to render as code —
+// otherwise the most concrete part of the feedback shows up wrapped in literal
+// backticks.
 function renderBold(text: string) {
-  return text.split(/(\*\*[^*]+\*\*)/g).map((p, i) =>
-    p.startsWith("**") && p.endsWith("**")
-      ? <strong key={i}>{p.slice(2, -2)}</strong>
-      : <span key={i}>{p}</span>
-  );
+  return text.split(/(\*\*[^*]+\*\*|`[^`]+`)/g).map((p, i) => {
+    if (p.startsWith("**") && p.endsWith("**")) return <strong key={i}>{p.slice(2, -2)}</strong>;
+    if (p.startsWith("`") && p.endsWith("`")) return <code key={i}>{p.slice(1, -1)}</code>;
+    return <span key={i}>{p}</span>;
+  });
 }
 
+// Anything under par gets the pen; anything at or above it is simply clean. No
+// green — a verdict you'd be happy with shouldn't need a colour to say so.
+const PAR = 60;
+
+// The two decisions you'd want to see are unmarked. The three that mean "go back
+// and fix something" carry the mark.
+const MARKED: Record<HiringDecision, boolean> = {
+  "Nailed it": false,
+  "Strong attempt": false,
+  "On the right track": true,
+  "Needs work": true,
+  "Start over": true,
+};
+
 function HiringBadge({ decision }: { decision: HiringDecision }) {
-  const cfg: Record<HiringDecision, { cls: string; icon: string }> = {
-    "Nailed it":          { cls: "hb-strong-hire",   icon: "✦"  },
-    "Strong attempt":     { cls: "hb-hire",           icon: "↑"  },
-    "On the right track": { cls: "hb-reservations",   icon: "→"  },
-    "Needs work":         { cls: "hb-no-hire",        icon: "↓"  },
-    "Start over":         { cls: "hb-strong-no-hire", icon: "↺"  },
-  };
-  const { cls, icon } = cfg[decision];
   return (
-    <div className={`hiring-badge ${cls}`}>
-      <span className="hb-icon">{icon}</span>
+    <div className={`hiring-badge ${MARKED[decision] ? "hb-marked" : "hb-clean"}`}>
       <span className="hb-label">{decision}</span>
     </div>
   );
 }
 
 function ScoreBar({ label, score }: { label: string; score: number }) {
-  const color = score >= 75 ? "var(--easy)" : score >= 50 ? "var(--medium)" : "var(--hard)";
+  const weak = score < PAR;
   return (
     <div className="score-bar-row">
       <span className="score-bar-label">{label}</span>
       <div className="score-bar-track">
-        <div className="score-bar-fill" style={{ width: `${score}%`, background: color }} />
+        <div
+          className={`score-bar-fill${weak ? " score-bar-fill-weak" : ""}`}
+          style={{ width: `${score}%` }}
+        />
       </div>
-      <span className="score-bar-num" style={{ color }}>{score}</span>
+      <span className={`score-bar-num${weak ? " score-weak" : ""}`}>{score}</span>
     </div>
   );
 }
@@ -262,7 +274,7 @@ export default function PipelineOverlay({ problemId, code, language, mode = "pra
 
                     <div className="pres-summary">
                       <div className="pres-score">
-                        <span className={`pres-score-num ${result.score.passed === result.score.total ? "score-full" : result.score.passed === 0 ? "score-zero" : "score-partial"}`}>
+                        <span className={`pres-score-num${result.score.passed < result.score.total ? " score-weak" : ""}`}>
                           {result.score.passed}/{result.score.total}
                         </span>
                         <span className="pres-score-label">tests passed</span>
@@ -280,7 +292,7 @@ export default function PipelineOverlay({ problemId, code, language, mode = "pra
                       <ScoreBar label="Requirements Clarification" score={result.evaluation.scores.requirementsClarification} />
                       <div className="score-average">
                         <span className="score-avg-label">Overall</span>
-                        <span className={`score-avg-num ${result.evaluation.average >= 75 ? "score-full" : result.evaluation.average >= 50 ? "score-partial" : "score-zero"}`}>
+                        <span className={`score-avg-num${result.evaluation.average < PAR ? " score-weak" : ""}`}>
                           {result.evaluation.average}/100
                         </span>
                       </div>
@@ -292,7 +304,7 @@ export default function PipelineOverlay({ problemId, code, language, mode = "pra
                 {result.evaluation.mode === "practice" && (
                   <div className="pres-summary">
                     <div className="pres-score">
-                      <span className={`pres-score-num ${result.score.passed === result.score.total ? "score-full" : result.score.passed === 0 ? "score-zero" : "score-partial"}`}>
+                      <span className={`pres-score-num${result.score.passed < result.score.total ? " score-weak" : ""}`}>
                         {result.score.passed}/{result.score.total}
                       </span>
                       <span className="pres-score-label">tests passed</span>

@@ -38,7 +38,11 @@ export function MfaChallengePage() {
   }
 
   return (
-    <AuthLayout title="Two-factor authentication" subtitle="Enter the code from your authenticator app">
+    <AuthLayout
+      eyebrow="Security check"
+      title="Two-factor"
+      subtitle="Enter the code from your authenticator app."
+    >
       <Alert kind="error">{error}</Alert>
       <form onSubmit={onSubmit}>
         <FormField

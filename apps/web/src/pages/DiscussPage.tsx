@@ -124,8 +124,8 @@ export default function DiscussPage() {
 
       {!loading && !error && threads.length === 0 && (
         <div className="discuss-empty">
-          <div className="discuss-empty-icon">💬</div>
-          <p>No discussions yet. Start the first one!</p>
+          <p className="discuss-empty-title">Nothing here yet</p>
+          <p>Post the first thread — how you briefed the junior, and where it went wrong.</p>
         </div>
       )}
 
