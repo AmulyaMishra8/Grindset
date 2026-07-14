@@ -157,11 +157,18 @@
 .auth-aside {
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  gap: 28px;
-  padding: 48px clamp(32px, 5vw, 64px);
+  padding: 40px clamp(32px, 5vw, 64px) 48px;
   background: var(--ink-raised);
   border-left: 1px solid var(--rule);
+}
+
+/* The rail stays optically centred in the pane; anything passed as asideTop
+   (the demo account) sits above it, pinned to the top. */
+.auth-aside-body {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  margin: auto 0;
 }
 
 .auth-aside-head {
@@ -375,6 +382,65 @@
   flex-shrink: 0;
 }
 
+/* ── Demo account ──
+   A shared public account for people reviewing the project. It sits at the top
+   of the right pane — offered to a visitor before they hunt for a way in, but
+   out of the sign-in flow itself. Kept visually quiet on purpose. */
+.auth-demo {
+  max-width: 420px;
+  padding: 15px 16px;
+  border: 1px dashed var(--rule);
+  border-radius: 4px;
+}
+
+.auth-demo-head {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--bone-mute);
+}
+
+.auth-demo-creds {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 4px 12px;
+  margin: 12px 0 14px;
+  font-family: var(--mono);
+  font-size: 12px;
+}
+
+.auth-demo-creds dt {
+  color: var(--bone-mute);
+}
+
+.auth-demo-creds dd {
+  color: var(--bone);
+  overflow-wrap: anywhere;
+  /* Selectable, so it can be copied rather than retyped. */
+  user-select: all;
+}
+
+.auth-demo-fill {
+  width: 100%;
+  padding: 8px 12px;
+  background: transparent;
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--bone-dim);
+  transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+}
+
+.auth-demo-fill:hover {
+  color: var(--bone);
+  border-color: var(--bone-mute);
+  background: var(--ink-raised);
+}
+
 /* ── Profile / shared page chrome ── */
 .page {
   max-width: 640px;
@@ -448,6 +514,24 @@
   /* The rail is context, not content — drop it rather than shrink it. */
   .auth-aside {
     display: none;
+  }
+
+  /* The demo credentials ARE content, though: dropping the whole pane would take
+     them with it. Keep the pane when it carries them, show only them, and let it
+     stack under the form. */
+  .auth-aside-topped {
+    display: flex;
+    border-left: none;
+    border-top: 1px solid var(--rule);
+    padding: 28px 24px 40px;
+  }
+
+  .auth-aside-topped .auth-aside-body {
+    display: none;
+  }
+
+  .auth-demo {
+    max-width: none;
   }
 
   .auth-form {

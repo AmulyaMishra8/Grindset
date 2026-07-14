@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, type Dispatch, type SetStateAction } from "react";
 import type { Problem } from "../data/problems";
 import { api } from "../api/client";
 import "./AIChat.css";
@@ -80,16 +80,18 @@ type Props = {
   code: string;
   language: string;
   messages: Message[];
-  onMessagesChange: (msgs: Message[]) => void;
+  // The real React setter, so functional updates resolve against the LATEST
+  // state. This used to be a plain (msgs) => void with a local wrapper that
+  // applied the updater to the `messages` prop — but the prop is captured when
+  // send() is created, so the append that ran after the awaited reply computed
+  // from a pre-send snapshot and wiped the user's own message back out.
+  onMessagesChange: Dispatch<SetStateAction<Message[]>>;
   onApplyCode: (code: string, language: string) => void;
   mode?: "practice" | "test";
 };
 
 export default function AIChat({ problem, code, language, messages, onMessagesChange, onApplyCode, mode = "practice" }: Props) {
-  const setMessages = (updater: Message[] | ((prev: Message[]) => Message[])) => {
-    const next = typeof updater === "function" ? updater(messages) : updater;
-    onMessagesChange(next);
-  };
+  const setMessages = onMessagesChange;
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
