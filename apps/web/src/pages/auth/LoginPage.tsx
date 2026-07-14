@@ -11,6 +11,11 @@ import { FormField } from "../../components/FormField";
 import { Alert } from "../../components/Alert";
 import { SocialButtons } from "../../components/SocialButtons";
 
+// A shared, deliberately public account for people reviewing the project. It is
+// a normal user with no special privileges — anything it can reach, any signed-up
+// user can reach. Treat everything it does as public.
+const DEMO = { email: "demo@grindset.dev", password: "grindset-demo-2026" };
+
 export function LoginPage() {
   const navigate = useNavigate();
   const { refresh } = useAuth();
@@ -24,8 +29,17 @@ export function LoginPage() {
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm<LoginInput>({ resolver: zodResolver(loginSchema) });
+
+  // Fill the form with the shared demo account, so someone reviewing the project
+  // can get in without inventing an account. It's an ordinary user — this only
+  // types into the fields, it doesn't bypass anything.
+  function fillDemo() {
+    setValue("email", DEMO.email, { shouldValidate: true });
+    setValue("password", DEMO.password, { shouldValidate: true });
+  }
 
   async function onSubmit(values: LoginInput) {
     setFormError("");
@@ -51,6 +65,20 @@ export function LoginPage() {
         <>
           No account? <Link to="/register">Create one</Link>
         </>
+      }
+      asideTop={
+        <div className="auth-demo">
+          <p className="auth-demo-head">Just looking around?</p>
+          <dl className="auth-demo-creds">
+            <dt>Email</dt>
+            <dd>{DEMO.email}</dd>
+            <dt>Password</dt>
+            <dd>{DEMO.password}</dd>
+          </dl>
+          <button type="button" className="auth-demo-fill" onClick={fillDemo}>
+            Fill in the demo account
+          </button>
+        </div>
       }
     >
       <Alert kind="error">{formError || oauthError}</Alert>

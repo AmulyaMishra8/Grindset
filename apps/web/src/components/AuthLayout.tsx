@@ -19,12 +19,17 @@ export function AuthLayout({
   subtitle,
   children,
   footer,
+  asideTop,
 }: {
   eyebrow?: string;
   title: string;
   subtitle?: string;
   children: ReactNode;
   footer?: ReactNode;
+  // Sits at the top of the right pane, above the role rail. Login uses it for
+  // the demo account. When it's set, the pane survives on narrow screens (where
+  // the rail alone would be dropped) and stacks under the form instead.
+  asideTop?: ReactNode;
 }) {
   return (
     <div className="auth-screen">
@@ -47,16 +52,19 @@ export function AuthLayout({
         </div>
       </div>
 
-      <aside className="auth-aside">
-        <p className="auth-aside-head">The three people you manage</p>
-        <ul className="auth-roles">
-          {ROLES.map((r) => (
-            <li key={r.who} className="auth-role">
-              <span className="auth-role-who">{r.who}</span>
-              <span className="auth-role-line">{r.line}</span>
-            </li>
-          ))}
-        </ul>
+      <aside className={`auth-aside${asideTop ? " auth-aside-topped" : ""}`}>
+        {asideTop}
+        <div className="auth-aside-body">
+          <p className="auth-aside-head">The three people you manage</p>
+          <ul className="auth-roles">
+            {ROLES.map((r) => (
+              <li key={r.who} className="auth-role">
+                <span className="auth-role-who">{r.who}</span>
+                <span className="auth-role-line">{r.line}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
       </aside>
     </div>
   );
