@@ -6,7 +6,7 @@ import { getConvo } from "../lib/convoStore";
 
 const GROQ_URL    = "https://api.groq.com/openai/v1/chat/completions";
 const MISTRAL_URL = "https://api.mistral.ai/v1/chat/completions";
-const MISTRAL_MODEL = "mistral-large-latest";
+const MISTRAL_MODEL = "ministral-3b-latest"; // cheapest in-tier model; grading falls back to Groq on failure
 const MODEL = "openai/gpt-oss-120b";
 
 // Only used for structured test-case generation, so we force a strict JSON
@@ -39,6 +39,32 @@ async function mistral(messages: { role: string; content: string }[], maxTokens 
   if (!res.ok) throw new Error(`Mistral ${res.status}: ${await res.text()}`);
   const data = await res.json() as { choices: { message: { content: string } }[] };
   return data.choices[0].message.content.trim();
+}
+
+// Plain-text (non-JSON) Groq call — the grading fallback when Mistral is
+// unavailable. Uses FIRST_GROQ_KEY, which is always configured (FOURTH/FIFTH
+// aren't set on the deployed service).
+async function groqProse(messages: { role: string; content: string }[], maxTokens = 1500): Promise<string> {
+  const res = await fetch(GROQ_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${process.env.FIRST_GROQ_KEY}` },
+    body: JSON.stringify({ model: MODEL, messages, max_tokens: maxTokens, temperature: 0.3 }),
+  });
+  if (!res.ok) throw new Error(`Groq ${res.status}: ${await res.text()}`);
+  const data = await res.json() as { choices: { message: { content: string } }[] };
+  return data.choices[0].message.content.trim();
+}
+
+// Grading review (free-form markdown). Prefer the cheap Mistral model to keep
+// cost down, but Mistral's free tier is tier-/rate-limited, so on ANY failure
+// fall back to Groq (gpt-oss-120b) so grading always completes.
+async function gradeLLM(messages: { role: string; content: string }[], maxTokens = 1500): Promise<string> {
+  try {
+    return await mistral(messages, maxTokens);
+  } catch (err) {
+    console.warn(`[grade] Mistral unavailable (${(err as Error).message}); falling back to Groq`);
+    return await groqProse(messages, maxTokens);
+  }
 }
 
 function parseJson(text: string): unknown {
@@ -292,7 +318,7 @@ async function evaluateWithMistral(
       "## Tips for Next Time",
     ].join("\n");
 
-    const raw = await mistral([
+    const raw = await gradeLLM([
       {
         role: "system",
         content: [
@@ -404,7 +430,7 @@ async function evaluateWithMistral(
     "**Pass** / **Fail**",
   ].join("\n");
 
-  const raw = await mistral([
+  const raw = await gradeLLM([
     {
       role: "system",
       content: [
