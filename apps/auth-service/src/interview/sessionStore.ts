@@ -1,11 +1,14 @@
 import { randomUUID } from "crypto";
-import { redis } from "../lib/redis";
 import type { RoleId } from "./personas";
 
-// Live interview state lives in Redis (it's chatty and ephemeral); only the
+// Live interview state lives in memory (it's chatty and ephemeral); only the
 // FINISHED interview is persisted to Postgres on /end. Each /message sends the
 // full turns array to the stateless LLM, so this object is the conversation's
 // single source of truth while it's in flight.
+//
+// Single-process store: the auth-service runs as one Node process, so a Map is
+// enough (same philosophy as the in-memory rate limiter). A restart drops any
+// in-flight sessions, which is acceptable for a short-lived mock interview.
 
 export type TurnRole = "system" | "assistant" | "user";
 export interface Turn {
@@ -24,8 +27,21 @@ export interface InterviewState {
   ended: boolean;
 }
 
-const KEY = (id: string) => `interview:session:${id}`;
-const TTL_SECONDS = 2 * 60 * 60; // 2h — abandoned sessions expire on their own
+const TTL_MS = 2 * 60 * 60 * 1000; // 2h — abandoned sessions expire on their own
+
+interface Entry {
+  state: InterviewState;
+  expiresAt: number;
+}
+
+const sessions = new Map<string, Entry>();
+
+// Periodically drop expired sessions so the map can't grow without bound.
+// unref() lets the process exit even though this timer is pending.
+setInterval(() => {
+  const now = Date.now();
+  for (const [id, e] of sessions) if (e.expiresAt <= now) sessions.delete(id);
+}, 10 * 60 * 1000).unref();
 
 export async function createSession(input: {
   userId: string;
@@ -52,21 +68,21 @@ export async function createSession(input: {
 }
 
 export async function getSession(sessionId: string): Promise<InterviewState | null> {
-  const raw = await redis.get(KEY(sessionId));
-  if (!raw) return null;
-  try {
-    return JSON.parse(raw) as InterviewState;
-  } catch {
+  const entry = sessions.get(sessionId);
+  if (!entry) return null;
+  if (entry.expiresAt <= Date.now()) {
+    sessions.delete(sessionId);
     return null;
   }
+  return entry.state;
 }
 
 export async function save(state: InterviewState): Promise<void> {
-  await redis.set(KEY(state.sessionId), JSON.stringify(state), "EX", TTL_SECONDS);
+  sessions.set(state.sessionId, { state, expiresAt: Date.now() + TTL_MS });
 }
 
 export async function deleteSession(sessionId: string): Promise<void> {
-  await redis.del(KEY(sessionId));
+  sessions.delete(sessionId);
 }
 
 // The transcript without the hidden system prompt — what we show the user and

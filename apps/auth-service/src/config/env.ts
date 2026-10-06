@@ -15,7 +15,6 @@ const schema = z.object({
   APP_URL: z.string().url(),
 
   DATABASE_URL: z.string().min(1),
-  REDIS_URL: z.string().min(1),
 
   // Accept either a file path (dev) or the raw PEM content (production / Render)
   JWT_PRIVATE_KEY_PATH: z.string().optional(),

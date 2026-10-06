@@ -10,8 +10,12 @@
                     "db:migrate":  "prisma migrate dev",
                     "db:generate":  "prisma generate",
                     "db:studio":  "prisma studio",
+                    "db:seed":  "tsx prisma/seed.ts",
                     "start":  "node dist/src/index.js"
                 },
+    "prisma":  {
+                   "seed":  "tsx prisma/seed.ts"
+               },
     "dependencies":  {
                          "@grindset/auth-shared":  "workspace:*",
                          "@prisma/client":  "^5.18.0",
@@ -21,7 +25,6 @@
                          "dotenv":  "^16.4.5",
                          "express":  "^4.19.2",
                          "helmet":  "^7.1.0",
-                         "ioredis":  "^5.4.1",
                          "jose":  "^5.6.3",
                          "nodemailer":  "^6.9.14",
                          "otplib":  "^12.0.1",
