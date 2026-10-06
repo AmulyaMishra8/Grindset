@@ -35,11 +35,9 @@ services:
         sync: false  # Now the SAME as this service's URL (SPA is served here), e.g. https://grindset-gateway.onrender.com
       - key: APP_URL
         sync: false  # This service's own URL (used in OAuth redirect + email links)
-      # ── Auth (Supabase) ──
+      # ── Auth (Neon) ──
       - key: DATABASE_URL
-        sync: false  # Supabase session-pooler URL
-      - key: REDIS_URL
-        sync: false
+        sync: false  # Neon pooled URL (host contains "-pooler"), ?sslmode=require
       - key: JWT_PRIVATE_KEY
         sync: false  # RSA private key PEM (single line, newlines as \n)
       - key: JWT_PUBLIC_KEY

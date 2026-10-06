@@ -26,6 +26,7 @@ model User {
 
   oauthAccounts      OAuthAccount[]
   verificationTokens VerificationToken[]
+  refreshTokens      RefreshToken[]
   auditLogs          AuditLog[]
 
   // Community / Discuss
@@ -77,6 +78,27 @@ model VerificationToken {
 enum VerificationTokenType {
   EMAIL_VERIFICATION
   PASSWORD_RESET
+}
+
+// Long-lived session tokens, rotated on each /auth/refresh. We store only the
+// SHA-256 hash of each token (never the raw value). Tokens belong to a "family"
+// (one per login/device): rotating supersedes the old row (usedAt set) and
+// issues a fresh one in the same family. If a token that was ALREADY rotated is
+// presented again, it was copied — we revoke the whole family. (Previously kept
+// in Redis; moved to Postgres so sessions survive a service restart.)
+model RefreshToken {
+  id        String    @id @default(cuid())
+  tokenHash String    @unique
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  familyId  String
+  expiresAt DateTime
+  usedAt    DateTime? // set when rotated; its presence means "already exchanged"
+  createdAt DateTime  @default(now())
+
+  @@index([userId])
+  @@index([familyId])
+  @@index([expiresAt])
 }
 
 // An immutable trail of security-relevant events.
@@ -153,7 +175,7 @@ model CommentVote {
 
 // ── AI Interview ─────────────────────────────────────────────────────────────
 
-// A finished mock interview. Live state lives in Redis during the session; only
+// A finished mock interview. Live state lives in memory during the session; only
 // the completed run is persisted here for history + the scorecard.
 model InterviewSession {
   id         String   @id @default(cuid())
