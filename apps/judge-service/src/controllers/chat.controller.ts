@@ -3,7 +3,7 @@ import { prisma } from "../db/prisma";
 import { getConvo, appendAi } from "../lib/convoStore";
 
 const GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions";
-const MODEL = "llama-3.3-70b-versatile";
+const MODEL = "openai/gpt-oss-120b";
 
 export const chat = async (req: Request, res: Response) => {
   const { problemId, code, language, message, mode = "practice" } = req.body as {

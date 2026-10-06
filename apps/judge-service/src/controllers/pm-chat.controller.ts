@@ -3,7 +3,7 @@ import { prisma } from "../db/prisma";
 import { getConvo, appendPm } from "../lib/convoStore";
 
 const GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions";
-const MODEL = "llama-3.3-70b-versatile";
+const MODEL = "openai/gpt-oss-120b";
 
 const SYSTEM_PROMPT = (problemStatement: string, sealedExpectations: unknown) => `You are Ethan Wong, a Product Manager at a mid-size tech company.
 You wrote the following engineering brief and sent it to a dev on your team via Slack:

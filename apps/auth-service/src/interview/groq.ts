@@ -10,7 +10,7 @@ import { logger } from "../lib/logger";
 const CHAT_URL = "https://api.groq.com/openai/v1/chat/completions";
 const STT_URL = "https://api.groq.com/openai/v1/audio/transcriptions";
 
-const CHAT_MODEL = "llama-3.3-70b-versatile";
+const CHAT_MODEL = "openai/gpt-oss-120b";
 const STT_MODEL = "whisper-large-v3-turbo";
 
 function groqKeys(): string[] {

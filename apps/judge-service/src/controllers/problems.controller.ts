@@ -20,7 +20,7 @@ export function bustProblemCache(): void {
 }
 
 const GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions";
-const CHAT_MODEL = "llama-3.3-70b-versatile";
+const CHAT_MODEL = "openai/gpt-oss-120b";
 
 const CHAT_FORMAT_PROMPT = `You are formatting an engineering problem brief as a Slack-style chat thread.
 
