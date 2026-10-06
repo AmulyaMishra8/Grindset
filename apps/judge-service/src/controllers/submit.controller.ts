@@ -6,7 +6,7 @@ import { getConvo } from "../lib/convoStore";
 
 const GROQ_URL    = "https://api.groq.com/openai/v1/chat/completions";
 const MISTRAL_URL = "https://api.mistral.ai/v1/chat/completions";
-const MISTRAL_MODEL = "mistral-large-latest";
+const MISTRAL_MODEL = "mistral-medium-latest";
 const MODEL = "openai/gpt-oss-120b";
 
 // Only used for structured test-case generation, so we force a strict JSON
