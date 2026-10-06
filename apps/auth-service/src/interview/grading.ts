@@ -75,7 +75,7 @@ ${convo}`;
 
   const raw = await chatCompletion(
     [{ role: "user", content: prompt }],
-    { json: true, maxTokens: 900, temperature: 0.3 },
+    { json: true, maxTokens: 1500, temperature: 0.3 },
   );
 
   let parsed: any = {};

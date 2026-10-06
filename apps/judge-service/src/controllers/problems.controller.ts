@@ -58,8 +58,9 @@ async function generateChatFormat(problemStatement: string): Promise<object> {
         { role: "system", content: CHAT_FORMAT_PROMPT },
         { role: "user", content: problemStatement },
       ],
-      max_tokens: 1024,
+      max_tokens: 2048,
       temperature: 0.4,
+      response_format: { type: "json_object" },
     }),
   });
 

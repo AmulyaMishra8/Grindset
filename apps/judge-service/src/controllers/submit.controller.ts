@@ -9,11 +9,21 @@ const MISTRAL_URL = "https://api.mistral.ai/v1/chat/completions";
 const MISTRAL_MODEL = "mistral-large-latest";
 const MODEL = "openai/gpt-oss-120b";
 
-async function groq(key: string, messages: { role: string; content: string }[], maxTokens = 2048): Promise<string> {
+// Only used for structured test-case generation, so we force a strict JSON
+// object back and give a generous token budget: gpt-oss-120b spends part of the
+// completion on reasoning, and a full 6-8 test set was overflowing the old 2048
+// cap and truncating mid-JSON.
+async function groq(key: string, messages: { role: string; content: string }[], maxTokens = 4096): Promise<string> {
   const res = await fetch(GROQ_URL, {
     method: "POST",
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${key}` },
-    body: JSON.stringify({ model: MODEL, messages, max_tokens: maxTokens, temperature: 0.2 }),
+    body: JSON.stringify({
+      model: MODEL,
+      messages,
+      max_tokens: maxTokens,
+      temperature: 0.2,
+      response_format: { type: "json_object" },
+    }),
   });
   if (!res.ok) throw new Error(`Groq ${res.status}: ${await res.text()}`);
   const data = await res.json() as { choices: { message: { content: string } }[] };

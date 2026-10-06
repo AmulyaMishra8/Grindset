@@ -14,7 +14,15 @@ async function groq(messages: { role: string; content: string }[]): Promise<stri
   const res = await fetch(GROQ_URL, {
     method: "POST",
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${process.env.THIRD_GROQ_KEY}` },
-    body: JSON.stringify({ model: MODEL, messages, max_tokens: 2048, temperature: 0.1 }),
+    // Force strict JSON and leave room: gpt-oss-120b's reasoning + a full test
+    // set overflowed the old 2048 cap and truncated the JSON mid-object.
+    body: JSON.stringify({
+      model: MODEL,
+      messages,
+      max_tokens: 4096,
+      temperature: 0.1,
+      response_format: { type: "json_object" },
+    }),
   });
   if (!res.ok) throw new Error(`Groq ${res.status}: ${await res.text()}`);
   const data = await res.json() as { choices: { message: { content: string } }[] };
