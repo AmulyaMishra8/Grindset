@@ -7,7 +7,7 @@ import { getConvo } from "../lib/convoStore";
 const GROQ_URL    = "https://api.groq.com/openai/v1/chat/completions";
 const MISTRAL_URL = "https://api.mistral.ai/v1/chat/completions";
 const MISTRAL_MODEL = "mistral-large-latest";
-const MODEL = "llama-3.3-70b-versatile";
+const MODEL = "openai/gpt-oss-120b";
 
 async function groq(key: string, messages: { role: string; content: string }[], maxTokens = 2048): Promise<string> {
   const res = await fetch(GROQ_URL, {
